@@ -12,7 +12,7 @@ import { bindAgenda } from './features/agenda.js';
 import { bindAnalysis } from './features/examAnalysis.js';
 import { renderDashboard } from './features/dashboard.js';
 
-// Firebase (imports protégés)
+// Firebase
 let auth = null;
 let onAuthStateChanged = null;
 let signInWithEmailAndPassword = null;
@@ -257,13 +257,26 @@ function initialiserApp() {
     });
   }
 
+  // ============================================
+  // ✅ FORCER FIREBASE À ADOPTER LES DONNÉES LOCALES
+  // ============================================
+  setTimeout(() => {
+    if (window.cloud && window.cloud.now) {
+      console.log('📤 Envoi des données locales à Firebase...');
+      window.cloud.now();
+      setTimeout(() => console.log('✅ Données envoyées à Firebase !'), 2000);
+    } else {
+      console.log('⚠️ Firebase cloud non disponible, mode local.');
+    }
+  }, 3000);
+
   setTimeout(() => toast('مرحباً بك في دفتر القسم ! 👋'), 300);
 }
 
 async function demarrer() {
   console.log('✅ demarrer() commence');
 
-  // 1. Charger backup.json EN PREMIER (avant Firebase)
+  // 1. Charger backup.json EN PREMIER
   try {
     const res = await fetch('./backup.json');
     if (res.ok) {
@@ -281,8 +294,8 @@ async function demarrer() {
   load();
   afficherDateDuJour();
 
-  // 3. Charger Firebase (APRÈS le chargement local)
-   // await initFirebase();
+  // 3. Charger Firebase (après)
+  await initFirebase();
 
   const btnLogin = $('btnLogin');
   const btnSignup = $('btnSignup');
