@@ -12,7 +12,7 @@ import { bindAgenda } from './features/agenda.js';
 import { bindAnalysis } from './features/examAnalysis.js';
 import { renderDashboard } from './features/dashboard.js';
 
-// Firebase
+// Firebase (imports protégés)
 let auth = null;
 let onAuthStateChanged = null;
 let signInWithEmailAndPassword = null;
@@ -187,7 +187,7 @@ function initialiserApp() {
 
   renderDashboard();
 
-  // ========== MODE SOMBRE ==========
+  // Mode sombre
   const btnTheme = $('btnTheme');
   if (btnTheme) {
     if (localStorage.getItem('theme') === 'dark') {
@@ -262,10 +262,27 @@ function initialiserApp() {
 
 async function demarrer() {
   console.log('✅ demarrer() commence');
+
+  // 1. Charger backup.json EN PREMIER (avant Firebase)
+  try {
+    const res = await fetch('./backup.json');
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('schoolDataV2', JSON.stringify(data));
+      console.log('✅ Données chargées depuis backup.json (' + data.classes.length + ' classes, ' + data.students.length + ' élèves)');
+    } else {
+      console.log('⚠️ backup.json non trouvé (status ' + res.status + ')');
+    }
+  } catch (e) {
+    console.log('⚠️ Erreur lecture backup.json :', e.message);
+  }
+
+  // 2. Charger les données locales
   load();
   afficherDateDuJour();
 
-  await initFirebase();
+  // 3. Charger Firebase (APRÈS le chargement local)
+  // await initFirebase();
 
   const btnLogin = $('btnLogin');
   const btnSignup = $('btnSignup');
