@@ -1,5 +1,5 @@
 // src/features/grades.js
-// Gère les notes et les moyennes.
+// Gère les notes, les moyennes et les copies manquantes.
 
 import { db, save } from '../core/state.js';
 import { $, el } from '../core/dom.js';
@@ -126,6 +126,16 @@ export function renderGradesList() {
   const term = $('gTerm').value;
   const isAnnual = term === 'A';
 
+  // Afficher ou cacher la section "Copies manquantes"
+  const missingSection = $('examMissingSection');
+  if (missingSection) {
+    if (isAnnual || !classe) {
+      missingSection.classList.add('hidden');
+    } else {
+      missingSection.classList.remove('hidden');
+    }
+  }
+
   if (!classe) {
     conteneur.append(el('div', { class: 'empty-list', textContent: 'اختر فصلاً لعرض التلاميذ.' }));
     const box = $('gStats');
@@ -144,7 +154,6 @@ export function renderGradesList() {
     return;
   }
 
-  // Calcul des moyennes
   const averages = students.map(s => {
     if (isAnnual) return computeAnnualAverage(s);
     return computeAverage(s, term);
@@ -160,12 +169,10 @@ export function renderGradesList() {
     ranks[x.i] = idx + 1;
   });
 
-  // Construction du tableau
   const table = el('table', { class: 'grades-table' });
   const thead = el('thead');
   
   if (isAnnual) {
-    // Mode annuel : colonnes M1, M2, M3, Moyenne annuelle, Rang
     thead.append(el('tr', {},
       el('th', { textContent: 'N°' }),
       el('th', { textContent: 'اسم التلميذ' }),
@@ -176,7 +183,6 @@ export function renderGradesList() {
       el('th', { textContent: 'الرتبة' }),
     ));
   } else {
-    // Mode trimestre : colonnes TP, DC, DS, Moyenne, Rang
     thead.append(el('tr', {},
       el('th', { textContent: 'N°' }),
       el('th', { textContent: 'اسم التلميذ' }),
@@ -202,7 +208,6 @@ export function renderGradesList() {
     );
 
     if (isAnnual) {
-      // Mode annuel
       const m1 = computeAverage(s, '1');
       const m2 = computeAverage(s, '2');
       const m3 = computeAverage(s, '3');
@@ -212,7 +217,6 @@ export function renderGradesList() {
         el('td', { textContent: m3 === null ? '—' : fmt(m3), style: 'text-align:center' }),
       );
     } else {
-      // Mode trimestre
       ['tp', 'dc', 'ds'].forEach(type => {
         const val = getNote(s, term, type);
         const inp = el('input', {
@@ -239,14 +243,12 @@ export function renderGradesList() {
       });
     }
 
-    // Cellule de moyenne
     const avgCell = el('td', {
       class: 'avg-cell' + (avg !== null && avg < 10 ? ' low' : ''),
       textContent: avg === null ? '—' : fmt(avg),
     });
     tr.append(avgCell);
 
-    // Cellule de rang
     const medal = rank === 1 ? '🥇 ' : rank === 2 ? '🥈 ' : rank === 3 ? '🥉 ' : '';
     const rankCell = el('td', {
       class: 'rank-cell' + (rank && rank <= 3 ? ' medal' : ''),
@@ -261,6 +263,171 @@ export function renderGradesList() {
   conteneur.append(table);
 
   renderGradesStats(students, term, isAnnual);
+  
+  // Mettre à jour la liste des copies manquantes
+  if (!isAnnual) {
+    renderMissingList();
+  }
+}
+
+// ============================================
+// GESTION DES COPIES MANQUANTES
+// ============================================
+
+function isExamDone() {
+  const classe = $('gClass').value;
+  const term = $('gTerm').value;
+  const exam = $('missingExam').value;
+  if (!classe || !term || term === 'A') return false;
+  const key = JSON.stringify([classe, term, exam]);
+  return !!(db.examHeld && db.examHeld[key]);
+}
+
+function setExamDone(done) {
+  const classe = $('gClass').value;
+  const term = $('gTerm').value;
+  const exam = $('missingExam').value;
+  if (!classe || !term || term === 'A') return;
+  const key = JSON.stringify([classe, term, exam]);
+  if (!db.examHeld) db.examHeld = {};
+  if (done) db.examHeld[key] = true;
+  else delete db.examHeld[key];
+  save();
+}
+
+export function renderMissingList() {
+  const tbody = $('missingBody');
+  const count = $('missingCount');
+  const summary = $('examSummary');
+  if (!tbody) return;
+
+  const classe = $('gClass').value;
+  const term = $('gTerm').value;
+  const exam = $('missingExam').value;
+
+  tbody.replaceChildren();
+
+  if (!classe || !term || term === 'A') {
+    if (count) count.textContent = '';
+    if (summary) summary.textContent = '';
+    return;
+  }
+
+  const done = isExamDone();
+  const examDoneCheckbox = $('examDone');
+  if (examDoneCheckbox) examDoneCheckbox.checked = done;
+
+  const students = db.students
+    .filter(s => s.class === classe)
+    .sort((a, b) => collator.compare(a.name, b.name));
+
+  const missing = students.filter(s => getNote(s, term, exam) === null);
+
+  if (count) count.textContent = done ? 'دون عدد: ' + missing.length : 'الفرض لم يُنجز بعد';
+
+  if (summary) {
+    if (done) {
+      const justified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'excused').length;
+      const unjustified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'unexcused').length;
+      const graded = students.length - missing.length;
+      summary.textContent = 'أعداد مسجلة: ' + graded + ' / ' + students.length + 
+        ' | مبرر: ' + justified + 
+        ' | غير مبرر: ' + unjustified +
+        ' | غير محدد: ' + (missing.length - justified - unjustified);
+    } else {
+      summary.textContent = '';
+    }
+  }
+
+  if (!done) {
+    tbody.append(el('tr', {}, el('td', { colSpan: 3, class: 'empty-list', textContent: 'لم يُنجز هذا الفرض بعد. ضع علامة «الفرض منجز» لإظهار قائمة التلاميذ دون عدد.' })));
+    return;
+  }
+
+  if (missing.length === 0) {
+    tbody.append(el('tr', {}, el('td', { colSpan: 3, class: 'empty-list', textContent: 'جميع التلاميذ لديهم أعداد في هذا الفرض.' })));
+    return;
+  }
+
+  const examLabels = { tp: 'أشغال تطبيقية', dc: 'فرض مراقبة', ds: 'فرض تأليفي' };
+
+  missing.forEach((s, i) => {
+    const currentStatus = s.gAbs && s.gAbs[term] && s.gAbs[term][exam] || 'pending';
+    
+    const select = el('select', { 'aria-label': 'تبرير الغياب في ' + examLabels[exam] + ' ' + s.name });
+    [['pending', 'غير محدد'], ['excused', 'غياب مبرر'], ['unexcused', 'غياب غير مبرر']].forEach(([val, label]) => {
+      const opt = el('option', { value: val, textContent: label });
+      if (val === currentStatus) opt.selected = true;
+      select.append(opt);
+    });
+    
+    select.onchange = () => {
+      const student = db.students.find(x => x.id === s.id);
+      if (!student) return;
+      if (!student.gAbs) student.gAbs = {};
+      if (!student.gAbs[term]) student.gAbs[term] = {};
+      if (select.value === 'pending') {
+        delete student.gAbs[term][exam];
+      } else {
+        student.gAbs[term][exam] = select.value;
+      }
+      save();
+      renderMissingList();
+    };
+
+    tbody.append(el('tr', {},
+      el('td', { textContent: (i + 1) + '' }),
+      el('td', { textContent: s.name, style: 'text-align:right;font-weight:700' }),
+      el('td', {}, select),
+    ));
+  });
+}
+
+export function exportMissing() {
+  const classe = $('gClass').value;
+  const term = $('gTerm').value;
+  const exam = $('missingExam').value;
+
+  if (!classe || !term || term === 'A') { alert('اختر فصلاً وثلاثياً أولاً.'); return; }
+  if (!isExamDone()) { alert('حدد «الفرض منجز» أولاً.'); return; }
+
+  const students = db.students
+    .filter(s => s.class === classe)
+    .sort((a, b) => collator.compare(a.name, b.name));
+
+  const missing = students.filter(s => getNote(s, term, exam) === null);
+  if (missing.length === 0) { alert('لا توجد أسماء في القائمة.'); return; }
+
+  const examLabels = { tp: 'أشغال تطبيقية', dc: 'فرض مراقبة', ds: 'فرض تأليفي' };
+  
+  const rows = missing.map((s, i) => {
+    const status = s.gAbs && s.gAbs[term] && s.gAbs[term][exam] || 'pending';
+    const statusLabel = { pending: 'غير محدد', excused: 'غياب مبرر', unexcused: 'غياب غير مبرر' }[status];
+    return {
+      'ع/ر': i + 1,
+      'اسم التلميذ': s.name,
+      'الثلاثي': term,
+      'الفرض': examLabels[exam],
+      'حالة الغياب': statusLabel,
+    };
+  });
+
+  exportExcel(rows, 'غياب الفرض', 'غياب_الفرض_' + classe + '_ث' + term + '_' + exam);
+}
+
+export function bindMissing() {
+  const missingExamSelect = $('missingExam');
+  const examDoneCheckbox = $('examDone');
+  const expMissingBtn = $('expMissing');
+
+  if (missingExamSelect) missingExamSelect.onchange = () => renderMissingList();
+  if (examDoneCheckbox) {
+    examDoneCheckbox.onchange = () => {
+      setExamDone(examDoneCheckbox.checked);
+      renderMissingList();
+    };
+  }
+  if (expMissingBtn) expMissingBtn.onclick = exportMissing;
 }
 
 export function bindGrades() {
@@ -271,6 +438,8 @@ export function bindGrades() {
 
   const btnExport = $('gExport');
   if (btnExport) btnExport.onclick = exportGrades;
+
+  bindMissing();
 
   renderGradesClassSelect();
 }
