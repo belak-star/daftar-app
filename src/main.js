@@ -295,7 +295,7 @@ async function demarrer() {
   afficherDateDuJour();
 
   // 3. Charger Firebase (après)
-  await initFirebase();
+  // await initFirebase();
 
   const btnLogin = $('btnLogin');
   const btnSignup = $('btnSignup');
