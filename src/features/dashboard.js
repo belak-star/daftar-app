@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // src/features/dashboard.js
 // Dashboard dynamique avec filtres, graphiques et alertes.
 
@@ -6,7 +5,6 @@ import { db } from '../core/state.js';
 import { $, el } from '../core/dom.js';
 import { collator } from '../core/format.js';
 
-// Configuration des types d'absences
 const DYN_TYPES = [
   ['excused', 'غياب مبرر', '#2563a8'],
   ['unexcused', 'غياب غير مبرر', '#b3261e'],
@@ -22,10 +20,6 @@ let dynState = {
   activeTypes: { excused: true, unexcused: true, late: true, expelled: true }
 };
 
-// ============================================
-// UTILITAIRES DE DATES
-// ============================================
-
 function todayStr() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -35,6 +29,11 @@ function addDays(dateStr, n) {
   const d = new Date(dateStr + 'T12:00:00');
   d.setDate(d.getDate() + n);
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function schoolYear(dateStr) {
+  const y = +dateStr.slice(0, 4), m = +dateStr.slice(5, 7);
+  return m >= 9 ? y + '-' + (y + 1) : (y - 1) + '-' + y;
 }
 
 function dynRange(period, date, prev) {
@@ -54,11 +53,6 @@ function dynRange(period, date, prev) {
   }
   const y1 = +schoolYear(date).slice(0, 4);
   return [y1 + '-09-01', (y1 + 1) + '-08-31'];
-}
-
-function schoolYear(dateStr) {
-  const y = +dateStr.slice(0, 4), m = +dateStr.slice(5, 7);
-  return m >= 9 ? y + '-' + (y + 1) : (y - 1) + '-' + y;
 }
 
 function dynBuckets(period, date) {
@@ -84,14 +78,11 @@ function dynBuckets(period, date) {
   });
 }
 
-// ============================================
-// FILTRES
-// ============================================
-
 function getScopeStudents() {
   const sc = dynState.scope;
+  const currentClass = $('classSel')?.value || '';
   return db.students.filter(s => {
-    if (sc === 'cur') return s.class === $('classSel').value || (window.__lastClass && s.class === window.__lastClass);
+    if (sc === 'cur') return s.class === currentClass;
     if (sc === 'all') return true;
     return levelOf(s.class) === sc;
   });
@@ -105,10 +96,6 @@ function levelOf(c) {
   if (/الثامن/.test(c)) return '8';
   return '';
 }
-
-// ============================================
-// AGRÉGATION DES DONNÉES
-// ============================================
 
 function aggregateRecords(recs, range) {
   const o = { excused: 0, unexcused: 0, late: 0, expelled: 0, lm: 0, per: new Map() };
@@ -133,9 +120,12 @@ function getActiveTypes() {
   return DYN_TYPES.map(x => x[0]).filter(k => dynState.activeTypes[k]);
 }
 
-// ============================================
-// RENDU DES KPI
-// ============================================
+function effStatus(s, date) {
+  if (!s.status) return '';
+  if (s.from && date < s.from) return '';
+  if (s.status === 'temp' && s.to && date > s.to) return '';
+  return s.status;
+}
 
 function animNum(el, to) {
   const from = +el.dataset.v || 0;
@@ -154,9 +144,7 @@ function renderDynKpis(sts, cur, prev) {
   if (!box) return;
   box.replaceChildren();
 
-  const activeTypes = getActiveTypes();
   const nOut = sts.filter(s => effStatus(s, todayStr())).length;
-
   const delta = (k) => {
     if (!prev) return ['', ''];
     const d = cur[k] - prev[k];
@@ -169,7 +157,7 @@ function renderDynKpis(sts, cur, prev) {
     { key: 'unexcused', icon: '🟥', value: cur.unexcused, label: 'غير مبرر', sub: delta('unexcused')[0], cls: delta('unexcused')[1] },
     { key: 'late', icon: '🟨', value: cur.late, label: 'تأخيرات', sub: cur.lm + ' دقيقة', cls: delta('late')[1] },
     { key: 'expelled', icon: '🟪', value: cur.expelled, label: 'إقصاءات', sub: delta('expelled')[0], cls: delta('expelled')[1] },
-    { key: 'avg', icon: '📊', value: sts.length ? (dynCount(cur, activeTypes) / sts.length).toFixed(2) : '—', label: 'متوسط لكل تلميذ', sub: DYN_PERIODS[dynState.period], cls: 'dyn-eq' }
+    { key: 'avg', icon: '📊', value: sts.length ? (dynCount(cur, getActiveTypes()) / sts.length).toFixed(2) : '—', label: 'متوسط لكل تلميذ', sub: DYN_PERIODS[dynState.period], cls: 'dyn-eq' }
   ];
 
   cards.forEach(c => {
@@ -185,11 +173,7 @@ function renderDynKpis(sts, cur, prev) {
   });
 }
 
-// ============================================
-// GRAPHIQUE EN BARRES
-// ============================================
-
-function renderDynChart(recs, date, sts, byId) {
+function renderDynChart(recs, date) {
   const box = $('dynChart');
   if (!box) return;
   box.replaceChildren();
@@ -213,27 +197,20 @@ function renderDynChart(recs, date, sts, byId) {
     const c = cols[i];
     const segs = DYN_TYPES.filter(x => dynState.activeTypes[x[0]] && c[x[0]] > 0)
       .map(x => el('div', { style: 'height:' + Math.max(3, Math.round(c[x[0]] / mx * 120)) + 'px;background:' + x[2] }));
-    
-    const col = el('div', { class: 'dyn-col', title: b.label },
+    chart.append(el('div', { class: 'dyn-col', title: b.label },
       el('div', { class: 'stk' }, ...segs),
       el('small', { textContent: b.label })
-    );
-    chart.append(col);
+    ));
   });
 
   box.append(chart);
 }
-
-// ============================================
-// CAMEMBERT
-// ============================================
 
 function renderDynPie(cur) {
   const box = $('dynPie');
   if (!box) return;
   box.replaceChildren();
 
-  const on = getActiveTypes();
   const items = DYN_TYPES.filter(x => dynState.activeTypes[x[0]]).map(x => [x[1], cur[x[0]], x[2]]);
   const tot = items.reduce((a, b) => a + b[1], 0);
 
@@ -242,8 +219,6 @@ function renderDynPie(cur) {
     return;
   }
 
-  // Utilise la fonction `pie` qui est déjà dans le projet (dans dashboard.js original)
-  // On va la réimplementer ici pour éviter les dépendances
   const NS = 'http://www.w3.org/2000/svg';
   const cx = 100, cy = 70, rx = 80, ry = 40, H = 16, TAU = Math.PI * 2;
   const fx = n => n.toFixed(2);
@@ -262,7 +237,6 @@ function renderDynPie(cur) {
 
   const P = a => [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
 
-  // Ombre
   svg.append(mk('ellipse', { cx, cy: cy + H + 4, rx: rx + 4, ry: ry + 4, fill: 'rgba(0,0,0,0.12)' }));
 
   let a = -Math.PI / 2;
@@ -271,7 +245,6 @@ function renderDynPie(cur) {
     const f = value / tot;
     const a0 = a, a1 = a + f * TAU;
     a = a1;
-
     const face = mk('path', {
       d: 'M' + cx + ' ' + cy +
          'L' + fx(P(a0)[0]) + ' ' + fx(P(a0)[1]) +
@@ -284,7 +257,6 @@ function renderDynPie(cur) {
   });
 
   const wrap = el('div', {}, svg);
-
   const legend = el('ul', { style: 'list-style:none;padding:0;margin:10px 0 0;font-size:13px' });
   items.forEach(([label, value, color]) => {
     if (value === 0) return;
@@ -298,11 +270,7 @@ function renderDynPie(cur) {
   box.append(wrap);
 }
 
-// ============================================
-// TOP ÉLÈVES
-// ============================================
-
-function renderDynTop(cur, byId, sts) {
+function renderDynTop(cur, byId) {
   const box = $('dynTop');
   if (!box) return;
   box.replaceChildren();
@@ -321,18 +289,13 @@ function renderDynTop(cur, byId, sts) {
 
   const max = top[0].n;
   top.forEach(x => {
-    const r = el('div', { class: 'dyn-row', style: 'cursor:pointer' },
+    box.append(el('div', { class: 'dyn-row', style: 'cursor:pointer' },
       el('span', { class: 'n', textContent: byId.get(x.id)?.name || '—' }),
       el('span', { class: 'b2' }, el('i', { style: 'width:' + Math.round(x.n / max * 100) + '%' })),
       el('b', { textContent: x.n })
-    );
-    box.append(r);
+    ));
   });
 }
-
-// ============================================
-// COMPARAISON DES CLASSES
-// ============================================
 
 function renderDynClasses(cur, sts) {
   const box = $('dynClasses');
@@ -353,7 +316,6 @@ function renderDynClasses(cur, sts) {
   }).sort((a, b) => b.rate - a.rate);
 
   const maxR = Math.max(0.0001, rows[0].rate);
-
   rows.forEach(r => {
     box.append(el('div', { class: 'dyn-row' },
       el('span', { class: 'n', textContent: r.c }),
@@ -363,16 +325,11 @@ function renderDynClasses(cur, sts) {
   });
 }
 
-// ============================================
-// ALERTES
-// ============================================
-
 function renderDynAlerts(cur, byId) {
   const box = $('dynAlerts');
   if (!box) return;
   box.replaceChildren();
 
-  const on = getActiveTypes();
   const alerts = [...cur.per]
     .filter(([id, q]) => q.unexcused >= 3)
     .map(([id, q]) => ({ id, n: q.unexcused, name: byId.get(id)?.name || '—' }))
@@ -390,10 +347,6 @@ function renderDynAlerts(cur, byId) {
     ));
   });
 }
-
-// ============================================
-// FONCTION PRINCIPALE
-// ============================================
 
 export function renderDashboard() {
   const date = todayStr();
@@ -413,16 +366,12 @@ export function renderDashboard() {
   const prev = dynState.period === 'Y' ? null : aggregateRecords(recs, dynRange(dynState.period, date, true));
 
   renderDynKpis(sts, cur, prev);
-  renderDynChart(recs, date, sts, byId);
+  renderDynChart(recs, date);
   renderDynPie(cur);
-  renderDynTop(cur, byId, sts);
+  renderDynTop(cur, byId);
   renderDynClasses(cur, sts);
   renderDynAlerts(cur, byId);
 }
-
-// ============================================
-// INITIALISATION DES FILTRES
-// ============================================
 
 export function bindDashboard() {
   const scopeSelect = $('dynScope');
@@ -464,234 +413,4 @@ export function bindDashboard() {
       chipsContainer.append(chip);
     });
   }
-=======
-// src/features/dashboard.js
-// Vue d'ensemble de toutes les classes.
-
-import { db } from '../core/state.js';
-import { $, el } from '../core/dom.js';
-
-/** Renvoie le mois actuel au format YYYY-MM. */
-function currentMonth() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-}
-
-/** Renvoie la date du jour YYYY-MM-DD. */
-function today() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-/** Ajoute n jours à une date YYYY-MM-DD. */
-function addDays(dateStr, n) {
-  const d = new Date(dateStr + 'T12:00:00');
-  d.setDate(d.getDate() + n);
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-/** Moyenne d'un élève pour un trimestre (formule tunisienne). */
-function computeStudentAvg(student, term) {
-  const g = student.g && student.g[term];
-  if (!g) return null;
-  const tp = Number(g.tp ?? 0);
-  const dc = Number(g.dc ?? 0);
-  const ds = Number(g.ds ?? 0);
-  if (g.tp == null && g.dc == null && g.ds == null) return null;
-  return (tp + dc + 2 * ds) / 4;
-}
-
-/** Compte les absences d'un élève sur un mois. */
-function countAbsences(studentId, month) {
-  let excused = 0, unexcused = 0, late = 0;
-  Object.keys(db.records).forEach(key => {
-    const [date, id] = key.split('|');
-    if (id !== studentId) return;
-    if (!date.startsWith(month)) return;
-    const rec = db.records[key];
-    if (rec.type === 'excused') excused++;
-    if (rec.type === 'unexcused') unexcused++;
-    if (rec.type === 'late') late++;
-  });
-  return { excused, unexcused, late, total: excused + unexcused + late };
-}
-
-/** Affiche les 5 cartes de stats. */
-function renderCards() {
-  const box = $('dashCards');
-  if (!box) return;
-  box.replaceChildren();
-
-  const month = currentMonth();
-  const date = today();
-  const allStudents = db.students;
-  const allClasses = db.classes;
-
-  // Stats du jour
-  let todayAbs = 0;
-  allStudents.forEach(s => {
-    const key = date + '|' + s.id;
-    const rec = db.records[key];
-    if (rec && (rec.type === 'unexcused' || rec.type === 'excused')) todayAbs++;
-  });
-
-  // Moyenne générale (toutes classes, trimestre 1)
-  const allAvgs = allStudents
-    .map(s => computeStudentAvg(s, '1'))
-    .filter(v => v !== null);
-  const globalAvg = allAvgs.length ? (allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length) : 0;
-
-  // Élèves en alerte
-  const nbAlerts = allStudents.filter(s => countAbsences(s.id, month).unexcused >= 3).length;
-
-  const cards = [
-    ['blue',   '🏫', allClasses.length, 'فصول'],
-    ['purple', '👥', allStudents.length, 'تلاميذ'],
-    ['red',    '🚫', todayAbs, 'غياب اليوم'],
-    ['green',  '🎯', globalAvg ? globalAvg.toFixed(2) : '—', 'معدل عام'],
-    ['orange', '⚠️', nbAlerts, 'في حالة تنبيه'],
-  ];
-
-  cards.forEach(([cls, icon, value, label]) => {
-    box.append(el('div', { class: 'dash-card ' + cls },
-      el('span', { class: 'dash-icon', textContent: icon }),
-      el('div', { class: 'dash-value', textContent: String(value) }),
-      el('div', { class: 'dash-label', textContent: label }),
-    ));
-  });
-}
-
-/** Top 5 des élèves les plus absents ce mois. */
-function renderTopAbsent() {
-  const box = $('dashTopAbsent');
-  if (!box) return;
-  box.replaceChildren();
-
-  const month = currentMonth();
-  const rows = db.students.map(s => {
-    const c = countAbsences(s.id, month);
-    return { student: s, total: c.total };
-  }).filter(r => r.total > 0).sort((a, b) => b.total - a.total).slice(0, 5);
-
-  if (rows.length === 0) {
-    box.append(el('div', { class: 'dash-empty', textContent: 'لا توجد غيابات هذا الشهر.' }));
-    return;
-  }
-
-  const max = rows[0].total;
-  const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-
-  rows.forEach((r, i) => {
-    box.append(el('div', { class: 'dash-top-row' },
-      el('span', { class: 'dash-rank', textContent: medals[i] }),
-      el('span', { class: 'dash-name', textContent: r.student.name }),
-      el('span', { class: 'dash-bar-mini' },
-        el('i', { style: 'width:' + Math.round(r.total / max * 100) + '%' }),
-      ),
-      el('span', { class: 'dash-count', textContent: r.total }),
-    ));
-  });
-}
-
-/** Graphique des 7 derniers jours. */
-function renderChart() {
-  const box = $('dashChart');
-  if (!box) return;
-  box.replaceChildren();
-
-  const date = today();
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    days.push(addDays(date, -i));
-  }
-
-  const counts = days.map(d => {
-    let n = 0;
-    Object.keys(db.records).forEach(key => {
-      const [recDate] = key.split('|');
-      if (recDate !== d) return;
-      const rec = db.records[key];
-      if (rec.type === 'excused' || rec.type === 'unexcused') n++;
-    });
-    return n;
-  });
-
-  const max = Math.max(1, ...counts);
-
-  const bars = el('div', { class: 'dash-chart-bars' });
-  days.forEach((d, i) => {
-    const dayLabel = d.slice(5); // MM-DD
-    const height = Math.max(2, Math.round(counts[i] / max * 100));
-    bars.append(el('div', { class: 'dash-chart-bar' },
-      el('div', { class: 'dash-bar-value', textContent: counts[i] }),
-      el('div', { class: 'dash-bar-fill', style: 'height:' + height + 'px' }),
-      el('div', { class: 'dash-bar-label', textContent: dayLabel }),
-    ));
-  });
-  box.append(bars);
-}
-
-/** Moyennes par classe. */
-function renderClassAvg() {
-  const box = $('dashClassAvg');
-  if (!box) return;
-  box.replaceChildren();
-
-  const rows = db.classes.map(c => {
-    const students = db.students.filter(s => s.class === c);
-    const avgs = students.map(s => computeStudentAvg(s, '1')).filter(v => v !== null);
-    const moy = avgs.length ? (avgs.reduce((a, b) => a + b, 0) / avgs.length) : null;
-    return { name: c, moy, count: students.length };
-  });
-
-  if (rows.length === 0) {
-    box.append(el('div', { class: 'dash-empty', textContent: 'لا توجد فصول.' }));
-    return;
-  }
-
-  rows.forEach(r => {
-    const pct = r.moy === null ? 0 : Math.round(r.moy / 20 * 100);
-    box.append(el('div', { class: 'dash-class-row' },
-      el('span', { class: 'dash-class-name', textContent: r.name }),
-      el('span', { class: 'dash-class-bar' },
-        el('i', { style: 'width:' + pct + '%' }),
-      ),
-      el('span', { class: 'dash-class-value', textContent: r.moy === null ? '—' : r.moy.toFixed(2) }),
-    ));
-  });
-}
-
-/** Élèves en alerte. */
-function renderAlerts() {
-  const box = $('dashAlerts');
-  if (!box) return;
-  box.replaceChildren();
-
-  const month = currentMonth();
-  const alerts = db.students.map(s => {
-    const c = countAbsences(s.id, month);
-    return { student: s, unexcused: c.unexcused };
-  }).filter(r => r.unexcused >= 3).sort((a, b) => b.unexcused - a.unexcused);
-
-  if (alerts.length === 0) {
-    box.append(el('div', { class: 'dash-empty', textContent: '✅ لا يوجد تلاميذ في حالة تنبيه.' }));
-    return;
-  }
-
-  alerts.forEach(r => {
-    box.append(el('div', { class: 'dash-alert-row' },
-      el('span', { class: 'dash-alert-name', textContent: r.student.name + ' — ' + r.student.class }),
-      el('span', { class: 'dash-alert-badge', textContent: r.unexcused + ' غياب غير مبرر' }),
-    ));
-  });
-}
-
-/** Fonction principale à appeler depuis main.js. */
-export function renderDashboard() {
-  renderCards();
-  renderTopAbsent();
-  renderChart();
-  renderClassAvg();
-  renderAlerts();
->>>>>>> 1368d47f7385c0ac192f42a780e033ce74989f51
 }
