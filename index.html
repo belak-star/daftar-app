@@ -88,6 +88,41 @@
         <div><label for="gTerm">الثلاثي</label><select id="gTerm"><option value="1">الثلاثي الأول</option><option value="2">الثلاثي الثاني</option><option value="3">الثلاثي الثالث</option><option value="A">المعدل السنوي</option></select></div>
       </div>
       <div class="row"><button class="btn" id="gExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
+
+      <!-- Section "Copies manquantes" -->
+      <div id="examMissingSection" class="exam-missing hidden">
+        <h3 style="margin-top:0">📋 التلاميذ الذين لم يتحصلوا على عدد في الفرض</h3>
+        <p class="hint">تظهر الأسماء التي لا تملك عدداً في الفرض المختار. اختر مبرر أو غير مبرر لتأكيد الغياب، أو غير محدد إذا لم تتأكد بعد.</p>
+        <div class="row">
+          <div>
+            <label for="missingExam">الفرض</label>
+            <select id="missingExam">
+              <option value="tp">أشغال تطبيقية</option>
+              <option value="dc">فرض مراقبة</option>
+              <option value="ds">فرض تأليفي</option>
+            </select>
+          </div>
+          <label class="exam-done-label">
+            <input type="checkbox" id="examDone"> الفرض منجز
+          </label>
+          <button class="btn alt" id="expMissing" style="background:#1f7a4d;color:#fff">📥 تصدير قائمة الغياب</button>
+          <span id="missingCount" class="count"></span>
+          <span id="examSummary" class="hint"></span>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>ع/ر</th>
+                <th>اسم التلميذ</th>
+                <th>حالة الغياب في الفرض</th>
+              </tr>
+            </thead>
+            <tbody id="missingBody"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats" id="gStats"></div>
       <div id="gList"></div>
     </section>
