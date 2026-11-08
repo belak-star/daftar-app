@@ -97,7 +97,8 @@ function getScopeStudents() {
     });
 }
 function levelOf(c) {
-    const t = String(c).replace(/[٩-٠]/g, d => '٩٨٧٦٥٤٣٢١٠'.indexOf(d));
+    // Correction : utiliser la bonne plage Unicode pour les chiffres arabes
+    const t = String(c).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
     const m = t.match(/\d+/);
     if (m) return (m[0] === '7' || m[0] === '8') ? m[0] : '';
     if (/السابع/.test(c)) return '7';
