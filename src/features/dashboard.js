@@ -20,9 +20,8 @@ let dynState = {
   activeTypes: { excused: true, unexcused: true, late: true, expelled: true }
 };
 
-/** Recharge db depuis localStorage si nécessaire. */
 function ensureDb() {
-  if (db.students && db.students.length > 0) return; // db est déjà rempli
+  if (db.students && db.students.length > 0) return;
   try {
     const stored = localStorage.getItem('schoolDataV2');
     if (stored) {
@@ -100,7 +99,8 @@ function dynBuckets(period, date) {
 
 function getScopeStudents() {
   const sc = dynState.scope;
-  const currentClass = $('classSel')?.value || '';
+  // Utiliser le menu du Dashboard ou le menu principal
+  const currentClass = $('dynClassSel')?.value || $('classSel')?.value || '';
   return db.students.filter(s => {
     if (sc === 'cur') return s.class === currentClass;
     if (sc === 'all') return true;
@@ -369,11 +369,31 @@ function renderDynAlerts(cur, byId) {
 }
 
 export function renderDashboard() {
-  ensureDb(); // ← On s'assure que db est rempli depuis localStorage
-    // Afficher la classe actuelle à côté du filtre
+  ensureDb();
+
+  // Gérer le menu de sélection de classe
+  const classSel = $('dynClassSel');
+  if (classSel) {
+    if (dynState.scope === 'cur') {
+      classSel.style.display = 'inline-block';
+      if (classSel.options.length <= 1) {
+        const classes = [...new Set(db.students.map(s => s.class))].sort((a, b) => collator.compare(a, b));
+        classes.forEach(c => {
+          const opt = el('option', { value: c, textContent: c });
+          classSel.append(opt);
+        });
+      }
+      const activeClass = $('classSel')?.value || classSel.value || '';
+      if (activeClass) classSel.value = activeClass;
+    } else {
+      classSel.style.display = 'none';
+    }
+  }
+
+  // Afficher la classe actuelle à côté du filtre
   const currentClassSpan = $('dynCurrentClass');
   if (currentClassSpan) {
-    const currentClass = $('classSel')?.value || '';
+    const currentClass = $('dynClassSel')?.value || $('classSel')?.value || '';
     if (dynState.scope === 'cur') {
       currentClassSpan.textContent = currentClass ? ': ' + currentClass : ': (غير محددة)';
       currentClassSpan.style.display = 'inline-block';
@@ -417,6 +437,18 @@ export function bindDashboard() {
     scopeSelect.onchange = () => {
       dynState.scope = scopeSelect.value;
       renderDashboard();
+    };
+  }
+
+  const dynClassSel = $('dynClassSel');
+  if (dynClassSel) {
+    dynClassSel.onchange = () => {
+      const chosen = dynClassSel.value;
+      if (chosen) {
+        const mainClassSel = $('classSel');
+        if (mainClassSel) mainClassSel.value = chosen;
+        renderDashboard();
+      }
     };
   }
 
