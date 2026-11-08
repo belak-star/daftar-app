@@ -40,10 +40,39 @@
             <input type="file" id="restoreFile" accept=".json" style="display:none">
         </div>
 
-        <!-- 1. لوحة القيادة -->
+        <!-- 1. لوحة القيادة (Dashboard complet) -->
         <section class="panel" id="dashboard">
             <h2 style="margin-top:0;color:var(--main)">📊 لوحة القيادة</h2>
             <p class="hint">نظرة عامة على كل الفصول والغيابات والمعدلات.</p>
+            <div class="dyn-filters">
+                <div class="dyn-live">
+                    <span class="dyn-live-dot"></span>
+                    <strong>مباشر</strong> — آخر تحديث <span id="dynLiveTime"></span>
+                </div>
+                <label>
+                    <span>النطاق</span>
+                    <select id="dynScope">
+                        <option value="cur">الفصل الحالي</option>
+                        <option value="7">كل فصول السابعة</option>
+                        <option value="8">كل فصول الثامنة</option>
+                        <option value="all">كل الفصول</option>
+                    </select>
+                    <span id="dynCurrentClass" class="dyn-current-class"></span>
+                    <select id="dynClassSel" style="width:auto;min-width:150px;margin-inline-start:8px;display:none">
+                        <option value="">— اختر فصلاً —</option>
+                    </select>
+                </label>
+                <label>
+                    <span>الفترة</span>
+                    <select id="dynPeriod">
+                        <option value="D">اليوم</option>
+                        <option value="W">آخر 7 أيام</option>
+                        <option value="M" selected>هذا الشهر</option>
+                        <option value="Y">السنة الدراسية</option>
+                    </select>
+                </label>
+                <span id="dynChips" class="dyn-chips"></span>
+            </div>
             <div class="dash-cards" id="dynKpis"></div>
             <div class="dash-grid">
                 <div class="dash-box">
