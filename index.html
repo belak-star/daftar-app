@@ -42,16 +42,60 @@
       <input type="file" id="restoreFile" accept=".json" style="display:none">
     </div>
 
-    <!-- 1. لوحة القيادة -->
+    <!-- 1. لوحة القيادة dynamique -->
     <section class="panel" id="dashboard">
       <h2 style="margin-top:0;color:var(--main)">📊 لوحة القيادة</h2>
-      <p class="hint">نظرة عامة على كل الفصول والغيابات والمعدلات.</p>
-      <div class="dash-cards" id="dashCards"></div>
+      <p class="hint">نظرة عامة على القسم — تتحدث تلقائياً.</p>
+
+      <div class="dyn-filters">
+        <label>
+          <span>النطاق</span>
+          <select id="dynScope">
+            <option value="cur">الفصل الحالي</option>
+            <option value="7">كل فصول السابعة</option>
+            <option value="8">كل فصول الثامنة</option>
+            <option value="all">كل الفصول</option>
+          </select>
+        </label>
+        <label>
+          <span>الفترة</span>
+          <select id="dynPeriod">
+            <option value="D">اليوم</option>
+            <option value="W">آخر 7 أيام</option>
+            <option value="M" selected>هذا الشهر</option>
+            <option value="Y">السنة الدراسية</option>
+          </select>
+        </label>
+        <span id="dynChips" class="dyn-chips"></span>
+      </div>
+
+      <div class="dash-cards" id="dynKpis"></div>
+
       <div class="dash-grid">
-        <div class="dash-box"><h3>🏆 أكثر التلاميذ غياباً هذا الشهر</h3><div id="dashTopAbsent"></div></div>
-        <div class="dash-box"><h3>📅 الغيابات — آخر 7 أيام</h3><div id="dashChart"></div></div>
-        <div class="dash-box"><h3>📚 معدلات الفصول (الثلاثي 1)</h3><div id="dashClassAvg"></div></div>
-        <div class="dash-box"><h3>⚠️ تلاميذ في حالة تنبيه</h3><div id="dashAlerts"></div></div>
+        <div class="dash-box">
+          <h3>📈 تطور الغيابات</h3>
+          <div id="dynChart"></div>
+        </div>
+        <div class="dash-box">
+          <h3>🥧 توزيع الغيابات</h3>
+          <div id="dynPie"></div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-box">
+          <h3>🏆 أكثر التلاميذ غياباً</h3>
+          <div id="dynTop"></div>
+        </div>
+        <div class="dash-box">
+          <h3>📚 مقارنة الفصول</h3>
+          <div id="dynClasses"></div>
+        </div>
+      </div>
+
+      <div class="dash-box" style="margin-top:18px">
+        <h3>⚠️ تلاميذ في حالة تنبيه</h3>
+        <div id="dynAlerts"></div>
       </div>
     </section>
 
@@ -92,7 +136,6 @@
       <div class="stats" id="gStats"></div>
       <div id="gList"></div>
 
-      <!-- Section "Copies manquantes" (sous le tableau des notes) -->
       <div id="examMissingSection" class="exam-missing hidden">
         <h3 style="margin-top:0">📋 الغيابات في هذا الفرض</h3>
         <div class="row" style="margin-bottom:12px">
