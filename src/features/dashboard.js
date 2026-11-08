@@ -99,7 +99,6 @@ function dynBuckets(period, date) {
 
 function getScopeStudents() {
   const sc = dynState.scope;
-  // Utiliser le menu du Dashboard ou le menu principal
   const currentClass = $('dynClassSel')?.value || $('classSel')?.value || '';
   return db.students.filter(s => {
     if (sc === 'cur') return s.class === currentClass;
@@ -171,13 +170,19 @@ function renderDynKpis(sts, cur, prev) {
     return d > 0 ? ['▲ +' + d, 'dyn-up'] : d < 0 ? ['▼ ' + d, 'dyn-down'] : ['= ثابت', 'dyn-eq'];
   };
 
+  const activeTypes = getActiveTypes();
+  const showExcused = activeTypes.includes('excused');
+  const showUnexcused = activeTypes.includes('unexcused');
+  const showLate = activeTypes.includes('late');
+  const showExpelled = activeTypes.includes('expelled');
+
   const cards = [
     { key: 'n', icon: '👥', value: sts.length, label: 'تلاميذ', sub: nOut ? 'منهم ' + nOut + ' مفصول' : '', cls: 'dyn-eq' },
-    { key: 'excused', icon: '🟦', value: cur.excused, label: 'غياب مبرر', sub: delta('excused')[0], cls: delta('excused')[1] },
-    { key: 'unexcused', icon: '🟥', value: cur.unexcused, label: 'غير مبرر', sub: delta('unexcused')[0], cls: delta('unexcused')[1] },
-    { key: 'late', icon: '🟨', value: cur.late, label: 'تأخيرات', sub: cur.lm + ' دقيقة', cls: delta('late')[1] },
-    { key: 'expelled', icon: '🟪', value: cur.expelled, label: 'إقصاءات', sub: delta('expelled')[0], cls: delta('expelled')[1] },
-    { key: 'avg', icon: '📊', value: sts.length ? (dynCount(cur, getActiveTypes()) / sts.length).toFixed(2) : '—', label: 'متوسط لكل تلميذ', sub: DYN_PERIODS[dynState.period], cls: 'dyn-eq' }
+    { key: 'excused', icon: '🟦', value: showExcused ? cur.excused : '—', label: 'غياب مبرر', sub: showExcused ? delta('excused')[0] : '(معطل)', cls: showExcused ? delta('excused')[1] : 'dyn-eq' },
+    { key: 'unexcused', icon: '🟥', value: showUnexcused ? cur.unexcused : '—', label: 'غير مبرر', sub: showUnexcused ? delta('unexcused')[0] : '(معطل)', cls: showUnexcused ? delta('unexcused')[1] : 'dyn-eq' },
+    { key: 'late', icon: '🟨', value: showLate ? cur.late : '—', label: 'تأخيرات', sub: showLate ? cur.lm + ' دقيقة' : '(معطل)', cls: showLate ? delta('late')[1] : 'dyn-eq' },
+    { key: 'expelled', icon: '🟪', value: showExpelled ? cur.expelled : '—', label: 'إقصاءات', sub: showExpelled ? delta('expelled')[0] : '(معطل)', cls: showExpelled ? delta('expelled')[1] : 'dyn-eq' },
+    { key: 'avg', icon: '📊', value: sts.length ? (dynCount(cur, activeTypes) / sts.length).toFixed(2) : '—', label: 'متوسط لكل تلميذ', sub: DYN_PERIODS[dynState.period], cls: 'dyn-eq' }
   ];
 
   cards.forEach(c => {
@@ -370,6 +375,12 @@ function renderDynAlerts(cur, byId) {
 
 export function renderDashboard() {
   ensureDb();
+
+  // Mettre à jour l'heure du "مباشر"
+  const liveTime = $('dynLiveTime');
+  if (liveTime) {
+    liveTime.textContent = new Date().toLocaleTimeString('fr-FR');
+  }
 
   // Gérer le menu de sélection de classe
   const classSel = $('dynClassSel');
