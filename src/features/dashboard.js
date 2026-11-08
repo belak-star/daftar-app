@@ -1,5 +1,5 @@
 // src/features/dashboard.js
-// Dashboard dynamique avec filtres, graphiques et alertes.
+// Dashboard dynamique complet.
 
 import { db } from '../core/state.js';
 import { $, el } from '../core/dom.js';
@@ -35,14 +35,8 @@ function ensureDb() {
       if (parsed.classes) db.classes = parsed.classes;
       if (parsed.students) db.students = parsed.students;
       if (parsed.records) db.records = parsed.records;
-      if (parsed.examHeld) db.examHeld = parsed.examHeld;
-      if (parsed.disciplineRecords) db.disciplineRecords = parsed.disciplineRecords;
-      if (parsed.classAgenda) db.classAgenda = parsed.classAgenda;
-      if (parsed.examAnalyses) db.examAnalyses = parsed.examAnalyses;
     }
-  } catch (e) {
-    console.warn('Erreur rechargement db:', e);
-  }
+  } catch (e) {}
 }
 
 function todayStr() {
@@ -145,62 +139,29 @@ function getActiveTypes() {
   return DYN_TYPES.map(x => x[0]).filter(k => dynState.activeTypes[k]);
 }
 
-function effStatus(s, date) {
-  if (!s.status) return '';
-  if (s.from && date < s.from) return '';
-  if (s.status === 'temp' && s.to && date > s.to) return '';
-  return s.status;
-}
-
-function animNum(el, to) {
-  const from = +el.dataset.v || 0;
-  el.dataset.v = to;
-  if (from === to || !window.requestAnimationFrame) { el.textContent = to; return; }
-  const t0 = performance.now();
-  (function step(t) {
-    const k = Math.min(1, (t - t0) / 450);
-    el.textContent = Math.round(from + (to - from) * k);
-    if (k < 1) requestAnimationFrame(step);
-  })(t0);
-}
-
 function renderDynKpis(sts, cur, prev) {
   const box = $('dynKpis');
   if (!box) return;
   box.replaceChildren();
 
-  const nOut = sts.filter(s => effStatus(s, todayStr())).length;
-  const delta = (k) => {
-    if (!prev) return ['', ''];
-    const d = cur[k] - prev[k];
-    return d > 0 ? ['▲ +' + d, 'dyn-up'] : d < 0 ? ['▼ ' + d, 'dyn-down'] : ['= ثابت', 'dyn-eq'];
-  };
-
   const activeTypes = getActiveTypes();
-  const showExcused = activeTypes.includes('excused');
-  const showUnexcused = activeTypes.includes('unexcused');
-  const showLate = activeTypes.includes('late');
-  const showExpelled = activeTypes.includes('expelled');
+  const show = k => activeTypes.includes(k);
 
   const cards = [
-    { key: 'n', icon: '👥', value: sts.length, label: 'تلاميذ', sub: nOut ? 'منهم ' + nOut + ' مفصول' : '', cls: 'dyn-eq' },
-    { key: 'excused', icon: '🟦', value: showExcused ? cur.excused : '—', label: 'غياب مبرر', sub: showExcused ? delta('excused')[0] : '(معطل)', cls: showExcused ? delta('excused')[1] : 'dyn-eq' },
-    { key: 'unexcused', icon: '🟥', value: showUnexcused ? cur.unexcused : '—', label: 'غير مبرر', sub: showUnexcused ? delta('unexcused')[0] : '(معطل)', cls: showUnexcused ? delta('unexcused')[1] : 'dyn-eq' },
-    { key: 'late', icon: '🟨', value: showLate ? cur.late : '—', label: 'تأخيرات', sub: showLate ? cur.lm + ' دقيقة' : '(معطل)', cls: showLate ? delta('late')[1] : 'dyn-eq' },
-    { key: 'expelled', icon: '🟪', value: showExpelled ? cur.expelled : '—', label: 'إقصاءات', sub: showExpelled ? delta('expelled')[0] : '(معطل)', cls: showExpelled ? delta('expelled')[1] : 'dyn-eq' },
-    { key: 'avg', icon: '📊', value: sts.length ? (dynCount(cur, activeTypes) / sts.length).toFixed(2) : '—', label: 'متوسط لكل تلميذ', sub: DYN_PERIODS[dynState.period], cls: 'dyn-eq' }
+    { key: 'n', icon: '👥', value: sts.length, label: 'تلاميذ' },
+    { key: 'excused', icon: '🟦', value: show('excused') ? cur.excused : '—', label: 'غياب مبرر' },
+    { key: 'unexcused', icon: '🟥', value: show('unexcused') ? cur.unexcused : '—', label: 'غير مبرر' },
+    { key: 'late', icon: '🟨', value: show('late') ? cur.late : '—', label: 'تأخيرات' },
+    { key: 'expelled', icon: '🟪', value: show('expelled') ? cur.expelled : '—', label: 'إقصاءات' },
+    { key: 'avg', icon: '📊', value: sts.length ? (dynCount(cur, activeTypes) / sts.length).toFixed(2) : '—', label: 'متوسط' }
   ];
 
   cards.forEach(c => {
-    const card = el('div', { class: 'dash-card' },
+    box.append(el('div', { class: 'dash-card' },
       el('span', { class: 'dash-icon', textContent: c.icon }),
-      el('strong', { textContent: '0', 'data-k': c.key }),
-      el('span', { textContent: c.label }),
-      el('small', { textContent: c.sub, class: c.cls })
-    );
-    box.append(card);
-    if (typeof c.value === 'number') animNum(card.querySelector('strong'), c.value);
-    else card.querySelector('strong').textContent = c.value;
+      el('strong', { textContent: String(c.value), 'data-k': c.key }),
+      el('span', { textContent: c.label })
+    ));
   });
 }
 
@@ -209,10 +170,8 @@ function renderDynChart(recs, date) {
   if (!box) return;
   box.replaceChildren();
 
-  const p = dynState.period;
   const on = getActiveTypes();
-  const bk = dynBuckets(p, date);
-
+  const bk = dynBuckets(dynState.period, date);
   const cols = bk.map(b => {
     const c = { excused: 0, unexcused: 0, late: 0, expelled: 0 };
     recs.forEach(r => {
@@ -220,9 +179,7 @@ function renderDynChart(recs, date) {
     });
     return c;
   });
-
   const mx = Math.max(1, ...cols.map(c => dynCount(c, on)));
-
   const chart = el('div', { class: 'dyn-trend' });
   bk.forEach((b, i) => {
     const c = cols[i];
@@ -233,7 +190,6 @@ function renderDynChart(recs, date) {
       el('small', { textContent: b.label })
     ));
   });
-
   box.append(chart);
 }
 
@@ -317,10 +273,7 @@ function renderDynPie(cur) {
         'stroke-width': 1.5,
         style: 'cursor:pointer'
       });
-      // Clic sur le secteur : afficher la liste des élèves
       face.onclick = () => showPieStudents(s.label, cur);
-      face.onmouseenter = () => { face.setAttribute('opacity', '0.85'); };
-      face.onmouseleave = () => { face.setAttribute('opacity', '1'); };
       svg.append(face);
     }
   });
@@ -332,68 +285,47 @@ function renderDynPie(cur) {
     const X = fx(cx + rx * 0.65 * Math.cos(m));
     const Y = fx(cy + ry * 0.65 * Math.sin(m) + 5);
     const t1 = mk('text', {
-      x: X, y: Y,
-      'text-anchor': 'middle',
-      'font-size': '14',
-      'font-weight': '800',
-      fill: 'none',
-      stroke: 'rgba(0,0,0,0.7)',
-      'stroke-width': '3',
-      'stroke-linejoin': 'round',
+      x: X, y: Y, 'text-anchor': 'middle', 'font-size': '14', 'font-weight': '800',
+      fill: 'none', stroke: 'rgba(0,0,0,0.7)', 'stroke-width': '3', 'stroke-linejoin': 'round',
       style: 'pointer-events:none'
     });
     t1.textContent = pc + '%';
     svg.append(t1);
     const t2 = mk('text', {
-      x: X, y: Y,
-      'text-anchor': 'middle',
-      'font-size': '14',
-      'font-weight': '800',
-      fill: '#fff',
-      style: 'pointer-events:none'
+      x: X, y: Y, 'text-anchor': 'middle', 'font-size': '14', 'font-weight': '800',
+      fill: '#fff', style: 'pointer-events:none'
     });
     t2.textContent = pc + '%';
     svg.append(t2);
   });
 
   const wrap = el('div', { style: 'text-align:center' }, svg);
-
-  const legend = el('ul', { style: 'list-style:none;padding:0;margin:12px 0 0;font-size:13px;display:flex;flex-direction:column;gap:4px' });
+  const legend = el('ul', { style: 'list-style:none;padding:0;margin:12px 0 0;font-size:13px' });
   items.forEach(([label, value, color]) => {
     if (value === 0) return;
-    const li = el('li', {
-      style: 'display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .15s'
-    });
+    const li = el('li', { style: 'display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:pointer' });
     li.append(
       el('span', { style: 'width:14px;height:14px;border-radius:3px;background:' + color }),
       el('span', { style: 'flex:1;text-align:right' }, label),
       el('strong', { textContent: value + ' (' + Math.round(100 * value / tot) + '%)' })
     );
-    li.onmouseenter = () => { li.style.background = '#f1f8f5'; };
-    li.onmouseleave = () => { li.style.background = 'transparent'; };
-    // Clic sur la légende : afficher la liste des élèves
     li.onclick = () => showPieStudents(label, cur);
     legend.append(li);
   });
-
   wrap.append(legend);
   box.append(wrap);
 }
 
-/** Affiche la liste des élèves pour un type d'absence donné. */
 function showPieStudents(label, cur) {
-  // Trouver le type correspondant
   const typeEntry = DYN_TYPES.find(x => x[1] === label);
   if (!typeEntry) return;
   const typeKey = typeEntry[0];
-
-  // Récupérer les élèves concernés
   const date = todayStr();
   const sts = getScopeStudents();
   const byId = new Map(sts.map(s => [s.id, s]));
   const range = dynRange(dynState.period, date, false);
-
   const affected = [];
+
   Object.keys(db.records || {}).forEach(k => {
     const c = k.indexOf('|');
     const id = k.slice(c + 1);
@@ -401,39 +333,31 @@ function showPieStudents(label, cur) {
     const d = k.slice(0, c);
     if (d < range[0] || d > range[1]) return;
     const r = db.records[k];
-    if (r.type === typeKey) {
-      affected.push({ student: byId.get(id), record: r, date: d });
-    }
+    if (r.type === typeKey) affected.push({ student: byId.get(id), record: r, date: d });
   });
 
-  // Créer la fenêtre modale
   const ov = el('div', { class: 'ov' });
-  const box = el('div', { class: 'ovbox', role: 'dialog', ariaModal: 'true' });
-
-  box.append(
-    el('h3', { textContent: label + ' — قائمة التلاميذ', style: 'margin-top:0' }),
-    el('p', { class: 'hint', textContent: 'عدد التلاميذ: ' + affected.length + ' | الفترة: ' + DYN_PERIODS[dynState.period] })
-  );
+  const box = el('div', { class: 'ovbox' });
+  box.append(el('h3', { textContent: label + ' — قائمة التلاميذ', style: 'margin-top:0' }));
+  box.append(el('p', { class: 'hint', textContent: 'عدد التلاميذ: ' + affected.length }));
 
   if (affected.length === 0) {
     box.append(el('p', { class: 'empty-list', textContent: 'لا يوجد تلاميذ في هذه الفئة.' }));
   } else {
     const table = el('table', { style: 'width:100%;border-collapse:collapse' });
-    const thead = el('thead');
-    thead.append(el('tr', {},
-      el('th', { textContent: 'اسم التلميذ', style: 'text-align:right' }),
-      el('th', { textContent: 'الفصل', style: 'text-align:center' }),
-      el('th', { textContent: 'التاريخ', style: 'text-align:center' }),
-      el('th', { textContent: 'السبب', style: 'text-align:center' })
-    ));
-    table.append(thead);
+    table.append(el('thead', {}, el('tr', {},
+      el('th', { textContent: 'الاسم' }),
+      el('th', { textContent: 'الفصل' }),
+      el('th', { textContent: 'التاريخ' }),
+      el('th', { textContent: 'السبب' })
+    )));
     const tbody = el('tbody');
     affected.sort((a, b) => collator.compare(a.student.name, b.student.name)).forEach(x => {
       tbody.append(el('tr', {},
-        el('td', { textContent: x.student.name, style: 'text-align:right;font-weight:700' }),
-        el('td', { textContent: x.student.class, style: 'text-align:center' }),
-        el('td', { textContent: x.date, style: 'text-align:center;direction:ltr' }),
-        el('td', { textContent: x.record.reason || '—', style: 'text-align:center' })
+        el('td', { textContent: x.student.name }),
+        el('td', { textContent: x.student.class }),
+        el('td', { textContent: x.date }),
+        el('td', { textContent: x.record.reason || '—' })
       ));
     });
     table.append(tbody);
@@ -443,137 +367,9 @@ function showPieStudents(label, cur) {
   const close = el('button', { class: 'btn', type: 'button', textContent: 'إغلاق', style: 'margin-top:14px' });
   close.onclick = () => ov.remove();
   box.append(close);
-
   ov.append(box);
   ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
   document.body.append(ov);
-}
-
-  const NS = 'http://www.w3.org/2000/svg';
-  const cx = 150, cy = 90, rx = 100, ry = 55, H = 20, TAU = Math.PI * 2;
-  const fx = n => n.toFixed(2);
-
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 300 200');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '200');
-  svg.style.maxWidth = '300px';
-  svg.style.display = 'block';
-  svg.style.margin = '0 auto';
-
-  const mk = (tag, at) => {
-    const n = document.createElementNS(NS, tag);
-    for (const k in at) n.setAttribute(k, at[k]);
-    return n;
-  };
-
-  const P = a => [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
-
-  svg.append(mk('ellipse', { cx, cy: cy + H + 6, rx: rx + 6, ry: ry + 6, fill: 'rgba(0,0,0,0.15)' }));
-
-  const segs = [];
-  let a = -Math.PI / 2;
-  items.forEach(([label, value, color]) => {
-    if (value <= 0) return;
-    const f = value / tot;
-    const a0 = a, a1 = a + f * TAU;
-    a = a1;
-    segs.push({ label, value, color, f, a0, a1 });
-  });
-
-  const norm = x => ((x % TAU) + TAU) % TAU;
-
-  segs.forEach(s => {
-    const A0 = norm(s.a0), A1 = A0 + (s.a1 - s.a0);
-    [[0, Math.PI], [TAU, TAU + Math.PI]].forEach(([lo, hi]) => {
-      const x0 = Math.max(A0, lo), x1 = Math.min(A1, hi);
-      if (x1 - x0 < 1e-6) return;
-      const [ax, ay] = P(x0), [bx, by] = P(x1);
-      const lg = (x1 - x0) > Math.PI ? 1 : 0;
-      svg.append(mk('path', {
-        d: 'M' + fx(ax) + ' ' + fx(ay) +
-           'L' + fx(ax) + ' ' + fx(ay + H) +
-           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(bx) + ' ' + fx(by + H) +
-           'L' + fx(bx) + ' ' + fx(by) +
-           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 0 ' + fx(ax) + ' ' + fx(ay) + 'Z',
-        fill: shade(s.color, 0.6)
-      }));
-    });
-  });
-
-  segs.forEach(s => {
-    if (s.f >= 0.9999) {
-      svg.append(mk('ellipse', { cx, cy, rx, ry, fill: s.color, stroke: '#fff', 'stroke-width': 1.5 }));
-    } else {
-      const [x0, y0] = P(s.a0), [x1, y1] = P(s.a1);
-      const lg = (s.a1 - s.a0) > Math.PI ? 1 : 0;
-      svg.append(mk('path', {
-        d: 'M' + cx + ' ' + cy +
-           'L' + fx(x0) + ' ' + fx(y0) +
-           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(x1) + ' ' + fx(y1) + 'Z',
-        fill: s.color,
-        stroke: '#fff',
-        'stroke-width': 1.5
-      }));
-    }
-  });
-
-  segs.forEach(s => {
-    const pc = Math.round(100 * s.f);
-    if (pc < 3) return;
-    const m = (s.a0 + s.a1) / 2;
-    const X = fx(cx + rx * 0.65 * Math.cos(m));
-    const Y = fx(cy + ry * 0.65 * Math.sin(m) + 5);
-    const t1 = mk('text', {
-      x: X, y: Y,
-      'text-anchor': 'middle',
-      'font-size': '14',
-      'font-weight': '800',
-      fill: 'none',
-      stroke: 'rgba(0,0,0,0.7)',
-      'stroke-width': '3',
-      'stroke-linejoin': 'round'
-    });
-    t1.textContent = pc + '%';
-    svg.append(t1);
-    const t2 = mk('text', {
-      x: X, y: Y,
-      'text-anchor': 'middle',
-      'font-size': '14',
-      'font-weight': '800',
-      fill: '#fff'
-    });
-    t2.textContent = pc + '%';
-    svg.append(t2);
-  });
-
-  const wrap = el('div', { style: 'text-align:center' }, svg);
-
-  const legend = el('ul', { style: 'list-style:none;padding:0;margin:12px 0 0;font-size:13px;display:flex;flex-direction:column;gap:4px' });
-  items.forEach(([label, value, color]) => {
-    if (value === 0) return;
-    const li = el('li', {
-      style: 'display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .15s'
-    });
-    li.append(
-      el('span', { style: 'width:14px;height:14px;border-radius:3px;background:' + color }),
-      el('span', { style: 'flex:1;text-align:right' }, label),
-      el('strong', { textContent: value + ' (' + Math.round(100 * value / tot) + '%)' })
-    );
-    li.onmouseenter = () => { li.style.background = '#f1f8f5'; };
-    li.onmouseleave = () => { li.style.background = 'transparent'; };
-    li.onclick = () => {
-      const key = DYN_TYPES.find(x => x[1] === label)?.[0];
-      if (key) {
-        dynState.activeTypes[key] = !dynState.activeTypes[key];
-        renderDashboard();
-      }
-    };
-    legend.append(li);
-  });
-
-  wrap.append(legend);
-  box.append(wrap);
 }
 
 function renderDynTop(cur, byId) {
@@ -599,34 +395,6 @@ function renderDynTop(cur, byId) {
       el('span', { class: 'n', textContent: byId.get(x.id)?.name || '—' }),
       el('span', { class: 'b2' }, el('i', { style: 'width:' + Math.round(x.n / max * 100) + '%' })),
       el('b', { textContent: x.n })
-    ));
-  });
-}
-
-function renderDynClasses(cur, sts) {
-  const box = $('dynClasses');
-  if (!box) return;
-  box.replaceChildren();
-
-  const classes = [...new Set(sts.map(s => s.class))];
-  if (classes.length < 2) {
-    box.append(el('div', { class: 'empty-list', textContent: 'اختر "كل الفصول" للمقارنة.' }));
-    return;
-  }
-
-  const on = getActiveTypes();
-  const rows = classes.map(c => {
-    const ss = sts.filter(s => s.class === c);
-    const tot = ss.reduce((a, s) => a + dynCount(cur.per.get(s.id) || {}, on), 0);
-    return { c, n: ss.length, tot, rate: ss.length ? tot / ss.length : 0 };
-  }).sort((a, b) => b.rate - a.rate);
-
-  const maxR = Math.max(0.0001, rows[0].rate);
-  rows.forEach(r => {
-    box.append(el('div', { class: 'dyn-row' },
-      el('span', { class: 'n', textContent: r.c }),
-      el('span', { class: 'b2' }, el('i', { style: 'width:' + Math.round(r.rate / maxR * 100) + '%' })),
-      el('b', { textContent: r.rate.toFixed(2) })
     ));
   });
 }
@@ -658,9 +426,7 @@ export function renderDashboard() {
   ensureDb();
 
   const liveTime = $('dynLiveTime');
-  if (liveTime) {
-    liveTime.textContent = new Date().toLocaleTimeString('fr-FR');
-  }
+  if (liveTime) liveTime.textContent = new Date().toLocaleTimeString('fr-FR');
 
   const classSel = $('dynClassSel');
   if (classSel) {
@@ -668,10 +434,7 @@ export function renderDashboard() {
       classSel.style.display = 'inline-block';
       if (classSel.options.length <= 1) {
         const classes = [...new Set(db.students.map(s => s.class))].sort((a, b) => collator.compare(a, b));
-        classes.forEach(c => {
-          const opt = el('option', { value: c, textContent: c });
-          classSel.append(opt);
-        });
+        classes.forEach(c => classSel.append(el('option', { value: c, textContent: c })));
       }
       const activeClass = $('classSel')?.value || classSel.value || '';
       if (activeClass) classSel.value = activeClass;
@@ -695,7 +458,6 @@ export function renderDashboard() {
   const date = todayStr();
   const sts = getScopeStudents();
   const byId = new Map(sts.map(s => [s.id, s]));
-
   const recs = [];
   Object.keys(db.records || {}).forEach(k => {
     const c = k.indexOf('|');
@@ -712,7 +474,6 @@ export function renderDashboard() {
   renderDynChart(recs, date);
   renderDynPie(cur);
   renderDynTop(cur, byId);
-  renderDynClasses(cur, sts);
   renderDynAlerts(cur, byId);
 }
 
@@ -723,10 +484,7 @@ export function bindDashboard() {
 
   if (scopeSelect) {
     scopeSelect.value = dynState.scope;
-    scopeSelect.onchange = () => {
-      dynState.scope = scopeSelect.value;
-      renderDashboard();
-    };
+    scopeSelect.onchange = () => { dynState.scope = scopeSelect.value; renderDashboard(); };
   }
 
   const dynClassSel = $('dynClassSel');
@@ -743,10 +501,7 @@ export function bindDashboard() {
 
   if (periodSelect) {
     periodSelect.value = dynState.period;
-    periodSelect.onchange = () => {
-      dynState.period = periodSelect.value;
-      renderDashboard();
-    };
+    periodSelect.onchange = () => { dynState.period = periodSelect.value; renderDashboard(); };
   }
 
   if (chipsContainer) {
