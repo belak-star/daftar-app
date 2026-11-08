@@ -10,9 +10,9 @@ import { bindGrades, renderGradesList, renderGradesClassSelect } from './feature
 import { bindDiscipline } from './features/discipline.js';
 import { bindAgenda } from './features/agenda.js';
 import { bindAnalysis } from './features/examAnalysis.js';
-import { renderDashboard } from './features/dashboard.js';
+import { renderDashboard, bindDashboard } from './features/dashboard.js';
 
-// Firebase
+// Firebase (désactivé temporairement)
 let auth = null;
 let onAuthStateChanged = null;
 let signInWithEmailAndPassword = null;
@@ -184,6 +184,7 @@ function initialiserApp() {
   bindDiscipline();
   bindAgenda();
   bindAnalysis();
+  bindDashboard();
 
   renderDashboard();
 
@@ -257,19 +258,6 @@ function initialiserApp() {
     });
   }
 
-  // ============================================
-  // ✅ FORCER FIREBASE À ADOPTER LES DONNÉES LOCALES
-  // ============================================
-  setTimeout(() => {
-    if (window.cloud && window.cloud.now) {
-      console.log('📤 Envoi des données locales à Firebase...');
-      window.cloud.now();
-      setTimeout(() => console.log('✅ Données envoyées à Firebase !'), 2000);
-    } else {
-      console.log('⚠️ Firebase cloud non disponible, mode local.');
-    }
-  }, 3000);
-
   setTimeout(() => toast('مرحباً بك في دفتر القسم ! 👋'), 300);
 }
 
@@ -294,7 +282,25 @@ async function demarrer() {
   load();
   afficherDateDuJour();
 
-  // 3. Charger Firebase (après)
+  // 3. Forcer le rechargement de db depuis localStorage
+  try {
+    const stored = localStorage.getItem('schoolDataV2');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.classes) db.classes = parsed.classes;
+      if (parsed.students) db.students = parsed.students;
+      if (parsed.records) db.records = parsed.records;
+      if (parsed.examHeld) db.examHeld = parsed.examHeld;
+      if (parsed.disciplineRecords) db.disciplineRecords = parsed.disciplineRecords;
+      if (parsed.classAgenda) db.classAgenda = parsed.classAgenda;
+      if (parsed.examAnalyses) db.examAnalyses = parsed.examAnalyses;
+      console.log('✅ db rechargé depuis localStorage (' + db.students.length + ' élèves)');
+    }
+  } catch (e) {
+    console.log('⚠️ Erreur rechargement db :', e.message);
+  }
+
+  // 4. Firebase (désactivé pour l'instant)
   // await initFirebase();
 
   const btnLogin = $('btnLogin');
@@ -314,33 +320,11 @@ async function demarrer() {
     });
   }
 
-  if (firebaseReady && onAuthStateChanged) {
-    try {
-      // initSync();
-    } catch (err) {
-      console.error('initSync:', err);
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      console.log('🔐 Auth:', user ? user.email : 'non connecté');
-      if (user) {
-        afficherAuth(false);
-        const userEmail = $('userEmail');
-        const userBar = $('userBar');
-        if (userEmail) userEmail.textContent = user.email || '';
-        if (userBar) userBar.style.display = 'block';
-        initialiserApp();
-      } else {
-        afficherAuth(true);
-        const userBar = $('userBar');
-        if (userBar) userBar.style.display = 'none';
-      }
-    });
-  } else {
-    console.warn('⚠️ Firebase non disponible, mode local');
-    afficherAuth(false);
-    initialiserApp();
-  }
+  // Firebase désactivé → on affiche l'app directement
+  console.log('⚠️ Firebase non disponible, mode local');
+  afficherAuth(false);
+  document.body.classList.add('logged-in');
+  initialiserApp();
 
   console.log('✅ main.js a fini son exécution');
 }
