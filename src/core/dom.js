@@ -8,9 +8,10 @@ export function el(tag, attrs = {}, ...children) {
   for (const k in attrs) {
     if (k === 'class') e.className = attrs[k];
     else if (k === 'textContent') e.textContent = attrs[k];
+    else if (k.startsWith('data-')) e.setAttribute(k, attrs[k]);
     else e[k] = attrs[k];
   }
-  children.forEach(c => e.append(c));
+  children.forEach(c => c && e.append(c));
   return e;
 }
 
