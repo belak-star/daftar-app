@@ -38,14 +38,11 @@ function computeAverage(student, term) {
   return (t * POIDS.tp + d * POIDS.dc + s * POIDS.ds) / (POIDS.tp + POIDS.dc + POIDS.ds);
 }
 
-/** Calcule la moyenne annuelle d'un élève. */
 function computeAnnualAverage(student) {
   const m1 = computeAverage(student, '1');
   const m2 = computeAverage(student, '2');
   const m3 = computeAverage(student, '3');
-  
   if (m1 === null || m2 === null || m3 === null) return null;
-  
   return (m1 + 2 * m2 + 2 * m3) / 5;
 }
 
@@ -126,7 +123,6 @@ export function renderGradesList() {
   const term = $('gTerm').value;
   const isAnnual = term === 'A';
 
-  // Afficher ou cacher la section "Copies manquantes"
   const missingSection = $('examMissingSection');
   if (missingSection) {
     if (isAnnual || !classe) {
@@ -264,7 +260,6 @@ export function renderGradesList() {
 
   renderGradesStats(students, term, isAnnual);
   
-  // Mettre à jour la liste des copies manquantes
   if (!isAnnual) {
     renderMissingList();
   }
@@ -296,16 +291,16 @@ function setExamDone(done) {
 }
 
 export function renderMissingList() {
-  const tbody = $('missingBody');
+  const container = $('missingTables');
   const count = $('missingCount');
-  const summary = $('examSummary');
-  if (!tbody) return;
+  const summary = $('missingSummary');
+  if (!container) return;
 
   const classe = $('gClass').value;
   const term = $('gTerm').value;
   const exam = $('missingExam').value;
 
-  tbody.replaceChildren();
+  container.replaceChildren();
 
   if (!classe || !term || term === 'A') {
     if (count) count.textContent = '';
@@ -329,58 +324,85 @@ export function renderMissingList() {
     if (done) {
       const justified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'excused').length;
       const unjustified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'unexcused').length;
+      const pending = missing.length - justified - unjustified;
       const graded = students.length - missing.length;
       summary.textContent = 'أعداد مسجلة: ' + graded + ' / ' + students.length + 
-        ' | مبرر: ' + justified + 
-        ' | غير مبرر: ' + unjustified +
-        ' | غير محدد: ' + (missing.length - justified - unjustified);
+        ' | مبرر: ' + justified + ' | غير مبرر: ' + unjustified + ' | غير محدد: ' + pending;
     } else {
       summary.textContent = '';
     }
   }
 
   if (!done) {
-    tbody.append(el('tr', {}, el('td', { colSpan: 3, class: 'empty-list', textContent: 'لم يُنجز هذا الفرض بعد. ضع علامة «الفرض منجز» لإظهار قائمة التلاميذ دون عدد.' })));
+    container.append(el('p', { class: 'empty-list', textContent: 'لم يُنجز هذا الفرض بعد. ضع علامة «الفرض منجز» لإظهار القائمة.' }));
     return;
   }
 
   if (missing.length === 0) {
-    tbody.append(el('tr', {}, el('td', { colSpan: 3, class: 'empty-list', textContent: 'جميع التلاميذ لديهم أعداد في هذا الفرض.' })));
+    container.append(el('p', { class: 'empty-list', textContent: 'جميع التلاميذ لديهم أعداد في هذا الفرض.' }));
     return;
   }
 
-  const examLabels = { tp: 'أشغال تطبيقية', dc: 'فرض مراقبة', ds: 'فرض تأليفي' };
+  const groups = { excused: [], unexcused: [], pending: [] };
 
-  missing.forEach((s, i) => {
-    const currentStatus = s.gAbs && s.gAbs[term] && s.gAbs[term][exam] || 'pending';
-    
-    const select = el('select', { 'aria-label': 'تبرير الغياب في ' + examLabels[exam] + ' ' + s.name });
-    [['pending', 'غير محدد'], ['excused', 'غياب مبرر'], ['unexcused', 'غياب غير مبرر']].forEach(([val, label]) => {
-      const opt = el('option', { value: val, textContent: label });
-      if (val === currentStatus) opt.selected = true;
-      select.append(opt);
-    });
-    
-    select.onchange = () => {
-      const student = db.students.find(x => x.id === s.id);
-      if (!student) return;
-      if (!student.gAbs) student.gAbs = {};
-      if (!student.gAbs[term]) student.gAbs[term] = {};
-      if (select.value === 'pending') {
-        delete student.gAbs[term][exam];
-      } else {
-        student.gAbs[term][exam] = select.value;
-      }
-      save();
-      renderMissingList();
-    };
-
-    tbody.append(el('tr', {},
-      el('td', { textContent: (i + 1) + '' }),
-      el('td', { textContent: s.name, style: 'text-align:right;font-weight:700' }),
-      el('td', {}, select),
-    ));
+  missing.forEach(s => {
+    const status = s.gAbs && s.gAbs[term] && s.gAbs[term][exam] || 'pending';
+    if (status === 'excused') groups.excused.push(s);
+    else if (status === 'unexcused') groups.unexcused.push(s);
+    else groups.pending.push(s);
   });
+
+  const createGroupTable = (title, color, list, statusValue) => {
+    if (list.length === 0) return;
+    
+    const section = el('div', { class: 'missing-group', style: 'border-inline-start-color:' + color });
+    section.append(el('h4', { class: 'missing-group-title', style: 'color:' + color }, title + ' (' + list.length + ')'));
+    
+    const table = el('table', { class: 'missing-table' });
+    const thead = el('thead');
+    thead.append(el('tr', {},
+      el('th', { textContent: 'N°' }),
+      el('th', { textContent: 'اسم التلميذ' }),
+      el('th', { textContent: 'تغيير الحالة' })
+    ));
+    table.append(thead);
+    
+    const tbody = el('tbody');
+    list.forEach((s, i) => {
+      const select = el('select', { 'aria-label': 'حالة ' + s.name });
+      [['pending', 'غير محدد'], ['excused', 'غياب مبرر'], ['unexcused', 'غياب غير مبرر']].forEach(([val, label]) => {
+        const opt = el('option', { value: val, textContent: label });
+        if (val === statusValue) opt.selected = true;
+        select.append(opt);
+      });
+      select.onchange = () => {
+        const student = db.students.find(x => x.id === s.id);
+        if (!student) return;
+        if (!student.gAbs) student.gAbs = {};
+        if (!student.gAbs[term]) student.gAbs[term] = {};
+        if (select.value === 'pending') {
+          delete student.gAbs[term][exam];
+        } else {
+          student.gAbs[term][exam] = select.value;
+        }
+        save();
+        renderMissingList();
+      };
+      
+      tbody.append(el('tr', {},
+        el('td', { textContent: (i + 1) + '' }),
+        el('td', { textContent: s.name, style: 'text-align:right;font-weight:700' }),
+        el('td', {}, select)
+      ));
+    });
+    table.append(tbody);
+    section.append(table);
+    container.append(section);
+  };
+
+  createGroupTable('🔵 غياب مبرر', '#2563a8', groups.excused, 'excused');
+  createGroupTable('🔴 غياب غير مبرر', '#b3261e', groups.unexcused, 'unexcused');
+  createGroupTable('🟡 غير محدد', '#9a5b00', groups.pending, 'pending');
 }
 
 export function exportMissing() {
