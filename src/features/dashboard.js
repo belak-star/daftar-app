@@ -20,6 +20,26 @@ let dynState = {
   activeTypes: { excused: true, unexcused: true, late: true, expelled: true }
 };
 
+/** Recharge db depuis localStorage si nécessaire. */
+function ensureDb() {
+  if (db.students && db.students.length > 0) return; // db est déjà rempli
+  try {
+    const stored = localStorage.getItem('schoolDataV2');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.classes) db.classes = parsed.classes;
+      if (parsed.students) db.students = parsed.students;
+      if (parsed.records) db.records = parsed.records;
+      if (parsed.examHeld) db.examHeld = parsed.examHeld;
+      if (parsed.disciplineRecords) db.disciplineRecords = parsed.disciplineRecords;
+      if (parsed.classAgenda) db.classAgenda = parsed.classAgenda;
+      if (parsed.examAnalyses) db.examAnalyses = parsed.examAnalyses;
+    }
+  } catch (e) {
+    console.warn('Erreur rechargement db:', e);
+  }
+}
+
 function todayStr() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -349,12 +369,14 @@ function renderDynAlerts(cur, byId) {
 }
 
 export function renderDashboard() {
+  ensureDb(); // ← On s'assure que db est rempli depuis localStorage
+
   const date = todayStr();
   const sts = getScopeStudents();
   const byId = new Map(sts.map(s => [s.id, s]));
 
   const recs = [];
-  Object.keys(db.records).forEach(k => {
+  Object.keys(db.records || {}).forEach(k => {
     const c = k.indexOf('|');
     const id = k.slice(c + 1);
     if (!byId.has(id)) return;
