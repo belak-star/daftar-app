@@ -42,7 +42,7 @@
       <input type="file" id="restoreFile" accept=".json" style="display:none">
     </div>
 
-    <!-- ========== 1. لوحة القيادة ========== -->
+    <!-- 1. لوحة القيادة -->
     <section class="panel" id="dashboard">
       <h2 style="margin-top:0;color:var(--main)">📊 لوحة القيادة</h2>
       <p class="hint">نظرة عامة على كل الفصول والغيابات والمعدلات.</p>
@@ -55,7 +55,7 @@
       </div>
     </section>
 
-    <!-- ========== 2. الاستدعاء اليومي ========== -->
+    <!-- 2. الاستدعاء اليومي -->
     <section class="panel hidden" id="daily">
       <h2 id="dailyTitle" style="margin-top:0;color:var(--main)">📋 الاستدعاء اليومي</h2>
       <div class="row">
@@ -68,7 +68,7 @@
       <div id="attList"></div>
     </section>
 
-    <!-- ========== 3. التقرير الشهري ========== -->
+    <!-- 3. التقرير الشهري -->
     <section class="panel hidden" id="monthly">
       <h2 style="margin-top:0;color:#b3261e">📊 التقرير الشهري</h2>
       <div class="row">
@@ -80,7 +80,7 @@
       <div id="moList"></div>
     </section>
 
-    <!-- ========== 4. النقاط والمعدلات ========== -->
+    <!-- 4. النقاط والمعدلات -->
     <section class="panel hidden" id="grades">
       <h2 style="margin-top:0;color:var(--main)">📝 النقاط والمعدلات</h2>
       <div class="row">
@@ -89,11 +89,13 @@
       </div>
       <div class="row"><button class="btn" id="gExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
 
-      <!-- Section "Copies manquantes" -->
+      <div class="stats" id="gStats"></div>
+      <div id="gList"></div>
+
+      <!-- Section "Copies manquantes" (sous le tableau des notes) -->
       <div id="examMissingSection" class="exam-missing hidden">
-        <h3 style="margin-top:0">📋 التلاميذ الذين لم يتحصلوا على عدد في الفرض</h3>
-        <p class="hint">تظهر الأسماء التي لا تملك عدداً في الفرض المختار. اختر مبرر أو غير مبرر لتأكيد الغياب، أو غير محدد إذا لم تتأكد بعد.</p>
-        <div class="row">
+        <h3 style="margin-top:0">📋 الغيابات في هذا الفرض</h3>
+        <div class="row" style="margin-bottom:12px">
           <div>
             <label for="missingExam">الفرض</label>
             <select id="missingExam">
@@ -105,29 +107,15 @@
           <label class="exam-done-label">
             <input type="checkbox" id="examDone"> الفرض منجز
           </label>
-          <button class="btn alt" id="expMissing" style="background:#1f7a4d;color:#fff">📥 تصدير قائمة الغياب</button>
+          <button class="btn alt" id="expMissing" style="background:#1f7a4d;color:#fff">📥 تصدير Excel</button>
           <span id="missingCount" class="count"></span>
-          <span id="examSummary" class="hint"></span>
         </div>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>ع/ر</th>
-                <th>اسم التلميذ</th>
-                <th>حالة الغياب في الفرض</th>
-              </tr>
-            </thead>
-            <tbody id="missingBody"></tbody>
-          </table>
-        </div>
+        <div id="missingSummary" class="hint" style="margin-bottom:12px"></div>
+        <div id="missingTables"></div>
       </div>
-
-      <div class="stats" id="gStats"></div>
-      <div id="gList"></div>
     </section>
 
-    <!-- ========== 5. العقوبات ========== -->
+    <!-- 5. العقوبات -->
     <section class="panel hidden" id="discipline">
       <h2 style="margin-top:0;color:#8a2a20">⚖️ العقوبات واستدعاء الأولياء</h2>
       <div class="disc-form">
@@ -149,7 +137,7 @@
       <div id="discList"></div>
     </section>
 
-    <!-- ========== 6. الأجندة ========== -->
+    <!-- 6. الأجندة -->
     <section class="panel hidden" id="agenda">
       <h2 style="margin-top:0;color:#2563a8">📅 الأجندة</h2>
       <div class="ag-form">
@@ -167,7 +155,7 @@
       <div id="agList"></div>
     </section>
 
-    <!-- ========== 7. تحليل الفرض ========== -->
+    <!-- 7. تحليل الفرض -->
     <section class="panel hidden" id="analysis">
       <h2 style="margin-top:0;color:#555db0">📊 تحليل الفرض</h2>
       <div class="row">
@@ -195,7 +183,7 @@
       <div id="anResults"></div>
     </section>
 
-    <!-- ========== 8. الفصول والتلاميذ ========== -->
+    <!-- 8. الفصول والتلاميذ -->
     <section class="panel hidden" id="classes">
       <h2 style="margin-top:0;color:var(--main)">📚 الفصول والتلاميذ</h2>
       <div class="row">
@@ -217,7 +205,6 @@
 
   <div id="toast" role="status"></div>
 
-  <!-- Écran de connexion Firebase -->
   <div id="authScreen">
     <div class="auth-box">
       <h2>🔐 دفتر القسم</h2>
