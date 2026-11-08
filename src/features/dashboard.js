@@ -20,6 +20,12 @@ let dynState = {
   activeTypes: { excused: true, unexcused: true, late: true, expelled: true }
 };
 
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const c = x => Math.max(0, Math.min(255, Math.round(x * f)));
+  return 'rgb(' + c(n >> 16) + ',' + c((n >> 8) & 255) + ',' + c(n & 255) + ')';
+}
+
 function ensureDb() {
   if (db.students && db.students.length > 0) return;
   try {
@@ -245,14 +251,16 @@ function renderDynPie(cur) {
   }
 
   const NS = 'http://www.w3.org/2000/svg';
-  const cx = 100, cy = 70, rx = 80, ry = 40, H = 16, TAU = Math.PI * 2;
+  const cx = 150, cy = 90, rx = 100, ry = 55, H = 20, TAU = Math.PI * 2;
   const fx = n => n.toFixed(2);
 
   const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 200 140');
-  svg.setAttribute('width', '220');
-  svg.setAttribute('height', '150');
-  svg.style.maxWidth = '100%';
+  svg.setAttribute('viewBox', '0 0 300 200');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '200');
+  svg.style.maxWidth = '300px';
+  svg.style.display = 'block';
+  svg.style.margin = '0 auto';
 
   const mk = (tag, at) => {
     const n = document.createElementNS(NS, tag);
@@ -262,33 +270,107 @@ function renderDynPie(cur) {
 
   const P = a => [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
 
-  svg.append(mk('ellipse', { cx, cy: cy + H + 4, rx: rx + 4, ry: ry + 4, fill: 'rgba(0,0,0,0.12)' }));
+  svg.append(mk('ellipse', { cx, cy: cy + H + 6, rx: rx + 6, ry: ry + 6, fill: 'rgba(0,0,0,0.15)' }));
 
+  const segs = [];
   let a = -Math.PI / 2;
   items.forEach(([label, value, color]) => {
     if (value <= 0) return;
     const f = value / tot;
     const a0 = a, a1 = a + f * TAU;
     a = a1;
-    const face = mk('path', {
-      d: 'M' + cx + ' ' + cy +
-         'L' + fx(P(a0)[0]) + ' ' + fx(P(a0)[1]) +
-         'A' + rx + ' ' + ry + ' 0 ' + (f > 0.5 ? 1 : 0) + ' 1 ' + fx(P(a1)[0]) + ' ' + fx(P(a1)[1]) + 'Z',
-      fill: color,
-      stroke: '#fff',
-      'stroke-width': 1
-    });
-    svg.append(face);
+    segs.push({ label, value, color, f, a0, a1 });
   });
 
-  const wrap = el('div', {}, svg);
-  const legend = el('ul', { style: 'list-style:none;padding:0;margin:10px 0 0;font-size:13px' });
+  const norm = x => ((x % TAU) + TAU) % TAU;
+
+  segs.forEach(s => {
+    const A0 = norm(s.a0), A1 = A0 + (s.a1 - s.a0);
+    [[0, Math.PI], [TAU, TAU + Math.PI]].forEach(([lo, hi]) => {
+      const x0 = Math.max(A0, lo), x1 = Math.min(A1, hi);
+      if (x1 - x0 < 1e-6) return;
+      const [ax, ay] = P(x0), [bx, by] = P(x1);
+      const lg = (x1 - x0) > Math.PI ? 1 : 0;
+      svg.append(mk('path', {
+        d: 'M' + fx(ax) + ' ' + fx(ay) +
+           'L' + fx(ax) + ' ' + fx(ay + H) +
+           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(bx) + ' ' + fx(by + H) +
+           'L' + fx(bx) + ' ' + fx(by) +
+           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 0 ' + fx(ax) + ' ' + fx(ay) + 'Z',
+        fill: shade(s.color, 0.6)
+      }));
+    });
+  });
+
+  segs.forEach(s => {
+    if (s.f >= 0.9999) {
+      svg.append(mk('ellipse', { cx, cy, rx, ry, fill: s.color, stroke: '#fff', 'stroke-width': 1.5 }));
+    } else {
+      const [x0, y0] = P(s.a0), [x1, y1] = P(s.a1);
+      const lg = (s.a1 - s.a0) > Math.PI ? 1 : 0;
+      svg.append(mk('path', {
+        d: 'M' + cx + ' ' + cy +
+           'L' + fx(x0) + ' ' + fx(y0) +
+           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(x1) + ' ' + fx(y1) + 'Z',
+        fill: s.color,
+        stroke: '#fff',
+        'stroke-width': 1.5
+      }));
+    }
+  });
+
+  segs.forEach(s => {
+    const pc = Math.round(100 * s.f);
+    if (pc < 3) return;
+    const m = (s.a0 + s.a1) / 2;
+    const X = fx(cx + rx * 0.65 * Math.cos(m));
+    const Y = fx(cy + ry * 0.65 * Math.sin(m) + 5);
+    const t1 = mk('text', {
+      x: X, y: Y,
+      'text-anchor': 'middle',
+      'font-size': '14',
+      'font-weight': '800',
+      fill: 'none',
+      stroke: 'rgba(0,0,0,0.7)',
+      'stroke-width': '3',
+      'stroke-linejoin': 'round'
+    });
+    t1.textContent = pc + '%';
+    svg.append(t1);
+    const t2 = mk('text', {
+      x: X, y: Y,
+      'text-anchor': 'middle',
+      'font-size': '14',
+      'font-weight': '800',
+      fill: '#fff'
+    });
+    t2.textContent = pc + '%';
+    svg.append(t2);
+  });
+
+  const wrap = el('div', { style: 'text-align:center' }, svg);
+
+  const legend = el('ul', { style: 'list-style:none;padding:0;margin:12px 0 0;font-size:13px;display:flex;flex-direction:column;gap:4px' });
   items.forEach(([label, value, color]) => {
     if (value === 0) return;
-    legend.append(el('li', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0' },
-      el('span', { style: 'width:12px;height:12px;border-radius:3px;background:' + color }),
-      label + ' : ' + value + ' (' + Math.round(100 * value / tot) + '%)'
-    ));
+    const li = el('li', {
+      style: 'display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .15s'
+    });
+    li.append(
+      el('span', { style: 'width:14px;height:14px;border-radius:3px;background:' + color }),
+      el('span', { style: 'flex:1;text-align:right' }, label),
+      el('strong', { textContent: value + ' (' + Math.round(100 * value / tot) + '%)' })
+    );
+    li.onmouseenter = () => { li.style.background = '#f1f8f5'; };
+    li.onmouseleave = () => { li.style.background = 'transparent'; };
+    li.onclick = () => {
+      const key = DYN_TYPES.find(x => x[1] === label)?.[0];
+      if (key) {
+        dynState.activeTypes[key] = !dynState.activeTypes[key];
+        renderDashboard();
+      }
+    };
+    legend.append(li);
   });
 
   wrap.append(legend);
