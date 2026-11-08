@@ -301,6 +301,9 @@ async function demarrer() {
   }
 
   // 4. Firebase (désactivé pour l'instant)
+      // Mode local : on cache l'écran de connexion et on affiche l'app
+    afficherAuth(false);
+    document.body.classList.add('logged-in');
   // await initFirebase();
 
   const btnLogin = $('btnLogin');
