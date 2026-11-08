@@ -1077,3 +1077,57 @@ body.dark-mode .dash-card { background: #2a3230; border-color: #3a4340; }
 body.dark-mode .dyn-row:hover { background: #343d3a; }
 body.dark-mode .dyn-row .b2 { background: #3a4340; }
 body.dark-mode .dyn-current-class { background: #1a3a5c; color: #e8ecea; }
+/* ============================================ */
+/* OVERLAY POUR LES FENÊTRES MODALES (POPUPS) */
+/* ============================================ */
+.ov {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Pour être au-dessus de tout */
+    padding: 16px;
+}
+.ovbox {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+body.dark-mode .ovbox {
+    background: #242b2a;
+    color: #e8ecea;
+}
+/* ============================================ */
+/* OVERLAY POUR LES FENÊTRES MODALES (POPUPS) */
+/* ============================================ */
+.ov {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Pour être au-dessus de tout */
+    padding: 16px;
+}
+.ovbox {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+body.dark-mode .ovbox {
+    background: #242b2a;
+    color: #e8ecea;
+}
