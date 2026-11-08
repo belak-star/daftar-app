@@ -659,3 +659,372 @@ body:not(.logged-in) #toast { display: none; }
   .dyn-filters { display: none !important; }
   .dash-grid { grid-template-columns: 1fr; }
 }
+/* ============================================ */
+/* DESIGN MODERNE POUR L'ONGLET PRÉSENCES (الاستدعاء اليومي) */
+/* ============================================ */
+
+/* Barre date + classe */
+.dail-bar {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 14px;
+  background: #f8fbfa;
+  border-radius: 12px;
+  border: 1px solid #e0e8e5;
+}
+
+.dail-date-wrap, .dail-class-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dail-date-wrap label, .dail-class-wrap label {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.dail-date-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.dail-date-input {
+  font-size: 20px;
+  font-weight: 800;
+  padding: 8px 14px;
+  border: 2px solid #38a3a5;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fff8d9 0%, #e0f2fe 100%);
+  color: #174b73;
+  text-align: center;
+  direction: ltr;
+}
+
+.dail-class-select {
+  font-size: 22px;
+  font-weight: 800;
+  padding: 8px 14px;
+  border: 2px solid #d9822b;
+  border-radius: 10px;
+  color: #8a2a20;
+  text-align: center;
+  min-width: 200px;
+}
+
+.btn-icon {
+  border: 0;
+  background: #e6ece9;
+  color: var(--ink);
+  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.btn-icon:hover { background: #d5dfdb; }
+
+/* Cartes statistiques */
+.att-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 20px;
+}
+
+.att-stat-card {
+  flex: 1;
+  min-width: 130px;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 2px solid;
+  text-align: center;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.att-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+.att-stat-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.att-stat-value {
+  display: block;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 4px;
+}
+
+/* Barre d'outils (recherche, boutons) */
+.dail-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.dail-search {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+/* Tableau des présences */
+.dail-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.dail-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 780px;
+}
+
+.dail-table thead th {
+  color: #fff;
+  padding: 14px 10px;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.dail-table thead th.col-n { background: #1f5c55; width: 60px; }
+.dail-table thead th.col-name { background: #1f5c55; text-align: right; padding-right: 14px; }
+.dail-table thead th.col-status { background: #2563a8; width: 200px; }
+.dail-table thead th.col-reason { background: #e0702b; width: 200px; }
+.dail-table thead th.col-situation { background: #7a3fb5; width: 150px; }
+.dail-table thead th.col-del { background: #1f5c55; width: 60px; }
+
+.dail-table tbody tr:nth-child(even) td { background: #f1f8f5; }
+.dail-table tbody tr:hover td { background: #fff3b0 !important; }
+.dail-table tbody tr.out td { opacity: 0.7; }
+
+.dail-table tbody td {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  text-align: center;
+}
+
+.dail-table tbody td.col-name {
+  text-align: right;
+  padding-right: 14px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.dail-table tbody td.col-n {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Bouton de statut dans le tableau */
+.status-btn {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.status-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.status-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Champ raison */
+.reason-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  font-size: 15px;
+  text-align: right;
+}
+
+.reason-input:focus {
+  border-color: #e0702b;
+  outline: none;
+}
+
+/* Select situation */
+.situation-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  font-size: 15px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Modale de statut */
+.status-dialog {
+  max-width: 440px;
+}
+
+.status-option {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 16px;
+  border: 2px solid;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.status-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.status-option.selected {
+  box-shadow: 0 0 0 4px rgba(31, 92, 85, 0.3);
+}
+
+/* Bouton icône petit */
+.btn-icon-sm {
+  border: 0;
+  background: #e6ece9;
+  color: var(--ink);
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-icon-sm:hover {
+  background: #d5dfdb;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .stat-card { min-width: 110px; padding: 10px; }
+  .stat-value { font-size: 26px; }
+  .dail-date-input, .dail-class-select { font-size: 18px; }
+  .dail-table tbody td.col-name { font-size: 17px; }
+  .status-btn { font-size: 15px; min-height: 44px; }
+}
+/* ============================================ */
+/* DESIGN MODERNE POUR L'ONGLET PRÉSENCES (اليومي الستدعاء) */
+/* ============================================ */
+.dail-bar {
+    display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; justify-content: center;
+    margin-bottom: 20px; padding: 14px; background: #f8fbfa; border-radius: 12px; border: 1px solid #e0e8e5;
+}
+.dail-date-wrap, .dail-class-wrap { display: flex; flex-direction: column; gap: 6px; }
+.dail-date-wrap label, .dail-class-wrap label { font-weight: 700; font-size: 15px; color: var(--muted); }
+.dail-date-row { display: flex; gap: 6px; align-items: center; }
+.dail-date-input {
+    font-size: 20px; font-weight: 800; padding: 8px 14px; border: 2px solid #38a3a5; border-radius: 10px;
+    background: linear-gradient(135deg, #fff8d9 0%, #e0f2fe 100%); color: #174b73; text-align: center; direction: ltr;
+}
+.dail-class-select {
+    font-size: 22px; font-weight: 800; padding: 8px 14px; border: 2px solid #d9822b; border-radius: 10px;
+    color: #8a2a20; text-align: center; min-width: 200px;
+}
+.btn-icon {
+    border: 0; background: #e6ece9; color: var(--ink); border-radius: 8px; width: 42px; height: 42px;
+    font-size: 20px; font-weight: 800; cursor: pointer; transition: background .15s;
+}
+.btn-icon:hover { background: #d5dfdb; }
+.att-stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 20px; }
+.att-stat-card {
+    flex: 1; min-width: 130px; border-radius: 12px; padding: 14px 16px; border: 2px solid;
+    text-align: center; transition: transform .15s, box-shadow .15s;
+}
+.att-stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
+.att-stat-label { display: block; font-size: 14px; font-weight: 700; }
+.att-stat-value { display: block; font-size: 32px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+.dail-toolbar {
+    display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 18px; padding: 10px;
+    background: #fff; border-radius: 12px; border: 1px solid var(--line);
+}
+.dail-search { flex: 1; min-width: 220px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 10px; font-size: 15px; }
+.dail-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+.dail-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 780px; }
+.dail-table thead th { color: #fff; padding: 14px 10px; font-size: 16px; font-weight: 800; text-align: center; position: sticky; top: 0; z-index: 2; }
+.dail-table thead th.col-n { background: #1f5c55; width: 60px; }
+.dail-table thead th.col-name { background: #1f5c55; text-align: right; padding-right: 14px; }
+.dail-table thead th.col-status { background: #2563a8; width: 200px; }
+.dail-table thead th.col-reason { background: #e0702b; width: 200px; }
+.dail-table thead th.col-situation { background: #7a3fb5; width: 150px; }
+.dail-table thead th.col-del { background: #1f5c55; width: 60px; }
+.dail-table tbody tr:nth-child(even) td { background: #f1f8f5; }
+.dail-table tbody tr:hover td { background: #fff3b0 !important; }
+.dail-table tbody tr.out td { opacity: 0.7; }
+.dail-table tbody td { padding: 12px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: center; }
+.dail-table tbody td.col-name { text-align: right; padding-right: 14px; font-size: 20px; font-weight: 800; color: #111827; }
+.dail-table tbody td.col-n { font-size: 18px; font-weight: 700; color: var(--muted); }
+.status-btn {
+    display: block; width: 100%; min-height: 48px; padding: 10px 14px; border: 2px solid; border-radius: 10px;
+    font-size: 17px; font-weight: 800; cursor: pointer; transition: transform .15s, box-shadow .15s;
+}
+.status-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.status-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+.reason-input, .situation-select {
+    width: 100%; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; font-size: 15px; text-align: right;
+}
+.reason-input:focus, .situation-select:focus { border-color: #e0702b; outline: none; }
+.status-dialog { max-width: 440px; }
+.status-option {
+    display: block; width: 100%; margin: 10px 0; padding: 16px; border: 2px solid; border-radius: 12px;
+    font-size: 20px; font-weight: 800; cursor: pointer; text-align: center; transition: transform .15s, box-shadow .15s;
+}
+.status-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.status-option.selected { box-shadow: 0 0 0 4px rgba(31, 92, 85, 0.3); }
+.btn-icon-sm { border: 0; background: #e6ece9; color: var(--ink); border-radius: 6px; width: 36px; height: 36px; font-size: 16px; cursor: pointer; }
+.btn-icon-sm:hover { background: #d5dfdb; }
+@media (max-width: 700px) {
+    .att-stat-card { min-width: 110px; padding: 10px; }
+    .att-stat-value { font-size: 26px; }
+    .dail-date-input, .dail-class-select { font-size: 18px; }
+    .dail-table tbody td.col-name { font-size: 17px; }
+    .status-btn { font-size: 15px; min-height: 44px; }
+}

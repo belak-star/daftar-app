@@ -1,274 +1,269 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>دفتر القسم — DAFTAR</title>
-  <link rel="icon" href="data:,">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="src/styles.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1f5c55">
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>دفتر القسم — DAFTAR</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1f5c55">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>دفتر القسم</h1>
-      <div id="todayLine">Chargement…</div>
-      <div id="userBar" style="flex:1 1 100%;text-align:center;margin-top:8px;display:none">
-        <span id="userEmail" style="color:#e8f5f1;font-weight:700"></span>
-        <button class="btn alt" id="btnLogout" style="margin-inline-start:10px;background:rgba(255,255,255,.2);color:#fff">🚪 خروج</button>
-      </div>
-      <button class="btn alt" id="btnTheme" style="margin-top:8px;background:rgba(255,255,255,.2);color:#fff">🌙 وضع ليلي</button>
-    </header>
+    <div class="wrap">
+        <header>
+            <h1>دفتر القسم</h1>
+            <div id="todayLine">Chargement…</div>
+            <div id="userBar" style="flex:1 1 100%;text-align:center;margin-top:8px;display:none">
+                <span id="userEmail" style="color:#e8f5f1;font-weight:700"></span>
+                <button class="btn alt" id="btnLogout" style="margin-inline-start:10px;background:rgba(255,255,255,.2);color:#fff">🚪 خروج</button>
+            </div>
+            <button class="btn alt" id="btnTheme" style="margin-top:8px;background:rgba(255,255,255,.2);color:#fff">🌙 وضع ليلي</button>
+        </header>
+        <div class="tabs" role="tablist">
+            <button class="tab" role="tab" id="tabDashboard" aria-selected="true">لوحة القيادة</button>
+            <button class="tab" role="tab" id="tabDaily" aria-selected="false">الاستدعاء اليومي</button>
+            <button class="tab" role="tab" id="tabMonthly" aria-selected="false">التقرير الشهري</button>
+            <button class="tab" role="tab" id="tabGrades" aria-selected="false">النقاط والمعدلات</button>
+            <button class="tab" role="tab" id="tabDiscipline" aria-selected="false">⚖️ العقوبات</button>
+            <button class="tab" role="tab" id="tabAgenda" aria-selected="false">📅 الأجندة</button>
+            <button class="tab" role="tab" id="tabAnalysis" aria-selected="false">📊 تحليل الفرض</button>
+            <button class="tab" role="tab" id="tabClasses" aria-selected="false">الفصول والتلاميذ</button>
+        </div>
+        <div style="text-align:center;margin:12px 0">
+            <button class="btn alt" id="btnBackup" style="background:#1f7a4d;color:#fff">💾 نسخة احتياطية</button>
+            <button class="btn alt" id="btnRestore" style="background:#2563a8;color:#fff">📂 استرجاع</button>
+            <input type="file" id="restoreFile" accept=".json" style="display:none">
+        </div>
 
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tabDashboard" aria-selected="true">لوحة القيادة</button>
-      <button class="tab" role="tab" id="tabDaily" aria-selected="false">الاستدعاء اليومي</button>
-      <button class="tab" role="tab" id="tabMonthly" aria-selected="false">التقرير الشهري</button>
-      <button class="tab" role="tab" id="tabGrades" aria-selected="false">النقاط والمعدلات</button>
-      <button class="tab" role="tab" id="tabDiscipline" aria-selected="false">⚖️ العقوبات</button>
-      <button class="tab" role="tab" id="tabAgenda" aria-selected="false">📅 الأجندة</button>
-      <button class="tab" role="tab" id="tabAnalysis" aria-selected="false">📊 تحليل الفرض</button>
-      <button class="tab" role="tab" id="tabClasses" aria-selected="false">الفصول والتلاميذ</button>
+        <!-- 1. لوحة القيادة -->
+        <section class="panel" id="dashboard">
+            <h2 style="margin-top:0;color:var(--main)">📊 لوحة القيادة</h2>
+            <p class="hint">نظرة عامة على كل الفصول والغيابات والمعدلات.</p>
+            <div class="dash-cards" id="dynKpis"></div>
+            <div class="dash-grid">
+                <div class="dash-box">
+                    <h3>📈 تطور الغيابات</h3>
+                    <div id="dynChart"></div>
+                </div>
+                <div class="dash-box">
+                    <h3>🥧 توزيع الغيابات</h3>
+                    <div id="dynPie"></div>
+                </div>
+            </div>
+            <div class="dash-grid">
+                <div class="dash-box">
+                    <h3>🏆 أكثر التلاميذ غيابًا</h3>
+                    <div id="dynTop"></div>
+                </div>
+                <div class="dash-box">
+                    <h3>📚 مقارنة الفصول</h3>
+                    <div id="dynClasses"></div>
+                </div>
+            </div>
+            <div class="dash-box" style="margin-top:18px">
+                <h3>⚠️ تلاميذ في حالة تنبيه</h3>
+                <div id="dynAlerts"></div>
+            </div>
+        </section>
+
+        <!-- 2. الاستدعاء اليومي (NOUVEAU DESIGN) -->
+        <section class="panel hidden" id="daily">
+            <h2 id="dailyTitle" class="daily-title"></h2>
+            <div class="dail-bar">
+                <div class="dail-date-wrap">
+                    <label for="attDate">تاريخ الحصة</label>
+                    <div class="dail-date-row">
+                        <button class="btn-icon" id="prevDay" title="اليوم السابق">‹</button>
+                        <input type="date" id="attDate" class="dail-date-input">
+                        <button class="btn-icon" id="nextDay" title="اليوم التالي">›</button>
+                        <button class="btn-icon" id="todayBtn" title="اليوم">📅</button>
+                    </div>
+                </div>
+                <div class="dail-class-wrap">
+                    <label for="attClass">الفصل</label>
+                    <select id="attClass" class="dail-class-select"><option value="">— اختر —</option></select>
+                </div>
+            </div>
+            <div class="att-stats" id="attStats"></div>
+            <div class="dail-pies" id="dayPies"></div>
+            <div class="dail-toolbar">
+                <input type="search" id="search" placeholder="بحث عن تلميذ بالاسم..." class="dail-search">
+                <button class="btn alt" id="allPresent">✅ الكل حاضر</button>
+                <button class="btn alt" id="expDay">📥 تصدير Excel</button>
+                <button class="btn alt" onclick="window.print()">🖨️ طباعة</button>
+            </div>
+            <div class="dail-table-wrap">
+                <table class="dail-table">
+                    <thead>
+                        <tr>
+                            <th class="col-n">N°</th>
+                            <th class="col-name">اسم التلميذ</th>
+                            <th class="col-status">الحالة</th>
+                            <th class="col-reason">السبب</th>
+                            <th class="col-situation">الوضعية</th>
+                            <th class="col-del"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. التقرير الشهري -->
+        <section class="panel hidden" id="monthly">
+            <h2 style="margin-top:0;color:#b3261e">📊 التقرير الشهري</h2>
+            <div class="row">
+                <div><label for="moClass">الفصل</label><select id="moClass"><option value="">— اختر —</option></select></div>
+                <div><label for="moMonth">الشهر</label><input type="month" id="moMonth"></div>
+                <button class="btn" id="moExport" style="background:#1f7a4d">📥 تصدير Excel</button>
+            </div>
+            <div class="stats" id="moStats"></div>
+            <div id="moList"></div>
+        </section>
+
+        <!-- 4. النقاط والمعدلات -->
+        <section class="panel hidden" id="grades">
+            <h2 style="margin-top:0;color:var(--main)">📝 النقاط والمعدلات</h2>
+            <div class="row">
+                <div><label for="gClass">الفصل</label><select id="gClass"><option value="">— اختر —</option></select></div>
+                <div><label for="gTerm">الثلاثي</label><select id="gTerm">
+                    <option value="1">الثلاثي الأول</option>
+                    <option value="2">الثلاثي الثاني</option>
+                    <option value="3">الثلاثي الثالث</option>
+                    <option value="A">المعدل السنوي</option>
+                </select></div>
+            </div>
+            <div class="row"><button class="btn" id="gExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
+            <div class="stats" id="gStats"></div>
+            <div id="gList"></div>
+            <div id="examMissingSection" class="exam-missing hidden">
+                <h3 style="margin-top:0">📋 الغيابات في هذا الفرض</h3>
+                <div class="row" style="margin-bottom:12px">
+                    <div>
+                        <label for="missingExam">الفرض</label>
+                        <select id="missingExam">
+                            <option value="tp">أشغال تطبيقية</option>
+                            <option value="dc">فرض مراقبة</option>
+                            <option value="ds">فرض تأليفي</option>
+                        </select>
+                    </div>
+                    <label class="exam-done-label">
+                        <input type="checkbox" id="examDone"> الفرض منجز
+                    </label>
+                    <button class="btn alt" id="expMissing" style="background:#1f7a4d;color:#fff">📥 تصدير Excel</button>
+                    <span id="missingCount" class="count"></span>
+                </div>
+                <div id="missingSummary" class="hint" style="margin-bottom:12px"></div>
+                <div id="missingTables"></div>
+            </div>
+        </section>
+
+        <!-- 5. العقوبات -->
+        <section class="panel hidden" id="discipline">
+            <h2 style="margin-top:0;color:#8a2a20">⚖️ العقوبات واستدعاء الأولياء</h2>
+            <div class="disc-form">
+                <div class="row">
+                    <div><label for="discClass">الفصل</label><select id="discClass"><option value="">— اختر —</option></select></div>
+                    <div><label for="discStudent">التلميذ</label><select id="discStudent"><option value="">— اختر الفصل أولاً —</option></select></div>
+                    <div><label for="discDate">التاريخ</label><input type="date" id="discDate"></div>
+                </div>
+                <div class="row">
+                    <div><label for="discKind">نوع السجل</label><select id="discKind"><option value="sanction">عقوبة</option><option value="invitation">استدعاء الولي</option></select></div>
+                    <div id="discTypeWrap"><label for="discType">نوع العقوبة</label><select id="discType"><option>تنبيه</option><option>إنذار</option><option>توبيخ</option><option>إقصاء مؤقت</option><option>إقصاء نهائي</option></select></div>
+                    <div id="discMeetDateWrap" class="hidden"><label for="discMeetDate">موعد الاستدعاء (التاريخ)</label><input type="date" id="discMeetDate"><label for="discMeetTime" style="margin-top:8px">الساعة</label><input type="time" id="discMeetTime"></div>
+                </div>
+                <div class="row"><div style="flex:1 1 100%"><label for="discReason">الموضوع / السبب</label><textarea id="discReason" rows="2"></textarea></div></div>
+                <div class="row"><button class="btn" id="discSave">➕ حفظ السجل</button><button class="btn alt" id="discReset">🔄 مسح</button></div>
+            </div>
+            <div class="row"><div><label for="discFilterClass">تصفية حسب الفصل</label><select id="discFilterClass"><option value="">كل الفصول</option></select></div><button class="btn" id="discExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
+            <p id="discCount" class="hint"></p>
+            <div id="discList"></div>
+        </section>
+
+        <!-- 6. الأجندة -->
+        <section class="panel hidden" id="agenda">
+            <h2 style="margin-top:0;color:#2563a8">📅 الأجندة</h2>
+            <div class="ag-form">
+                <div class="row">
+                    <div><label for="agClass">الفصل</label><select id="agClass"><option value="">— اختر —</option></select></div>
+                    <div><label for="agType">النوع</label><select id="agType"><option value="devoir">واجب منزلي</option><option value="controle">اختبار / فرض</option><option value="autre">آخر</option></select></div>
+                    <div><label for="agDate">التاريخ</label><input type="date" id="agDate"></div>
+                </div>
+                <div class="row"><div style="flex:1 1 100%"><label for="agTitle">العنوان</label><input id="agTitle"></div></div>
+                <div class="row"><div style="flex:1 1 100%"><label for="agDesc">تفاصيل (اختياري)</label><textarea id="agDesc" rows="2"></textarea></div></div>
+                <div class="row"><button class="btn" id="agSave">➕ إضافة</button><button class="btn alt" id="agReset">🔄 مسح</button></div>
+            </div>
+            <div class="row"><div><label for="agFilterClass">تصفية حسب الفصل</label><select id="agFilterClass"><option value="">كل الفصول</option></select></div><button class="btn" id="agExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
+            <p id="agCount" class="hint"></p>
+            <div id="agList"></div>
+        </section>
+
+        <!-- 7. تحليل الفرض -->
+        <section class="panel hidden" id="analysis">
+            <h2 style="margin-top:0;color:#555db0">📊 تحليل الفرض</h2>
+            <div class="row">
+                <div><label for="anClass">الفصل</label><select id="anClass"><option value="">— اختر —</option></select></div>
+                <div><label for="anTerm">الثلاثي</label><select id="anTerm"><option value="1">الثلاثي الأول</option><option value="2">الثلاثي الثاني</option><option value="3">الثلاثي الثالث</option></select></div>
+                <div><label for="anType">نوع الفرض</label><select id="anType"><option value="tp">أشغال تطبيقية</option><option value="dc">فرض مراقبة</option><option value="ds">فرض تأليفي</option></select></div>
+            </div>
+            <div class="row"><button class="btn alt" id="anLoad">📥 تحميل</button><button class="btn" id="anSave" style="background:#1f7a4d;color:#fff">💾 حفظ</button></div>
+            <h3 style="color:#555db0;margin-top:24px">1. الأسئلة والكفاءات</h3>
+            <div class="row">
+                <div><label for="anExName">التمرين</label><input id="anExName" placeholder="التمرين 1"></div>
+                <div><label for="anQName">السؤال</label><input id="anQName" placeholder="السؤال 1"></div>
+                <div><label for="anQMax">العدد الأقصى</label><input id="anQMax" type="number" min="0.5" max="20" value="2" step="0.5"></div>
+                <div><label for="anQComp">الكفاءة</label><input id="anQComp" placeholder="الاستنتاج"></div>
+                <button class="btn" id="anAddQ">➕ إضافة</button>
+            </div>
+            <div id="anQuestions"></div>
+            <h3 style="color:#555db0;margin-top:24px">2. الأعداد حسب السؤال</h3>
+            <div class="scroll" id="anScores"></div>
+            <h3 style="color:#555db0;margin-top:24px">3. النتائج</h3>
+            <button class="btn" id="anAnalyze">📊 حساب التحليل</button>
+            <div id="anResults"></div>
+        </section>
+
+        <!-- 8. الفصول والتلاميذ -->
+        <section class="panel hidden" id="classes">
+            <h2 style="margin-top:0;color:var(--main)">📚 الفصول والتلاميذ</h2>
+            <div class="row">
+                <div><label for="newClass">اسم الفصل الجديد</label><input id="newClass" placeholder="مثال: 7A"></div>
+                <button class="btn" id="addClass">➕ إضافة الفصل</button>
+            </div>
+            <div class="row">
+                <div><label for="classSelect">اختر فصلاً</label><select id="classSelect"><option value="">— اختر —</option></select></div>
+            </div>
+            <div class="row">
+                <div><label for="newStudent">اسم التلميذ الجديد</label><input id="newStudent" placeholder="الاسم الكامل"></div>
+                <button class="btn" id="addStudent">➕ إضافة التلميذ</button>
+            </div>
+            <h3 style="color:var(--main);margin-top:24px">قائمة التلاميذ</h3>
+            <p id="studentCount" class="hint"></p>
+            <div id="studentList"></div>
+        </section>
     </div>
-
-    <div style="text-align:center;margin:12px 0">
-      <button class="btn alt" id="btnBackup" style="background:#1f7a4d;color:#fff">💾 نسخة احتياطية</button>
-      <button class="btn alt" id="btnRestore" style="background:#2563a8;color:#fff">📂 استرجاع</button>
-      <input type="file" id="restoreFile" accept=".json" style="display:none">
+    <div id="toast" role="status"></div>
+    <div id="authScreen">
+        <div class="auth-box">
+            <h2>🔐 دفتر القسم</h2>
+            <p class="hint">سجّل الدخول للوصول إلى بياناتك</p>
+            <label for="authEmail">البريد الإلكتروني</label>
+            <input id="authEmail" type="email" placeholder="exemple@email.com" autocomplete="username">
+            <label for="authPassword">كلمة المرور</label>
+            <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+            <p id="authError" class="auth-error"></p>
+            <div class="auth-buttons">
+                <button class="btn" id="btnLogin">دخول</button>
+                <button class="btn alt" id="btnSignup">إنشاء حساب</button>
+            </div>
+            <button class="btn alt" id="btnForgot" style="width:100%;margin-top:8px">نسيت كلمة المرور؟</button>
+        </div>
     </div>
-
-    <!-- 1. لوحة القيادة dynamique -->
-    <section class="panel" id="dashboard">
-      <h2 style="margin-top:0;color:var(--main)">📊 لوحة القيادة</h2>
-      <p class="hint">نظرة عامة على القسم — تتحدث تلقائياً.</p>
-
-      <div class="dyn-filters">
-        <label>
-          <span>النطاق</span>
-          <select id="dynScope">
-            <option value="cur">الفصل الحالي</option>
-            <option value="7">كل فصول السابعة</option>
-            <option value="8">كل فصول الثامنة</option>
-            <option value="all">كل الفصول</option>
-          </select>
-          <span id="dynCurrentClass" class="dyn-current-class"></span>
-          <select id="dynClassSel" style="width:auto;min-width:150px;margin-inline-start:8px;display:none">
-            <option value="">— اختر فصلاً —</option>
-          </select>
-        </label>
-        <label>
-          <span>الفترة</span>
-          <select id="dynPeriod">
-            <option value="D">اليوم</option>
-            <option value="W">آخر 7 أيام</option>
-            <option value="M" selected>هذا الشهر</option>
-            <option value="Y">السنة الدراسية</option>
-          </select>
-        </label>
-        <span id="dynChips" class="dyn-chips"></span>
-      </div>
-
-      <div class="dash-cards" id="dynKpis"></div>
-
-      <div class="dash-grid">
-        <div class="dash-box">
-          <h3>📈 تطور الغيابات</h3>
-          <div id="dynChart"></div>
-        </div>
-        <div class="dash-box">
-          <h3>🥧 توزيع الغيابات</h3>
-          <div id="dynPie"></div>
-        </div>
-      </div>
-
-      <div class="dash-grid">
-        <div class="dash-box">
-          <h3>🏆 أكثر التلاميذ غياباً</h3>
-          <div id="dynTop"></div>
-        </div>
-        <div class="dash-box">
-          <h3>📚 مقارنة الفصول</h3>
-          <div id="dynClasses"></div>
-        </div>
-      </div>
-
-      <div class="dash-box" style="margin-top:18px">
-        <h3>⚠️ تلاميذ في حالة تنبيه</h3>
-        <div id="dynAlerts"></div>
-      </div>
-    </section>
-
-    <!-- 2. الاستدعاء اليومي -->
-    <section class="panel hidden" id="daily">
-      <h2 id="dailyTitle" style="margin-top:0;color:var(--main)">📋 الاستدعاء اليومي</h2>
-      <div class="row">
-        <div><label for="attDate">تاريخ الحصة</label><input type="date" id="attDate"></div>
-        <div><label for="attClass">الفصل</label><select id="attClass"><option value="">— اختر —</option></select></div>
-        <button class="btn alt" id="attAllPresent">✅ الكل حاضر</button>
-        <button class="btn" id="attExport" style="background:#1f7a4d">📥 تصدير Excel</button>
-      </div>
-      <div class="stats" id="attStats"></div>
-      <div id="attList"></div>
-    </section>
-
-    <!-- 3. التقرير الشهري -->
-    <section class="panel hidden" id="monthly">
-      <h2 style="margin-top:0;color:#b3261e">📊 التقرير الشهري</h2>
-      <div class="row">
-        <div><label for="moClass">الفصل</label><select id="moClass"><option value="">— اختر —</option></select></div>
-        <div><label for="moMonth">الشهر</label><input type="month" id="moMonth"></div>
-        <button class="btn" id="moExport" style="background:#1f7a4d">📥 تصدير Excel</button>
-      </div>
-      <div class="stats" id="moStats"></div>
-      <div id="moList"></div>
-    </section>
-
-    <!-- 4. النقاط والمعدلات -->
-    <section class="panel hidden" id="grades">
-      <h2 style="margin-top:0;color:var(--main)">📝 النقاط والمعدلات</h2>
-      <div class="row">
-        <div><label for="gClass">الفصل</label><select id="gClass"><option value="">— اختر —</option></select></div>
-        <div><label for="gTerm">الثلاثي</label><select id="gTerm"><option value="1">الثلاثي الأول</option><option value="2">الثلاثي الثاني</option><option value="3">الثلاثي الثالث</option><option value="A">المعدل السنوي</option></select></div>
-      </div>
-      <div class="row"><button class="btn" id="gExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
-
-      <div class="stats" id="gStats"></div>
-      <div id="gList"></div>
-
-      <div id="examMissingSection" class="exam-missing hidden">
-        <h3 style="margin-top:0">📋 الغيابات في هذا الفرض</h3>
-        <div class="row" style="margin-bottom:12px">
-          <div>
-            <label for="missingExam">الفرض</label>
-            <select id="missingExam">
-              <option value="tp">أشغال تطبيقية</option>
-              <option value="dc">فرض مراقبة</option>
-              <option value="ds">فرض تأليفي</option>
-            </select>
-          </div>
-          <label class="exam-done-label">
-            <input type="checkbox" id="examDone"> الفرض منجز
-          </label>
-          <button class="btn alt" id="expMissing" style="background:#1f7a4d;color:#fff">📥 تصدير Excel</button>
-          <span id="missingCount" class="count"></span>
-        </div>
-        <div id="missingSummary" class="hint" style="margin-bottom:12px"></div>
-        <div id="missingTables"></div>
-      </div>
-    </section>
-
-    <!-- 5. العقوبات -->
-    <section class="panel hidden" id="discipline">
-      <h2 style="margin-top:0;color:#8a2a20">⚖️ العقوبات واستدعاء الأولياء</h2>
-      <div class="disc-form">
-        <div class="row">
-          <div><label for="discClass">الفصل</label><select id="discClass"><option value="">— اختر —</option></select></div>
-          <div><label for="discStudent">التلميذ</label><select id="discStudent"><option value="">— اختر الفصل أولاً —</option></select></div>
-          <div><label for="discDate">التاريخ</label><input type="date" id="discDate"></div>
-        </div>
-        <div class="row">
-          <div><label for="discKind">نوع السجل</label><select id="discKind"><option value="sanction">عقوبة</option><option value="invitation">استدعاء الولي</option></select></div>
-          <div id="discTypeWrap"><label for="discType">نوع العقوبة</label><select id="discType"><option>تنبيه</option><option>إنذار</option><option>توبيخ</option><option>إقصاء مؤقت</option><option>إقصاء نهائي</option></select></div>
-          <div id="discMeetDateWrap" class="hidden"><label for="discMeetDate">موعد الاستدعاء (التاريخ)</label><input type="date" id="discMeetDate"><label for="discMeetTime" style="margin-top:8px">الساعة</label><input type="time" id="discMeetTime"></div>
-        </div>
-        <div class="row"><div style="flex:1 1 100%"><label for="discReason">السبب / الموضوع</label><textarea id="discReason" rows="2"></textarea></div></div>
-        <div class="row"><button class="btn" id="discSave">➕ حفظ السجل</button><button class="btn alt" id="discReset">🔄 مسح</button></div>
-      </div>
-      <div class="row"><div><label for="discFilterClass">تصفية حسب الفصل</label><select id="discFilterClass"><option value="">كل الفصول</option></select></div><button class="btn" id="discExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
-      <p id="discCount" class="hint"></p>
-      <div id="discList"></div>
-    </section>
-
-    <!-- 6. الأجندة -->
-    <section class="panel hidden" id="agenda">
-      <h2 style="margin-top:0;color:#2563a8">📅 الأجندة</h2>
-      <div class="ag-form">
-        <div class="row">
-          <div><label for="agClass">الفصل</label><select id="agClass"><option value="">— اختر —</option></select></div>
-          <div><label for="agType">النوع</label><select id="agType"><option value="devoir">واجب منزلي</option><option value="controle">فرض / اختبار</option><option value="autre">آخر</option></select></div>
-          <div><label for="agDate">التاريخ</label><input type="date" id="agDate"></div>
-        </div>
-        <div class="row"><div style="flex:1 1 100%"><label for="agTitle">العنوان</label><input id="agTitle"></div></div>
-        <div class="row"><div style="flex:1 1 100%"><label for="agDesc">تفاصيل (اختياري)</label><textarea id="agDesc" rows="2"></textarea></div></div>
-        <div class="row"><button class="btn" id="agSave">➕ إضافة</button><button class="btn alt" id="agReset">🔄 مسح</button></div>
-      </div>
-      <div class="row"><div><label for="agFilterClass">تصفية حسب الفصل</label><select id="agFilterClass"><option value="">كل الفصول</option></select></div><button class="btn" id="agExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
-      <p id="agCount" class="hint"></p>
-      <div id="agList"></div>
-    </section>
-
-    <!-- 7. تحليل الفرض -->
-    <section class="panel hidden" id="analysis">
-      <h2 style="margin-top:0;color:#555db0">📊 تحليل الفرض</h2>
-      <div class="row">
-        <div><label for="anClass">الفصل</label><select id="anClass"><option value="">— اختر —</option></select></div>
-        <div><label for="anTerm">الثلاثي</label><select id="anTerm"><option value="1">الثلاثي الأول</option><option value="2">الثلاثي الثاني</option><option value="3">الثلاثي الثالث</option></select></div>
-        <div><label for="anType">نوع الفرض</label><select id="anType"><option value="tp">أشغال تطبيقية</option><option value="dc">فرض مراقبة</option><option value="ds">فرض تأليفي</option></select></div>
-      </div>
-      <div class="row"><button class="btn alt" id="anLoad">📥 تحميل</button><button class="btn" id="anSave" style="background:#1f7a4d;color:#fff">💾 حفظ</button></div>
-
-      <h3 style="color:#555db0;margin-top:24px">1. الأسئلة والكفاءات</h3>
-      <div class="row">
-        <div><label for="anExName">التمرين</label><input id="anExName" placeholder="التمرين 1"></div>
-        <div><label for="anQName">السؤال</label><input id="anQName" placeholder="السؤال 1"></div>
-        <div><label for="anQMax">العدد الأقصى</label><input id="anQMax" type="number" min="0.5" max="20" value="2" step="0.5"></div>
-        <div><label for="anQComp">الكفاءة</label><input id="anQComp" placeholder="الاستنتاج"></div>
-        <button class="btn" id="anAddQ">➕ إضافة</button>
-      </div>
-      <div id="anQuestions"></div>
-
-      <h3 style="color:#555db0;margin-top:24px">2. الأعداد حسب السؤال</h3>
-      <div class="scroll" id="anScores"></div>
-
-      <h3 style="color:#555db0;margin-top:24px">3. النتائج</h3>
-      <button class="btn" id="anAnalyze">📊 حساب التحليل</button>
-      <div id="anResults"></div>
-    </section>
-
-    <!-- 8. الفصول والتلاميذ -->
-    <section class="panel hidden" id="classes">
-      <h2 style="margin-top:0;color:var(--main)">📚 الفصول والتلاميذ</h2>
-      <div class="row">
-        <div><label for="newClass">اسم الفصل الجديد</label><input id="newClass" placeholder="مثال: 7A"></div>
-        <button class="btn" id="addClass">➕ إضافة الفصل</button>
-      </div>
-      <div class="row">
-        <div><label for="classSelect">اختر فصلاً</label><select id="classSelect"><option value="">— اختر —</option></select></div>
-      </div>
-      <div class="row">
-        <div><label for="newStudent">اسم التلميذ الجديد</label><input id="newStudent" placeholder="الاسم الكامل"></div>
-        <button class="btn" id="addStudent">➕ إضافة التلميذ</button>
-      </div>
-      <h3 style="color:var(--main);margin-top:24px">قائمة التلاميذ</h3>
-      <p id="studentCount" class="hint"></p>
-      <div id="studentList"></div>
-    </section>
-  </div>
-
-  <div id="toast" role="status"></div>
-
-  <div id="authScreen">
-    <div class="auth-box">
-      <h2>🔐 دفتر القسم</h2>
-      <p class="hint">سجّل الدخول للوصول إلى بياناتك</p>
-      <label for="authEmail">البريد الإلكتروني</label>
-      <input id="authEmail" type="email" placeholder="exemple@email.com" autocomplete="username">
-      <label for="authPassword">كلمة المرور</label>
-      <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
-      <p id="authError" class="auth-error"></p>
-      <div class="auth-buttons">
-        <button class="btn" id="btnLogin">دخول</button>
-        <button class="btn alt" id="btnSignup">إنشاء حساب</button>
-      </div>
-      <button class="btn alt" id="btnForgot" style="width:100%;margin-top:8px">نسيت كلمة المرور؟</button>
-    </div>
-  </div>
-
-  <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/main.js"></script>
 </body>
 </html>
