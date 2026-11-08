@@ -316,7 +316,7 @@ async function demarrer() {
 
   if (firebaseReady && onAuthStateChanged) {
     try {
-      initSync();
+      // initSync();
     } catch (err) {
       console.error('initSync:', err);
     }
