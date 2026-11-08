@@ -1246,3 +1246,179 @@ body.dark-mode .auth-box h2 {
 body, .panel, .dash-card, .dash-box, input, select, textarea, .btn {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
+/* ========== SUIVI DES COPIES MANQUANTES (Session 18) ========== */
+
+.exam-missing {
+  margin: 16px 0;
+  border: 2px solid #d4a348;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fffaf0;
+}
+
+.exam-missing h3 {
+  margin: 0 0 8px;
+  color: #805000;
+}
+
+.exam-missing .scroll {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.exam-missing table {
+  min-width: 500px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.exam-missing th {
+  background: #f6e7bd;
+  color: #493200;
+  padding: 10px 8px;
+  text-align: center;
+  font-weight: 700;
+  border-bottom: 2px solid #d4a348;
+}
+
+.exam-missing td {
+  background: #fff;
+  padding: 8px;
+  border-bottom: 1px solid #e8dcc0;
+  text-align: center;
+}
+
+.exam-missing select {
+  min-width: 160px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border: 2px solid #d4a348;
+  border-radius: 8px;
+}
+
+.exam-done-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 800;
+  background: #e4f3e7;
+  padding: 8px 12px;
+  border-radius: 9px;
+  border: 2px solid #1f7a4d;
+  cursor: pointer;
+}
+
+.exam-done-label input {
+  width: 20px;
+  height: 20px;
+  accent-color: #1f7a4d;
+  cursor: pointer;
+}
+
+.exam-missing .count {
+  font-weight: 700;
+  color: #805000;
+  font-size: 16px;
+}
+
+/* Mode sombre */
+body.dark-mode .exam-missing {
+  background: #2a2617;
+  border-color: #a8843a;
+}
+
+body.dark-mode .exam-missing h3 {
+  color: #e5c97a;
+}
+
+body.dark-mode .exam-missing th {
+  background: #3a3220;
+  color: #e5c97a;
+}
+
+body.dark-mode .exam-missing td {
+  background: #2a2617;
+  border-bottom-color: #4a4028;
+}
+
+body.dark-mode .exam-done-label {
+  background: #1a3a24;
+  border-color: #2a9d6f;
+}
+
+@media print {
+  .exam-missing {
+    break-inside: avoid;
+    border: 1px solid #000;
+    background: #fff;
+  }
+  .exam-missing select {
+    border: 0;
+    font-weight: 400;
+  }
+  .exam-done-label {
+    display: none;
+  }
+}
+
+/* ========== GROUPES DE COPIES MANQUANTES ========== */
+
+.missing-group {
+  border-inline-start: 5px solid #999;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.missing-group-title {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.missing-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.missing-table th {
+  background: #eef2ef;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+  border-bottom: 1px solid #ddd;
+}
+
+.missing-table td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.missing-table select {
+  padding: 5px 8px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-weight: 700;
+  min-width: 140px;
+}
+
+body.dark-mode .missing-group {
+  background: #2a3230;
+}
+body.dark-mode .missing-table {
+  background: #1a1f1e;
+}
+body.dark-mode .missing-table th {
+  background: #343d3a;
+  color: #ccc;
+}
+body.dark-mode .missing-table td {
+  border-bottom-color: #3a4340;
+}
