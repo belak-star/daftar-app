@@ -370,6 +370,18 @@ function renderDynAlerts(cur, byId) {
 
 export function renderDashboard() {
   ensureDb(); // ← On s'assure que db est rempli depuis localStorage
+    // Afficher la classe actuelle à côté du filtre
+  const currentClassSpan = $('dynCurrentClass');
+  if (currentClassSpan) {
+    const currentClass = $('classSel')?.value || '';
+    if (dynState.scope === 'cur') {
+      currentClassSpan.textContent = currentClass ? ': ' + currentClass : ': (غير محددة)';
+      currentClassSpan.style.display = 'inline-block';
+    } else {
+      currentClassSpan.textContent = '';
+      currentClassSpan.style.display = 'none';
+    }
+  }
 
   const date = todayStr();
   const sts = getScopeStudents();

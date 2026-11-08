@@ -1422,3 +1422,20 @@ body.dark-mode .missing-table th {
 body.dark-mode .missing-table td {
   border-bottom-color: #3a4340;
 }
+
+/* Classe actuelle affichée à côté du filtre */
+.dyn-current-class {
+  font-weight: 700;
+  color: var(--main);
+  background: #e3f2f1;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-inline-start: 6px;
+  display: inline-block;
+}
+
+body.dark-mode .dyn-current-class {
+  background: #1a3a5c;
+  color: #e8ecea;
+}
