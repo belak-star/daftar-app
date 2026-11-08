@@ -308,6 +308,205 @@ function renderDynPie(cur) {
     } else {
       const [x0, y0] = P(s.a0), [x1, y1] = P(s.a1);
       const lg = (s.a1 - s.a0) > Math.PI ? 1 : 0;
+      const face = mk('path', {
+        d: 'M' + cx + ' ' + cy +
+           'L' + fx(x0) + ' ' + fx(y0) +
+           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(x1) + ' ' + fx(y1) + 'Z',
+        fill: s.color,
+        stroke: '#fff',
+        'stroke-width': 1.5,
+        style: 'cursor:pointer'
+      });
+      // Clic sur le secteur : afficher la liste des élèves
+      face.onclick = () => showPieStudents(s.label, cur);
+      face.onmouseenter = () => { face.setAttribute('opacity', '0.85'); };
+      face.onmouseleave = () => { face.setAttribute('opacity', '1'); };
+      svg.append(face);
+    }
+  });
+
+  segs.forEach(s => {
+    const pc = Math.round(100 * s.f);
+    if (pc < 3) return;
+    const m = (s.a0 + s.a1) / 2;
+    const X = fx(cx + rx * 0.65 * Math.cos(m));
+    const Y = fx(cy + ry * 0.65 * Math.sin(m) + 5);
+    const t1 = mk('text', {
+      x: X, y: Y,
+      'text-anchor': 'middle',
+      'font-size': '14',
+      'font-weight': '800',
+      fill: 'none',
+      stroke: 'rgba(0,0,0,0.7)',
+      'stroke-width': '3',
+      'stroke-linejoin': 'round',
+      style: 'pointer-events:none'
+    });
+    t1.textContent = pc + '%';
+    svg.append(t1);
+    const t2 = mk('text', {
+      x: X, y: Y,
+      'text-anchor': 'middle',
+      'font-size': '14',
+      'font-weight': '800',
+      fill: '#fff',
+      style: 'pointer-events:none'
+    });
+    t2.textContent = pc + '%';
+    svg.append(t2);
+  });
+
+  const wrap = el('div', { style: 'text-align:center' }, svg);
+
+  const legend = el('ul', { style: 'list-style:none;padding:0;margin:12px 0 0;font-size:13px;display:flex;flex-direction:column;gap:4px' });
+  items.forEach(([label, value, color]) => {
+    if (value === 0) return;
+    const li = el('li', {
+      style: 'display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .15s'
+    });
+    li.append(
+      el('span', { style: 'width:14px;height:14px;border-radius:3px;background:' + color }),
+      el('span', { style: 'flex:1;text-align:right' }, label),
+      el('strong', { textContent: value + ' (' + Math.round(100 * value / tot) + '%)' })
+    );
+    li.onmouseenter = () => { li.style.background = '#f1f8f5'; };
+    li.onmouseleave = () => { li.style.background = 'transparent'; };
+    // Clic sur la légende : afficher la liste des élèves
+    li.onclick = () => showPieStudents(label, cur);
+    legend.append(li);
+  });
+
+  wrap.append(legend);
+  box.append(wrap);
+}
+
+/** Affiche la liste des élèves pour un type d'absence donné. */
+function showPieStudents(label, cur) {
+  // Trouver le type correspondant
+  const typeEntry = DYN_TYPES.find(x => x[1] === label);
+  if (!typeEntry) return;
+  const typeKey = typeEntry[0];
+
+  // Récupérer les élèves concernés
+  const date = todayStr();
+  const sts = getScopeStudents();
+  const byId = new Map(sts.map(s => [s.id, s]));
+  const range = dynRange(dynState.period, date, false);
+
+  const affected = [];
+  Object.keys(db.records || {}).forEach(k => {
+    const c = k.indexOf('|');
+    const id = k.slice(c + 1);
+    if (!byId.has(id)) return;
+    const d = k.slice(0, c);
+    if (d < range[0] || d > range[1]) return;
+    const r = db.records[k];
+    if (r.type === typeKey) {
+      affected.push({ student: byId.get(id), record: r, date: d });
+    }
+  });
+
+  // Créer la fenêtre modale
+  const ov = el('div', { class: 'ov' });
+  const box = el('div', { class: 'ovbox', role: 'dialog', ariaModal: 'true' });
+
+  box.append(
+    el('h3', { textContent: label + ' — قائمة التلاميذ', style: 'margin-top:0' }),
+    el('p', { class: 'hint', textContent: 'عدد التلاميذ: ' + affected.length + ' | الفترة: ' + DYN_PERIODS[dynState.period] })
+  );
+
+  if (affected.length === 0) {
+    box.append(el('p', { class: 'empty-list', textContent: 'لا يوجد تلاميذ في هذه الفئة.' }));
+  } else {
+    const table = el('table', { style: 'width:100%;border-collapse:collapse' });
+    const thead = el('thead');
+    thead.append(el('tr', {},
+      el('th', { textContent: 'اسم التلميذ', style: 'text-align:right' }),
+      el('th', { textContent: 'الفصل', style: 'text-align:center' }),
+      el('th', { textContent: 'التاريخ', style: 'text-align:center' }),
+      el('th', { textContent: 'السبب', style: 'text-align:center' })
+    ));
+    table.append(thead);
+    const tbody = el('tbody');
+    affected.sort((a, b) => collator.compare(a.student.name, b.student.name)).forEach(x => {
+      tbody.append(el('tr', {},
+        el('td', { textContent: x.student.name, style: 'text-align:right;font-weight:700' }),
+        el('td', { textContent: x.student.class, style: 'text-align:center' }),
+        el('td', { textContent: x.date, style: 'text-align:center;direction:ltr' }),
+        el('td', { textContent: x.record.reason || '—', style: 'text-align:center' })
+      ));
+    });
+    table.append(tbody);
+    box.append(el('div', { class: 'scroll', style: 'max-height:400px;overflow:auto' }, table));
+  }
+
+  const close = el('button', { class: 'btn', type: 'button', textContent: 'إغلاق', style: 'margin-top:14px' });
+  close.onclick = () => ov.remove();
+  box.append(close);
+
+  ov.append(box);
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  document.body.append(ov);
+}
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const cx = 150, cy = 90, rx = 100, ry = 55, H = 20, TAU = Math.PI * 2;
+  const fx = n => n.toFixed(2);
+
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 300 200');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '200');
+  svg.style.maxWidth = '300px';
+  svg.style.display = 'block';
+  svg.style.margin = '0 auto';
+
+  const mk = (tag, at) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in at) n.setAttribute(k, at[k]);
+    return n;
+  };
+
+  const P = a => [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
+
+  svg.append(mk('ellipse', { cx, cy: cy + H + 6, rx: rx + 6, ry: ry + 6, fill: 'rgba(0,0,0,0.15)' }));
+
+  const segs = [];
+  let a = -Math.PI / 2;
+  items.forEach(([label, value, color]) => {
+    if (value <= 0) return;
+    const f = value / tot;
+    const a0 = a, a1 = a + f * TAU;
+    a = a1;
+    segs.push({ label, value, color, f, a0, a1 });
+  });
+
+  const norm = x => ((x % TAU) + TAU) % TAU;
+
+  segs.forEach(s => {
+    const A0 = norm(s.a0), A1 = A0 + (s.a1 - s.a0);
+    [[0, Math.PI], [TAU, TAU + Math.PI]].forEach(([lo, hi]) => {
+      const x0 = Math.max(A0, lo), x1 = Math.min(A1, hi);
+      if (x1 - x0 < 1e-6) return;
+      const [ax, ay] = P(x0), [bx, by] = P(x1);
+      const lg = (x1 - x0) > Math.PI ? 1 : 0;
+      svg.append(mk('path', {
+        d: 'M' + fx(ax) + ' ' + fx(ay) +
+           'L' + fx(ax) + ' ' + fx(ay + H) +
+           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(bx) + ' ' + fx(by + H) +
+           'L' + fx(bx) + ' ' + fx(by) +
+           'A' + rx + ' ' + ry + ' 0 ' + lg + ' 0 ' + fx(ax) + ' ' + fx(ay) + 'Z',
+        fill: shade(s.color, 0.6)
+      }));
+    });
+  });
+
+  segs.forEach(s => {
+    if (s.f >= 0.9999) {
+      svg.append(mk('ellipse', { cx, cy, rx, ry, fill: s.color, stroke: '#fff', 'stroke-width': 1.5 }));
+    } else {
+      const [x0, y0] = P(s.a0), [x1, y1] = P(s.a1);
+      const lg = (s.a1 - s.a0) > Math.PI ? 1 : 0;
       svg.append(mk('path', {
         d: 'M' + cx + ' ' + cy +
            'L' + fx(x0) + ' ' + fx(y0) +
