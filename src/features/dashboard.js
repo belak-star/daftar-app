@@ -376,13 +376,11 @@ function renderDynAlerts(cur, byId) {
 export function renderDashboard() {
   ensureDb();
 
-  // Mettre à jour l'heure du "مباشر"
   const liveTime = $('dynLiveTime');
   if (liveTime) {
     liveTime.textContent = new Date().toLocaleTimeString('fr-FR');
   }
 
-  // Gérer le menu de sélection de classe
   const classSel = $('dynClassSel');
   if (classSel) {
     if (dynState.scope === 'cur') {
@@ -401,7 +399,6 @@ export function renderDashboard() {
     }
   }
 
-  // Afficher la classe actuelle à côté du filtre
   const currentClassSpan = $('dynCurrentClass');
   if (currentClassSpan) {
     const currentClass = $('dynClassSel')?.value || $('classSel')?.value || '';
@@ -474,19 +471,17 @@ export function bindDashboard() {
   if (chipsContainer) {
     chipsContainer.replaceChildren();
     DYN_TYPES.forEach(([k, label, color]) => {
-      const chip = el('label', { class: 'dyn-chip on', style: '--c:' + color },
-        el('input', {
-          type: 'checkbox',
-          checked: true,
-          style: 'display:none',
-          onchange: (e) => {
-            dynState.activeTypes[k] = e.target.checked;
-            chip.classList.toggle('on', e.target.checked);
-            renderDashboard();
-          }
-        }),
-        label
-      );
+      const chip = el('button', {
+        type: 'button',
+        class: 'dyn-chip on',
+        style: '--c:' + color,
+        textContent: label,
+      });
+      chip.onclick = () => {
+        dynState.activeTypes[k] = !dynState.activeTypes[k];
+        chip.classList.toggle('on', dynState.activeTypes[k]);
+        renderDashboard();
+      };
       chipsContainer.append(chip);
     });
   }
