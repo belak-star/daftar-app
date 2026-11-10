@@ -17,6 +17,12 @@ export function renderClassSelect() {
     if (c === ancienne) opt.selected = true;
     sel.append(opt);
   });
+
+  // Afficher ou cacher le bouton de suppression selon si une classe est sélectionnée
+  const deleteBtn = $('deleteClassBtn');
+  if (deleteBtn) {
+    deleteBtn.style.display = sel.value ? 'block' : 'none';
+  }
 }
 
 /** Ajoute une classe. */
@@ -33,6 +39,50 @@ export function addClass() {
   renderClassSelect();
   renderStudentList();
   toast('✅ تمت إضافة القسم: ' + nom);
+}
+
+/** Supprime une classe et ses élèves. */
+export function deleteClass() {
+  const classe = $('classSelect').value;
+  if (!classe) return;
+
+  const eleves = db.students.filter(s => s.class === classe);
+  const nbEleves = eleves.length;
+
+  let message = 'هل أنت متأكد من حذف القسم «' + classe + '» نهائياً؟';
+  if (nbEleves > 0) {
+    message += '\n\n⚠ تحذير: سيتم حذف ' + nbEleves + ' تلميذاً موجوداً في هذا القسم، بالإضافة إلى جميع نقاطهم وغياباتهم!';
+  }
+
+  if (!confirm(message)) return;
+
+  // 1. Supprimer la classe
+  db.classes = db.classes.filter(c => c !== classe);
+
+  // 2. Récupérer les IDs des élèves à supprimer
+  const idsToDelete = eleves.map(e => e.id);
+
+  // 3. Supprimer les élèves
+  db.students = db.students.filter(s => s.class !== classe);
+
+  // 4. Supprimer toutes leurs données (absences, notes dans records, discipline, agenda)
+  Object.keys(db.records).forEach(k => {
+    if (idsToDelete.includes(k.split('|')[1])) delete db.records[k];
+  });
+  
+  if (db.disciplineRecords) {
+    db.disciplineRecords = db.disciplineRecords.filter(r => !idsToDelete.includes(r.studentId));
+  }
+  
+  if (db.classAgenda) {
+    db.classAgenda = db.classAgenda.filter(a => a.class !== classe);
+  }
+
+  // 5. Sauvegarder et rafraîchir
+  save();
+  renderClassSelect();
+  renderStudentList();
+  toast('🗑 تم حذف القسم والتلاميذ المرتبطين به.');
 }
 
 /** Ajoute un élève à la classe sélectionnée. */
@@ -172,8 +222,17 @@ export function bindClasses() {
   
   if (btnAddClass) btnAddClass.onclick = addClass;
   if (btnAddStudent) btnAddStudent.onclick = addStudent;
-  if (sel) sel.onchange = renderStudentList;
   
+  if (sel) {
+    sel.onchange = () => {
+      renderStudentList();
+      renderClassSelect(); // Pour rafraîchir l'affichage du bouton supprimer
+    };
+  }
+  
+  const deleteClassBtn = $('deleteClassBtn');
+  if (deleteClassBtn) deleteClassBtn.onclick = deleteClass;
+
   const inputClass = $('newClass');
   const inputStudent = $('newStudent');
   
@@ -208,19 +267,16 @@ export function bindClasses() {
           let newClasses = 0;
 
           rows.forEach(row => {
-            // Cherche les colonnes "القسم" et "اسم التلميذ" (ou Classe/Nom)
             const nomClasse = String(row['القسم'] || row['Classe'] || row['Class'] || '').trim();
             const nomEleve = String(row['اسم التلميذ'] || row['Nom'] || row['Name'] || row['التلميذ'] || '').trim();
 
-            if (!nomClasse || !nomEleve) return; // On ignore les lignes vides
+            if (!nomClasse || !nomEleve) return;
 
-            // 1. Créer la classe si elle n'existe pas
             if (!db.classes.includes(nomClasse)) {
               db.classes.push(nomClasse);
               newClasses++;
             }
 
-            // 2. Vérifier si l'élève existe déjà dans cette classe
             const existe = db.students.find(s => s.class === nomClasse && s.name === nomEleve);
             if (!existe) {
               db.students.push({
@@ -235,7 +291,7 @@ export function bindClasses() {
           save();
           renderClassSelect();
           renderStudentList();
-          importFile.value = ''; // Réinitialiser l'input
+          importFile.value = '';
           
           let msg = '✅ تم الاستيراد بنجاح!\n';
           msg += 'تلاميذ جدد: ' + count + '\n';
