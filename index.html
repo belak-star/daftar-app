@@ -191,10 +191,9 @@
             </div>
         </section>
 
-                <!-- 5. العقوبات (NOUVEAU DESIGN) -->
+        <!-- 5. العقوبات -->
         <section class="panel hidden" id="discipline">
             <h2 style="margin-top:0;color:#8a2a20">⚖️ العقوبات واستدعاء الأولياء</h2>
-            
             <div class="disc-form">
                 <div class="row">
                     <div><label for="discClass">الفصل</label><select id="discClass"><option value="">— اختر —</option></select></div>
@@ -209,115 +208,36 @@
                 <div class="row"><div style="flex:1 1 100%"><label for="discReason">الموضوع / السبب</label><textarea id="discReason" rows="2"></textarea></div></div>
                 <div class="row"><button class="btn" id="discSave" style="background:#1f7a4d">➕ حفظ السجل</button><button class="btn alt" id="discReset">🔄 مسح</button></div>
             </div>
-
             <div class="dail-toolbar" style="margin-top:24px">
                 <h3 style="margin:0;color:#8a2a20;flex:1">📋 سجل العقوبات والاستدعاءات</h3>
                 <div><label for="discFilterClass">تصفية حسب الفصل</label><select id="discFilterClass" style="width:auto;margin:0"><option value="">كل الفصول</option></select></div>
                 <button class="btn alt" id="discExport" style="background:#1f7a4d;color:#fff">📥 تصدير Excel</button>
             </div>
-            
             <p id="discCount" class="hint" style="font-weight:700;font-size:16px"></p>
             <div id="discList"></div>
-        </section></section>
+        </section>
 
-        export function renderAgendaList() {
-    const box = $('agList');
-    const count = $('agCount');
-    if (!box) return;
-    box.replaceChildren();
-    
-    const filterClass = $('agFilterClass').value;
-    let items = (db.classAgenda || []).slice();
-    if (filterClass) items = items.filter(x => x.class === filterClass);
-    
-    // Trier : non-faits d'abord, puis par date croissante
-    items.sort((a, b) => {
-        if (a.done !== b.done) return a.done ? 1 : -1;
-        return a.date.localeCompare(b.date);
-    });
-    
-    if (count) {
-        const total = items.length;
-        const done = items.filter(x => x.done).length;
-        const pending = total - done;
-        count.textContent = 'المواعيد: ' + total + ' (منجزة: ' + done + ' — قادمة: ' + pending + ')';
-    }
-    if (items.length === 0) {
-        box.append(el('div', { class: 'empty-list', textContent: 'لا توجد مواعيد.' }));
-        return;
-    }
-
-    // On utilise le tableau stylé
-    const table = el('table', { class: 'dail-table' });
-    const thead = el('thead');
-    thead.append(el('tr', {},
-        el('th', { textContent: 'التاريخ', class: 'col-n', style: 'width:120px' }),
-        el('th', { textContent: 'الفصل', style: 'text-align:center;width:100px' }),
-        el('th', { textContent: 'العنوان', class: 'col-name' }),
-        el('th', { textContent: 'النوع', style: 'text-align:center;width:100px' }),
-        el('th', { textContent: 'الحالة', style: 'text-align:center;width:120px' }),
-        el('th', { textContent: 'إجراء', class: 'col-del' })
-    ));
-    table.append(thead);
-    
-    const tbody = el('tbody');
-    items.forEach(item => {
-        const status = getStatus(item);
-        const statusLabels = {
-            done: '✅ منجز',
-            overdue: '⚠️ متأخر',
-            soon: '🔔 قريب',
-            normal: '—',
-        };
-        const statusClasses = {
-            done: 'done',
-            overdue: 'overdue',
-            soon: 'soon',
-            normal: 'normal',
-        };
-        
-        let rowClass = '';
-        if (status === 'soon') rowClass = 'ag-soon';
-        else if (status === 'overdue') rowClass = 'ag-overdue';
-        else if (status === 'done') rowClass = 'ag-done';
-
-        const titleCell = el('td', {},
-            el('div', { style: 'font-weight:700;font-size:16px;color:#0f172a', textContent: item.title }),
-            item.desc ? el('div', { style: 'font-size:13px;color:#64748b;margin-top:2px', textContent: item.desc }) : null
-        );
-
-        const btnDone = el('button', {
-            class: 'btn-icon-sm',
-            textContent: item.done ? '↩️' : '✓',
-            title: item.done ? 'إعادة فتح' : 'تم',
-            style: 'background:#dcf2e5;color:#1f7a4d;margin-inline-end:4px',
-            onclick: () => toggleDone(item.id)
-        });
-        const btnDel = el('button', {
-            class: 'btn-icon-sm',
-            textContent: '🗑️',
-            title: 'حذف',
-            style: 'background:#fee2e2;color:#b3261e',
-            onclick: () => deleteAgendaItem(item.id)
-        });
-
-        const tr = el('tr', { class: rowClass },
-            el('td', { textContent: item.date, style: 'direction:ltr;font-size:14px' }),
-            el('td', { textContent: item.class, style: 'text-align:center' }),
-            titleCell,
-            el('td', {},
-                el('span', { class: 'ag-type-badge ' + item.type, textContent: TYPE_LABELS[item.type] })
-            ),
-            el('td', {},
-                el('span', { class: 'ag-status ' + statusClasses[status], textContent: statusLabels[status] })
-            ),
-            el('td', {}, btnDone, btnDel)
-        );
-        tbody.append(tr);
-    });
-    table.append(tbody);
-    box.append(table);
-}
+        <!-- 6. الأجندة -->
+        <section class="panel hidden" id="agenda">
+            <h2 style="margin-top:0;color:#2563a8">📅 الأجندة</h2>
+            <div class="ag-form">
+                <div class="row">
+                    <div><label for="agClass">الفصل</label><select id="agClass"><option value="">— اختر —</option></select></div>
+                    <div><label for="agType">النوع</label><select id="agType"><option value="devoir">واجب منزلي</option><option value="controle">اختبار / فرض</option><option value="autre">آخر</option></select></div>
+                    <div><label for="agDate">التاريخ</label><input type="date" id="agDate"></div>
+                </div>
+                <div class="row"><div style="flex:1 1 100%"><label for="agTitle">العنوان</label><input id="agTitle"></div></div>
+                <div class="row"><div style="flex:1 1 100%"><label for="agDesc">تفاصيل (اختياري)</label><textarea id="agDesc" rows="2"></textarea></div></div>
+                <div class="row"><button class="btn" id="agSave" style="background:#2563a8">➕ إضافة</button><button class="btn alt" id="agReset">🔄 مسح</button></div>
+            </div>
+            <div class="dail-toolbar" style="margin-top:24px">
+                <h3 style="margin:0;color:#2563a8;flex:1">📋 المواعيد القادمة</h3>
+                <div><label for="agFilterClass">تصفية حسب الفصل</label><select id="agFilterClass" style="width:auto;margin:0"><option value="">كل الفصول</option></select></div>
+                <button class="btn alt" id="agExport" style="background:#1f7a4d;color:#fff">📥 تصدير Excel</button>
+            </div>
+            <p id="agCount" class="hint" style="font-weight:700;font-size:16px"></p>
+            <div id="agList"></div>
+        </section>
 
         <!-- 7. تحليل الفرض -->
         <section class="panel hidden" id="analysis">
