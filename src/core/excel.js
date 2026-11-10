@@ -1,33 +1,32 @@
 // src/core/excel.js
-// Exporte des données vers un fichier Excel.
+// Gère l'exportation des données vers des fichiers Excel (.xlsx)
 
-/**
- * Crée et télécharge un fichier Excel.
- * @param {Array} rows - Tableau d'objets (ex: [{Nom: "Ahmed", Classe: "7A"}])
- * @param {string} sheetName - Nom de la feuille Excel
- * @param {string} fileName - Nom du fichier (sans .xlsx)
- */
-export function exportExcel(rows, sheetName, fileName) {
-  if (typeof XLSX === 'undefined') {
-    alert('مكتبة Excel غير محملة. تحقق من الاتصال بالإنترنت.');
+export function exportToExcel(data, filename, sheetName = 'Données') {
+  if (!data || data.length === 0) {
+    alert('لا توجد بيانات لتصديرها.');
     return;
   }
 
-  if (!rows || rows.length === 0) {
-    alert('لا توجد بيانات للتصدير.');
-    return;
+  try {
+    // Création de la feuille de calcul
+    const ws = XLSX.utils.json_to_sheet(data);
+    
+    // Création du classeur (workbook)
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    
+    // Ajustement automatique de la largeur des colonnes (pour que ce soit lisible)
+    const colWidths = [];
+    for (const key in data[0]) {
+      colWidths.push({ wch: Math.max(key.length, 15) }); // Largeur min de 15
+    }
+    ws['!cols'] = colWidths;
+
+    // Déclenchement du téléchargement
+    XLSX.writeFile(wb, filename + '.xlsx');
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'export Excel:', error);
+    alert('حدث خطأ أثناء محاولة تصدير الملف.');
   }
-
-  // Crée un classeur
-  const wb = XLSX.utils.book_new();
-
-  // Convertit les données en feuille
-  const ws = XLSX.utils.json_to_sheet(rows);
-
-  // Ajoute la feuille au classeur
-  XLSX.utils.book_append_sheet(wb, ws, sheetName || 'Sheet1');
-
-  // Télécharge le fichier
-  const safeName = (fileName || 'export').replace(/[\\/:*?"<>|]/g, '_');
-  XLSX.writeFile(wb, safeName + '.xlsx');
 }

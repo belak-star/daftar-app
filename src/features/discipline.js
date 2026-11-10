@@ -1,5 +1,6 @@
 // src/features/discipline.js
 // Gère les sanctions et convocations (design moderne et lisible).
+import { exportToExcel } from '../core/excel.js';
 import { db, save } from '../core/state.js';
 import { $, el, toast } from '../core/dom.js';
 import { collator, uid } from '../core/format.js';
@@ -195,6 +196,25 @@ export function resetDisciplineForm() {
 }
 
 export function bindDiscipline() {
+  const exportBtn = $('discExport');
+if (exportBtn) {
+  exportBtn.onclick = () => {
+    const filterClass = $('discFilterClass').value;
+    let records = (db.disciplineRecords || []).slice();
+    if (filterClass) records = records.filter(r => r.class === filterClass);
+    
+    const data = records.map(r => ({
+      'التاريخ': r.date,
+      'القسم': r.class,
+      'التلميذ': r.studentName,
+      'النوع': r.kind === 'invitation' ? 'استدعاء' : r.type,
+      'السبب': r.reason,
+      'موعد الاستدعاء': r.meetDate || ''
+    }));
+    
+    exportToExcel(data, 'سجل_الانضباط', 'الانضباط');
+  };
+}
   const classSel = $('discClass');
   const kindSel = $('discKind');
   const saveBtn = $('discSave');

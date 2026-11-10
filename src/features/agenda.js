@@ -1,5 +1,6 @@
 // src/features/agenda.js
 // Gère les devoirs et échéances avec un design moderne.
+import { exportToExcel } from '../core/excel.js';
 import { db, save } from '../core/state.js';
 import { $, el, toast } from '../core/dom.js';
 import { collator, uid } from '../core/format.js';
@@ -199,4 +200,24 @@ export function bindAgenda() {
 
   renderAgendaClassSelects();
   renderAgendaList();
+  const exportBtn = $('agExport');
+if (exportBtn) {
+  exportBtn.onclick = () => {
+    const filterClass = $('agFilterClass').value;
+    let items = (db.classAgenda || []).slice();
+    if (filterClass) items = items.filter(x => x.class === filterClass);
+    
+    // On prépare les données propres pour Excel
+    const data = items.map(item => ({
+      'التاريخ': item.date,
+      'القسم': item.class,
+      'العنوان': item.title,
+      'النوع': TYPE_LABELS[item.type] || item.type,
+      'الحالة': item.done ? 'منجز' : 'قادم',
+      'التفاصيل': item.desc || ''
+    }));
+    
+    exportToExcel(data, 'جدول_المواعيد', 'المواعيد');
+  };
+}
 }
