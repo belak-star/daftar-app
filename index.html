@@ -136,8 +136,12 @@
                 <div><label for="moMonth">الشهر</label><input type="month" id="moMonth"></div>
                 <button class="btn" id="moExport" style="background:#1f7a4d">📥 تصدير Excel</button>
             </div>
-            <div class="stats" id="moStats"></div>
-            <div id="moList"></div>
+            <div class="att-stats" id="moStats"></div>
+<div class="dash-box" style="margin-bottom: 20px;">
+    <h3 style="margin-top:0;color:#b3261e">📈 تطور الغيابات في الشهر</h3>
+    <div id="moChart" style="display:flex; align-items:flex-end; gap:4px; height:150px; border-bottom:1px solid var(--line); padding-top:10px;"></div>
+</div>
+<div id="moList"></div>
         </section>
 
         <!-- 4. النقاط والمعدلات -->
