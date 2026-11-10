@@ -18,10 +18,18 @@ export function renderClassSelect() {
     sel.append(opt);
   });
 
-  // Afficher ou cacher le bouton de suppression selon si une classe est sélectionnée
+  // Gérer l'état du bouton de suppression
   const deleteBtn = $('deleteClassBtn');
   if (deleteBtn) {
-    deleteBtn.style.display = sel.value ? 'block' : 'none';
+    if (sel.value) {
+      deleteBtn.disabled = false;
+      deleteBtn.style.opacity = '1';
+      deleteBtn.style.cursor = 'pointer';
+    } else {
+      deleteBtn.disabled = true;
+      deleteBtn.style.opacity = '0.5';
+      deleteBtn.style.cursor = 'not-allowed';
+    }
   }
 }
 
@@ -44,7 +52,10 @@ export function addClass() {
 /** Supprime une classe et ses élèves. */
 export function deleteClass() {
   const classe = $('classSelect').value;
-  if (!classe) return;
+  if (!classe) {
+    alert('الرجاء اختيار قسم أولاً لحذفه.');
+    return;
+  }
 
   const eleves = db.students.filter(s => s.class === classe);
   const nbEleves = eleves.length;
@@ -226,7 +237,7 @@ export function bindClasses() {
   if (sel) {
     sel.onchange = () => {
       renderStudentList();
-      renderClassSelect(); // Pour rafraîchir l'affichage du bouton supprimer
+      renderClassSelect(); // Met à jour l'état du bouton supprimer
     };
   }
   
