@@ -1,11 +1,8 @@
 // src/main.js
-// Point d'entrée de l'application DAFTAR.
+// Point d'entrée de l'application DAFTAR (Mode Local).
 
 import { db, save } from './core/state.js';
 import { $, el } from './core/dom.js';
-import { initFirebase, auth } from './firebase/auth.js';
-import { initSync } from './firebase/sync.js';
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 // Importation des modules (onglets)
 import { renderDashboard, bindDashboard } from './features/dashboard.js';
@@ -39,7 +36,7 @@ function showTab(id) {
   if (id === 'classes') { renderClassSelect(); renderStudentList(); }
 }
 
-// --- ÉCRAN DE CONNEXION ---
+// --- ÉCRAN DE CONNEXION (Désactivé en mode local) ---
 function afficherAuth(show) {
   const authScreen = $('authScreen');
   if (authScreen) {
@@ -103,6 +100,7 @@ function initialiserApp() {
   // Afficher le premier onglet par défaut
   showTab('dashboard');
 }
+
 // --- DÉMARRAGE ---
 async function demarrer() {
   try {
@@ -120,7 +118,4 @@ async function demarrer() {
   initialiserApp();         // Lance l'application
 }
 
-document.addEventListener('DOMContentLoaded', demarrer);
-
-// Lancer l'application au chargement de la page
 document.addEventListener('DOMContentLoaded', demarrer);
