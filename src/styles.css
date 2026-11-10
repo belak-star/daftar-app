@@ -467,3 +467,68 @@ body.dark-mode #studentCount {
 .disc-type-badge.invitation {
     background: #2563a8; /* Bleu pour les convocations */
 }
+/* ============================================ */
+/* DESIGN MODERNE POUR L'AGENDA */
+/* ============================================ */
+
+/* Le formulaire d'ajout */
+.ag-form {
+    background: #f0f7ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 24px;
+}
+.ag-form textarea {
+    width: 100%;
+    max-width: 100%;
+    min-height: 60px;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+}
+.ag-form textarea:focus {
+    outline: 3px solid #f0b429;
+    outline-offset: 1px;
+}
+
+/* Les badges de type (devoir, contrôle, autre) */
+.ag-type-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.ag-type-badge.devoir { background: #dcf2e5; color: #1f7a4d; }
+.ag-type-badge.controle { background: #fdebc8; color: #9a5b00; }
+.ag-type-badge.autre { background: #ece4f7; color: #67318b; }
+
+/* Les statuts */
+.ag-status {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+.ag-status.soon { background: #f0b429; color: #fff; }
+.ag-status.overdue { background: #b3261e; color: #fff; }
+.ag-status.done { background: #1f7a4d; color: #fff; }
+.ag-status.normal { background: #e6ece9; color: var(--muted); }
+
+/* Couleurs de fond des lignes selon le statut */
+.dail-table tbody tr.ag-soon td { background-color: #fffbeb !important; }
+.dail-table tbody tr.ag-overdue td { background-color: #fef2f2 !important; }
+.dail-table tbody tr.ag-done td { background-color: #f8fafc !important; opacity: 0.6; }
+.dail-table tbody tr.ag-done td:nth-child(3) { text-decoration: line-through; }
+
+/* Mode sombre */
+body.dark-mode .ag-form { background: #1e293b; border-color: #334155; }
+body.dark-mode .ag-type-badge.devoir { background: #1a3a24; color: #4ade80; }
+body.dark-mode .ag-type-badge.controle { background: #3a2e1a; color: #fbbf24; }
+body.dark-mode .ag-type-badge.autre { background: #2e1a3a; color: #c084fc; }
