@@ -584,3 +584,75 @@ body.dark-mode select,
 body.dark-mode textarea {
     color: #f8fafc !important;
 }
+/* ============================================ */
+/* CORRECTION CIBLÉE POUR LES ONGLETS RÉCALCITRANTS */
+/* (Classes, Discipline, Agenda) */
+/* ============================================ */
+
+/* 1. Onglet "الفصول والتلاميذ" */
+#classes .student-item .student-name {
+    color: #000000 !important; /* Noir pur */
+    font-weight: 800 !important;
+    font-size: 18px !important;
+}
+#classes .student-item .student-num {
+    color: #334155 !important;
+    font-weight: 700 !important;
+}
+#classes .student-item .btn-delete {
+    color: #b3261e !important;
+    font-weight: 700 !important;
+}
+#classes #studentCount {
+    color: #1f7a4d !important;
+    font-weight: 800 !important;
+}
+
+/* 2. Onglet "⚖️ العقوبات" */
+#discipline .disc-table tbody td {
+    color: #0f172a !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+#discipline .disc-table tbody td .disc-name {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    font-size: 17px !important;
+}
+#discipline .disc-table tbody td .disc-reason {
+    color: #334155 !important;
+    font-size: 15px !important;
+}
+#discipline .disc-table thead th {
+    color: #ffffff !important; /* En-têtes en blanc sur fond rouge */
+    font-weight: 800 !important;
+}
+
+/* 3. Onglet "📅 الأجندة" */
+#agenda .ag-table tbody td {
+    color: #0f172a !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+#discipline .disc-table tbody td .disc-type-badge,
+#agenda .ag-table tbody td .ag-title {
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+#agenda .ag-table thead th {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+/* 4. Mode sombre pour ces mêmes onglets */
+body.dark-mode #classes .student-item .student-name,
+body.dark-mode #discipline .disc-table tbody td,
+body.dark-mode #agenda .ag-table tbody td,
+body.dark-mode #discipline .disc-table tbody td .disc-name,
+body.dark-mode #agenda .ag-table tbody td .ag-title {
+    color: #f8fafc !important; /* Blanc très clair */
+}
+body.dark-mode #classes .student-item .student-num,
+body.dark-mode #discipline .disc-table tbody td .disc-reason {
+    color: #cbd5e1 !important; /* Gris clair */
+}
