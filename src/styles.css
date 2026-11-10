@@ -555,3 +555,23 @@ body:not(.logged-in) #toast { display: none; }
   color: #3d438c !important;
   font-weight: 800 !important;
 }
+/* ============================================ */
+/* FORCE LE TEXTE NOIR DANS LES MENUS DÉROULANTS DE L'ANALYSE */
+/* ============================================ */
+
+#analysis select,
+#analysis input,
+#anQuestions select,
+#anScores input {
+  color: #0f172a !important; /* Bleu-noir très foncé */
+  font-weight: 700 !important; /* Texte en gras */
+  font-size: 16px !important; /* Taille un peu plus grande */
+  -webkit-text-fill-color: #0f172a !important; /* Force la couleur sur Safari/Chrome */
+}
+
+/* On s'assure que les options à l'intérieur des menus sont aussi lisibles */
+#analysis select option {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  background-color: #ffffff !important;
+}
