@@ -3,7 +3,7 @@
 import { db, save } from '../core/state.js';
 import { $, el } from '../core/dom.js';
 import { collator } from '../core/format.js';
-import { exportExcel } from '../core/excel.js';
+import { exportToExcel } from '../core/excel.js';
 
 const POIDS = { tp: 1, dc: 1, ds: 2 };
 const NOTES_MAX = 20;
@@ -387,5 +387,28 @@ export function bindGrades() {
     renderGradesClassSelect();
 }
 export function exportGrades() {
-    alert('تصدير Excel سيُضاف قريبًا.');
+  const classe = $('gClass').value;
+  if (!classe) { alert('اختر قسماً أولاً.'); return; }
+  
+  const term = $('gTerm').value;
+  const isAnnual = term === 'A';
+  const students = db.students.filter(s => s.class === classe).sort((a, b) => collator.compare(a.name, b.name));
+  
+  const data = students.map(s => {
+    const row = { 'الاسم': s.name };
+    if (isAnnual) {
+      row['الثالثي الأول'] = computeAverage(s, '1')?.toFixed(2) || '—';
+      row['الثالثي الثاني'] = computeAverage(s, '2')?.toFixed(2) || '—';
+      row['الثالثي الثالث'] = computeAverage(s, '3')?.toFixed(2) || '—';
+      row['المعدل السنوي'] = computeAnnualAverage(s)?.toFixed(2) || '—';
+    } else {
+      row['TP'] = getNote(s, term, 'tp') || '—';
+      row['DC'] = getNote(s, term, 'dc') || '—';
+      row['DS'] = getNote(s, term, 'ds') || '—';
+      row['المعدل'] = computeAverage(s, term)?.toFixed(2) || '—';
+    }
+    return row;
+  });
+  
+  exportToExcel(data, 'نقاط_' + classe + '_' + term, 'النقاط');
 }
