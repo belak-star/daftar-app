@@ -1,335 +1,144 @@
 // src/main.js
-// Le chef d'orchestre : démarre l'application.
+// Point d'entrée de l'application DAFTAR.
 
-import { load, save, db } from './core/state.js';
-import { $, toast } from './core/dom.js';
-import { bindClasses, renderClassSelect, renderStudentList } from './features/classes.js';
-import { bindAttendance, renderAttList, renderAttClassSelect } from './features/attendance.js';
-import { bindMonthly, renderMonthlyList, renderMonthlyClassSelect } from './features/monthly.js';
-import { bindGrades, renderGradesList, renderGradesClassSelect } from './features/grades.js';
-import { bindDiscipline } from './features/discipline.js';
-import { bindAgenda } from './features/agenda.js';
-import { bindAnalysis } from './features/examAnalysis.js';
+import { db, save } from './core/state.js';
+import { $, el } from './core/dom.js';
+import { initFirebase, auth } from './firebase/auth.js';
+import { initSync } from './firebase/sync.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+// Importation des modules (onglets)
 import { renderDashboard, bindDashboard } from './features/dashboard.js';
+import { renderAttList, renderAttClassSelect, bindAttendance } from './features/attendance.js';
+import { renderMonthlyList, renderMonthlyClassSelect, bindMonthly } from './features/monthly.js';
+import { renderGradesList, renderGradesClassSelect, bindGrades } from './features/grades.js';
+import { renderDisciplineList, renderDisciplineClassSelects, bindDiscipline } from './features/discipline.js';
+import { renderAgendaList, renderAgendaClassSelects, bindAgenda } from './features/agenda.js';
+import { renderAnalysisClassSelect, bindAnalysis } from './features/examAnalysis.js';
+import { renderClassSelect, renderStudentList, bindClasses } from './features/classes.js';
 
-// Firebase (désactivé temporairement)
-let auth = null;
-let onAuthStateChanged = null;
-let signInWithEmailAndPassword = null;
-let createUserWithEmailAndPassword = null;
-let signOut = null;
-let sendPasswordResetEmail = null;
-let authErrorMessage = null;
-let initSync = null;
-let firebaseReady = false;
+// --- GESTION DES ONGLETS ---
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', 'false'));
+  
+  const panel = document.getElementById(id);
+  const tab = document.getElementById('tab' + id.charAt(0).toUpperCase() + id.slice(1));
+  
+  if (panel) panel.classList.remove('hidden');
+  if (tab) tab.setAttribute('aria-selected', 'true');
 
-async function initFirebase() {
-  try {
-    const authMod = await import('./firebase/auth.js');
-    const syncMod = await import('./firebase/sync.js');
-    auth = authMod.auth;
-    onAuthStateChanged = authMod.onAuthStateChanged;
-    signInWithEmailAndPassword = authMod.signInWithEmailAndPassword;
-    createUserWithEmailAndPassword = authMod.createUserWithEmailAndPassword;
-    signOut = authMod.signOut;
-    sendPasswordResetEmail = authMod.sendPasswordResetEmail;
-    authErrorMessage = authMod.authErrorMessage;
-    initSync = syncMod.initSync;
-    firebaseReady = true;
-    console.log('✅ Firebase chargé');
-  } catch (err) {
-    console.error('❌ Firebase non chargé :', err);
-    firebaseReady = false;
-  }
+  // Rafraîchir les données de l'onglet à l'ouverture
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'daily') { renderAttClassSelect(); renderAttList(); }
+  if (id === 'monthly') { renderMonthlyClassSelect(); renderMonthlyList(); }
+  if (id === 'grades') { renderGradesClassSelect(); renderGradesList(); }
+  if (id === 'discipline') { renderDisciplineClassSelects(); renderDisciplineList(); }
+  if (id === 'agenda') { renderAgendaClassSelects(); renderAgendaList(); }
+  if (id === 'analysis') { renderAnalysisClassSelect(); }
+  if (id === 'classes') { renderClassSelect(); renderStudentList(); }
 }
 
-function afficherDateDuJour() {
-  const d = new Date();
-  const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-  const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-                'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const texte = 'اليوم: ' + jours[d.getDay()] + ' ' + d.getDate() + ' ' + mois[d.getMonth()] + ' ' + d.getFullYear();
-  $('todayLine').textContent = texte;
-}
-
-function activerOnglet(numero) {
-  const onglets = ['tabDashboard', 'tabDaily', 'tabMonthly', 'tabGrades', 'tabDiscipline', 'tabAgenda', 'tabAnalysis', 'tabClasses'];
-  const panneaux = ['dashboard', 'daily', 'monthly', 'grades', 'discipline', 'agenda', 'analysis', 'classes'];
-
-  onglets.forEach((id, i) => {
-    const btn = $(id);
-    if (btn) btn.setAttribute('aria-selected', i === numero);
-  });
-
-  panneaux.forEach((id, i) => {
-    const panel = $(id);
-    if (panel) panel.classList.toggle('hidden', i !== numero);
-  });
-
-  if (numero === 0) renderDashboard();
-  if (numero === 1) { renderAttClassSelect(); renderAttList(); }
-  if (numero === 2) { renderMonthlyClassSelect(); renderMonthlyList(); }
-  if (numero === 3) { renderGradesClassSelect(); renderGradesList(); }
-  if (numero === 7) { renderClassSelect(); renderStudentList(); }
-}
-
-function afficherErreurAuth(msg) {
-  const el = $('authError');
-  if (el) { el.textContent = msg; el.style.color = ''; }
-}
-
-function cacherErreurAuth() {
-  afficherErreurAuth('');
-}
-
-async function connexion() {
-  if (!firebaseReady) { alert('Firebase غير متاح.'); return; }
-  const email = $('authEmail').value.trim();
-  const password = $('authPassword').value;
-  if (!email || !password) { afficherErreurAuth('املأ الحقول أولاً.'); return; }
-  cacherErreurAuth();
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (err) {
-    afficherErreurAuth(authErrorMessage(err.code));
-  }
-}
-
-async function inscription() {
-  if (!firebaseReady) { alert('Firebase غير متاح.'); return; }
-  const email = $('authEmail').value.trim();
-  const password = $('authPassword').value;
-  if (!email || !password) { afficherErreurAuth('املأ الحقول أولاً.'); return; }
-  if (password.length < 6) { afficherErreurAuth('كلمة المرور يجب أن تكون 6 أحرف على الأقل.'); return; }
-  cacherErreurAuth();
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-  } catch (err) {
-    afficherErreurAuth(authErrorMessage(err.code));
-  }
-}
-
-async function motDePasseOublie() {
-  if (!firebaseReady) { alert('Firebase غير متاح.'); return; }
-  const email = $('authEmail').value.trim();
-  if (!email) { afficherErreurAuth('اكتب بريدك الإلكتروني أولاً.'); return; }
-  cacherErreurAuth();
-  try {
-    await sendPasswordResetEmail(auth, email);
-    afficherErreurAuth('✅ تم إرسال رابط إعادة التعيين.');
-    const el = $('authError');
-    if (el) el.style.color = '#1f7a4d';
-  } catch (err) {
-    afficherErreurAuth(authErrorMessage(err.code));
-  }
-}
-
-async function deconnexion() {
-  if (!firebaseReady) return;
-  try {
-    await signOut(auth);
-    location.reload();
-  } catch (err) {
-    alert('خطأ في الخروج: ' + err.message);
-  }
-}
-
-function afficherAuth(visible) {
-  const screen = $('authScreen');
-  if (!screen) return;
-  if (visible) {
-    screen.classList.remove('hidden');
-    document.body.classList.remove('logged-in');
-  } else {
-    screen.classList.add('hidden');
-    document.body.classList.add('logged-in');
-  }
-}
-
-function rafraichirEcran() {
-  console.log('☁️ Mise à jour depuis le cloud !');
-  try {
-    renderDashboard();
-    const active = document.querySelector('.tab[aria-selected="true"]');
-    if (active) {
-      const id = active.id;
-      if (id === 'tabDaily') { renderAttClassSelect(); renderAttList(); }
-      if (id === 'tabMonthly') { renderMonthlyClassSelect(); renderMonthlyList(); }
-      if (id === 'tabGrades') { renderGradesClassSelect(); renderGradesList(); }
-      if (id === 'tabClasses') { renderClassSelect(); renderStudentList(); }
-      if (id === 'tabDashboard') { renderDashboard(); }
+// --- ÉCRAN DE CONNEXION ---
+function afficherAuth(show) {
+  const authScreen = $('authScreen');
+  if (authScreen) {
+    if (show) {
+      authScreen.classList.remove('hidden');
+      document.body.classList.remove('logged-in');
+    } else {
+      authScreen.classList.add('hidden');
+      document.body.classList.add('logged-in');
     }
-  } catch (e) {
-    console.error('[cloud-update]', e);
   }
 }
 
+// --- DÉMARRAGE DE L'APP ---
 function initialiserApp() {
-  if (window.__daftarInit) return;
-  window.__daftarInit = true;
+  // Date du jour dans l'en-tête
+  const today = new Date();
+  const todayLine = $('todayLine');
+  if (todayLine) {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    todayLine.textContent = today.toLocaleDateString('ar-TN', options);
+  }
 
-  $('tabDashboard').addEventListener('click', () => activerOnglet(0));
-  $('tabDaily').addEventListener('click', () => activerOnglet(1));
-  $('tabMonthly').addEventListener('click', () => activerOnglet(2));
-  $('tabGrades').addEventListener('click', () => activerOnglet(3));
-  $('tabDiscipline').addEventListener('click', () => activerOnglet(4));
-  $('tabAgenda').addEventListener('click', () => activerOnglet(5));
-  $('tabAnalysis').addEventListener('click', () => activerOnglet(6));
-  $('tabClasses').addEventListener('click', () => activerOnglet(7));
+  // Boutons de navigation (Tabs)
+  const tabs = [
+    { id: 'dashboard', btn: 'tabDashboard' },
+    { id: 'daily', btn: 'tabDaily' },
+    { id: 'monthly', btn: 'tabMonthly' },
+    { id: 'grades', btn: 'tabGrades' },
+    { id: 'discipline', btn: 'tabDiscipline' },
+    { id: 'agenda', btn: 'tabAgenda' },
+    { id: 'analysis', btn: 'tabAnalysis' },
+    { id: 'classes', btn: 'tabClasses' }
+  ];
 
-  bindClasses();
+  tabs.forEach(t => {
+    const btn = $(t.btn);
+    if (btn) btn.onclick = () => showTab(t.id);
+  });
+
+  // Initialisation des événements de chaque onglet
+  bindDashboard();
   bindAttendance();
   bindMonthly();
   bindGrades();
   bindDiscipline();
   bindAgenda();
   bindAnalysis();
-  bindDashboard();
+  bindClasses();
 
-  renderDashboard();
-
-  // Mode sombre
+  // Thème sombre / clair
   const btnTheme = $('btnTheme');
   if (btnTheme) {
-    if (localStorage.getItem('theme') === 'dark') {
-      document.body.classList.add('dark-mode');
-      btnTheme.textContent = '☀️ وضع نهاري';
-    }
-    btnTheme.addEventListener('click', () => {
+    btnTheme.onclick = () => {
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
-      btnTheme.textContent = isDark ? '☀️ وضع نهاري' : '🌙 وضع ليلي';
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
+      btnTheme.textContent = isDark ? '☀ وضع نهاري' : '🌙 وضع ليلي';
+    };
   }
 
-  document.addEventListener('cloud-update', rafraichirEcran);
-
-  // Bouton sauvegarde
-  const btnBackup = $('btnBackup');
-  if (btnBackup) {
-    btnBackup.addEventListener('click', () => {
-      try {
-        const data = localStorage.getItem('schoolDataV2');
-        if (!data) { alert('لا توجد بيانات للحفظ.'); return; }
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const date = new Date().toISOString().slice(0, 10);
-        a.download = 'daftar-sauvegarde-' + date + '.json';
-        a.click();
-        URL.revokeObjectURL(url);
-        alert('✅ تم تنزيل النسخة الاحتياطية.');
-      } catch (err) {
-        alert('❌ خطأ: ' + err.message);
-      }
-    });
-  }
-
-  // Bouton restaurer
-  const btnRestore = $('btnRestore');
-  const restoreFile = $('restoreFile');
-  if (btnRestore && restoreFile) {
-    btnRestore.addEventListener('click', () => restoreFile.click());
-    restoreFile.addEventListener('change', () => {
-      const file = restoreFile.files[0];
-      if (!file) return;
-      if (!confirm('سيتم استبدال البيانات الحالية. هل تريد المتابعة؟')) {
-        restoreFile.value = '';
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (!data.classes || !data.students || !data.records) {
-            alert('❌ الملف غير صالح.');
-            return;
-          }
-          localStorage.setItem('schoolDataV2', JSON.stringify(data));
-          alert('✅ تم استرجاع البيانات. سيتم إعادة تحميل الصفحة.');
-          location.reload();
-        } catch (err) {
-          alert('❌ خطأ: ' + err.message);
-        }
-      };
-      reader.readAsText(file);
-    });
-  }
-
-  setTimeout(() => toast('مرحباً بك في دفتر القسم ! 👋'), 300);
+  // Afficher le premier onglet par défaut
+  showTab('dashboard');
 }
 
+// --- DÉMARRAGE ---
 async function demarrer() {
-  console.log('✅ demarrer() commence');
-
-  // 1. Charger backup.json EN PREMIER
   try {
-    const res = await fetch('./backup.json');
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem('schoolDataV2', JSON.stringify(data));
-      console.log('✅ Données chargées depuis backup.json (' + data.classes.length + ' classes, ' + data.students.length + ' élèves)');
-    } else {
-      console.log('⚠️ backup.json non trouvé (status ' + res.status + ')');
-    }
+    // Charger les données locales (backup ou localStorage)
+    const { load } = await import('./core/state.js');
+    await load();
+    console.log('✅ db rechargé depuis localStorage (', db.students?.length || 0, 'élèves)');
   } catch (e) {
-    console.log('⚠️ Erreur lecture backup.json :', e.message);
+    console.warn('⚠ Impossible de charger les données locales', e);
   }
 
-  // 2. Charger les données locales
-  load();
-  afficherDateDuJour();
-
-  // 3. Forcer le rechargement de db depuis localStorage
   try {
-    const stored = localStorage.getItem('schoolDataV2');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed.classes) db.classes = parsed.classes;
-      if (parsed.students) db.students = parsed.students;
-      if (parsed.records) db.records = parsed.records;
-      if (parsed.examHeld) db.examHeld = parsed.examHeld;
-      if (parsed.disciplineRecords) db.disciplineRecords = parsed.disciplineRecords;
-      if (parsed.classAgenda) db.classAgenda = parsed.classAgenda;
-      if (parsed.examAnalyses) db.examAnalyses = parsed.examAnalyses;
-      console.log('✅ db rechargé depuis localStorage (' + db.students.length + ' élèves)');
-    }
-  } catch (e) {
-    console.log('⚠️ Erreur rechargement db :', e.message);
-  }
+    console.log('⏳ Initialisation de Firebase...');
+    await initFirebase();
+    console.log('✅ Firebase initialisé.');
 
-  // 4. Firebase (désactivé pour l'instant)
-      // Mode local : on cache l'écran de connexion et on affiche l'app
-    afficherAuth(false);
-    document.body.classList.add('logged-in');
-  // await initFirebase();
-
-  const btnLogin = $('btnLogin');
-  const btnSignup = $('btnSignup');
-  const btnForgot = $('btnForgot');
-  const btnLogout = $('btnLogout');
-
-  if (btnLogin) btnLogin.addEventListener('click', connexion);
-  if (btnSignup) btnSignup.addEventListener('click', inscription);
-  if (btnForgot) btnForgot.addEventListener('click', motDePasseOublie);
-  if (btnLogout) btnLogout.addEventListener('click', deconnexion);
-
-  const pwdInput = $('authPassword');
-  if (pwdInput) {
-    pwdInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') connexion();
+    // Écouter l'état de connexion
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log('👤 Utilisateur connecté:', user.email);
+        afficherAuth(false);
+        initSync(); // Démarre la synchronisation intelligente
+        initialiserApp();
+      } else {
+        console.log('🚪 Aucun utilisateur connecté.');
+        afficherAuth(true);
+      }
     });
+
+  } catch (e) {
+    console.warn('⚠ Firebase non disponible, mode local', e);
+    afficherAuth(false);
+    initialiserApp();
   }
-
-  // Firebase désactivé → on affiche l'app directement
-  console.log('⚠️ Firebase non disponible, mode local');
-  afficherAuth(false);
-  document.body.classList.add('logged-in');
-  initialiserApp();
-
-  console.log('✅ main.js a fini son exécution');
 }
 
-demarrer();
+// Lancer l'application au chargement de la page
+document.addEventListener('DOMContentLoaded', demarrer);
