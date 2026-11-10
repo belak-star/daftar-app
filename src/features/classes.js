@@ -179,4 +179,75 @@ export function bindClasses() {
   
   if (inputClass) inputClass.onkeydown = (e) => { if (e.key === 'Enter') addClass(); };
   if (inputStudent) inputStudent.onkeydown = (e) => { if (e.key === 'Enter') addStudent(); };
+
+  // GESTION DE L'IMPORT EXCEL
+  const importBtn = $('importExcelBtn');
+  const importFile = $('importExcelFile');
+
+  if (importBtn && importFile) {
+    importBtn.onclick = () => importFile.click();
+
+    importFile.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet);
+
+          if (rows.length === 0) {
+            alert('الملف فارغ أو غير صالح.');
+            return;
+          }
+
+          let count = 0;
+          let newClasses = 0;
+
+          rows.forEach(row => {
+            // Cherche les colonnes "القسم" et "اسم التلميذ" (ou Classe/Nom)
+            const nomClasse = String(row['القسم'] || row['Classe'] || row['Class'] || '').trim();
+            const nomEleve = String(row['اسم التلميذ'] || row['Nom'] || row['Name'] || row['التلميذ'] || '').trim();
+
+            if (!nomClasse || !nomEleve) return; // On ignore les lignes vides
+
+            // 1. Créer la classe si elle n'existe pas
+            if (!db.classes.includes(nomClasse)) {
+              db.classes.push(nomClasse);
+              newClasses++;
+            }
+
+            // 2. Vérifier si l'élève existe déjà dans cette classe
+            const existe = db.students.find(s => s.class === nomClasse && s.name === nomEleve);
+            if (!existe) {
+              db.students.push({
+                id: uid(),
+                name: nomEleve,
+                class: nomClasse
+              });
+              count++;
+            }
+          });
+
+          save();
+          renderClassSelect();
+          renderStudentList();
+          importFile.value = ''; // Réinitialiser l'input
+          
+          let msg = '✅ تم الاستيراد بنجاح!\n';
+          msg += 'تلاميذ جدد: ' + count + '\n';
+          if (newClasses > 0) msg += 'أقسام جديدة: ' + newClasses;
+          alert(msg);
+
+        } catch (err) {
+          console.error(err);
+          alert('حدث خطأ أثناء قراءة الملف. تأكد من أنه ملف Excel صالح.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    };
+  }
 }
