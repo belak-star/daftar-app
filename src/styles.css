@@ -1187,3 +1187,47 @@ body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
     .dail-table tbody td.col-name { font-size: 17px; }
     .status-btn { font-size: 15px; min-height: 44px; }
 }
+/* ============================================ */
+/* DESIGN MODERNE POUR L'ONGLET NOTES (Grades) */
+/* ============================================ */
+#gList .dail-table tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+#gList .dail-table tbody td.col-name {
+    text-align: right;
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+}
+#gList .grade-input {
+    width: 70px;
+    padding: 8px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    transition: border-color .15s;
+}
+#gList .grade-input:focus {
+    border-color: #7a3fb5;
+    outline: none;
+}
+#gList .grade-input.low {
+    border-color: #b3261e;
+    color: #b3261e;
+}
+#gList .avg-cell {
+    font-weight: 800;
+    font-size: 18px;
+    color: #7a3fb5;
+}
+#gList .avg-cell.low {
+    color: #b3261e;
+}
+#gList .rank-cell {
+    font-size: 18px;
+    font-weight: 800;
+    color: #e0702b;
+}

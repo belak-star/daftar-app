@@ -40,7 +40,7 @@
             <input type="file" id="restoreFile" accept=".json" style="display:none">
         </div>
 
-        <!-- 1. Dashboard (inchangé) -->
+        <!-- 1. Dashboard -->
         <section class="panel" id="dashboard">
             <h2 style="margin-top:0;color:var(--main)">📊 لوحة القيادة</h2>
             <p class="hint">نظرة عامة على كل الفصول والغيابات والمعدلات.</p>
@@ -85,7 +85,7 @@
             <div class="dash-box" style="margin-top:18px"><h3>⚠️ تلاميذ في حالة تنبيه</h3><div id="dynAlerts"></div></div>
         </section>
 
-        <!-- 2. الاستدعاء اليومي (NOUVEAU DESIGN) -->
+        <!-- 2. الاستدعاء اليومي -->
         <section class="panel hidden" id="daily">
             <h2 id="dailyTitle" class="daily-title"></h2>
             <div class="dail-bar">
@@ -140,21 +140,49 @@
             <div id="moList"></div>
         </section>
 
-        <!-- 4. النقاط والمعدلات -->
+        <!-- 4. النقاط والمعدلات (NOUVEAU DESIGN) -->
         <section class="panel hidden" id="grades">
             <h2 style="margin-top:0;color:var(--main)">📝 النقاط والمعدلات</h2>
-            <div class="row">
-                <div><label for="gClass">الفصل</label><select id="gClass"><option value="">— اختر —</option></select></div>
-                <div><label for="gTerm">الثلاثي</label><select id="gTerm"><option value="1">الثلاثي الأول</option><option value="2">الثلاثي الثاني</option><option value="3">الثلاثي الثالث</option><option value="A">المعدل السنوي</option></select></div>
+            
+            <div class="dail-bar">
+                <div class="dail-class-wrap">
+                    <label for="gClass">الفصل</label>
+                    <select id="gClass" class="dail-class-select"><option value="">— اختر —</option></select>
+                </div>
+                <div class="dail-class-wrap">
+                    <label for="gTerm">الثلاثي</label>
+                    <select id="gTerm" class="dail-class-select">
+                        <option value="1">الثلاثي الأول</option>
+                        <option value="2">الثلاثي الثاني</option>
+                        <option value="3">الثلاثي الثالث</option>
+                        <option value="A">المعدل السنوي</option>
+                    </select>
+                </div>
             </div>
-            <div class="row"><button class="btn" id="gExport" style="background:#1f7a4d">📥 تصدير Excel</button></div>
-            <div class="stats" id="gStats"></div>
+
+            <div class="att-stats" id="gStats"></div>
+
+            <div class="dail-toolbar">
+                <button class="btn alt" id="gExport" style="background:#1f7a4d;color:#fff">📥 تصدير Excel</button>
+            </div>
+
             <div id="gList"></div>
+
+            <!-- Section "Copies manquantes" -->
             <div id="examMissingSection" class="exam-missing hidden">
                 <h3 style="margin-top:0">📋 الغيابات في هذا الفرض</h3>
                 <div class="row" style="margin-bottom:12px">
-                    <div><label for="missingExam">الفرض</label><select id="missingExam"><option value="tp">أشغال تطبيقية</option><option value="dc">فرض مراقبة</option><option value="ds">فرض تأليفي</option></select></div>
-                    <label class="exam-done-label"><input type="checkbox" id="examDone"> الفرض منجز</label>
+                    <div>
+                        <label for="missingExam">الفرض</label>
+                        <select id="missingExam">
+                            <option value="tp">أشغال تطبيقية</option>
+                            <option value="dc">فرض مراقبة</option>
+                            <option value="ds">فرض تأليفي</option>
+                        </select>
+                    </div>
+                    <label class="exam-done-label">
+                        <input type="checkbox" id="examDone"> الفرض منجز
+                    </label>
                     <button class="btn alt" id="expMissing" style="background:#1f7a4d;color:#fff">📥 تصدير Excel</button>
                     <span id="missingCount" class="count"></span>
                 </div>
