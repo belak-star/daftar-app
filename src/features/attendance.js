@@ -257,12 +257,15 @@ export function renderAttList() {
         tr.append(el('td', { class: 'col-situation' }, select));
 
         tr.append(el('td', { class: 'col-del' },
-            el('button', { class: 'btn-icon-sm', type: 'button', textContent: '👁', title: 'الحالة الكاملة' })
-        ));
-        tb.append(tr);
-    });
-    renderStats();
-}
+             tr.append(el('td', { class: 'col-del' },
+      el('button', { 
+        class: 'btn-icon-sm', 
+        type: 'button', 
+        textContent: '👁', 
+        title: 'عرض الحالة',
+        onclick: () => alert('حالة التلميذ: ' + s.name + '\n' + (s.status ? 'الوضعية: ' + (s.status === 'perm' ? 'مفصول نهائياً' : 'مفصول مؤقتاً') : 'عادي'))
+      })
+    ));
 
 function openStatusModal(student, date, onUpdate) {
     // Fermer les fenêtres précédentes
