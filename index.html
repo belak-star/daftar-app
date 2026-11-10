@@ -276,20 +276,20 @@
 </div>
 
 <div class="dail-bar">
-<div class="dail-class-wrap">
-<label for="classSelect">اختر قسماً</label>
-<div class="dail-date-row">
-<select id="classSelect" class="dail-class-select"><option value="">— اختر —</option></select>
-<button class="btn" id="deleteClassBtn" style="background:#b3261e; color:#fff; display:none; padding: 8px 12px;">🗑 حذف القسم</button>
-</div>
-</div>
-<div class="dail-class-wrap" style="flex: 1;">
-<label for="newStudent">اسم التلميذ الجديد</label>
-<div class="dail-date-row">
-<input id="newStudent" placeholder="الاسم الكامل" class="dail-search" style="max-width: none;">
-<button class="btn" id="addStudent" style="background:#2563a8;white-space:nowrap">➕ إضافة التلميذ</button>
-</div>
-</div>
+  <div class="dail-class-wrap" style="flex-direction: row; align-items: flex-end; gap: 10px;">
+    <div style="flex: 1;">
+      <label for="classSelect">اختر قسماً</label>
+      <select id="classSelect" class="dail-class-select"><option value="">— اختر —</option></select>
+    </div>
+    <button class="btn" id="deleteClassBtn" style="background:#b3261e; color:#fff; height: 48px; margin-bottom: 2px; opacity: 0.5; cursor: not-allowed;" disabled>🗑 حذف القسم</button>
+  </div>
+  <div class="dail-class-wrap" style="flex: 1;">
+    <label for="newStudent">اسم التلميذ الجديد</label>
+    <div class="dail-date-row">
+      <input id="newStudent" placeholder="الاسم الكامل" class="dail-search" style="max-width: none;">
+      <button class="btn" id="addStudent" style="background:#2563a8;white-space:nowrap">➕ إضافة التلميذ</button>
+    </div>
+  </div>
 </div>
 <h3 style="color:var(--main);margin-top:24px;border-bottom:2px solid #e6ece9;padding-bottom:8px">قائمة التلاميذ</h3>
 <p id="studentCount" class="hint" style="font-size:16px;font-weight:700"></p>
