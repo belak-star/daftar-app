@@ -436,3 +436,69 @@ body:not(.logged-in) #toast { display: none; }
     .panel { border: 0; padding: 0; }
     .dash-grid { grid-template-columns: 1fr; }
 }
+/* ============================================ */
+/* CORRECTION RADICALE : TEXTE NOIR SUR CLASSES, DISCIPLINE, AGENDA */
+/* ============================================ */
+
+/* 1. Onglet Classes (الفصول والتلاميذ) */
+#studentList .student-item .student-name {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+}
+#studentList .student-item .student-num {
+    color: #334155 !important;
+    font-weight: 700 !important;
+}
+#studentCount {
+    color: #1f7a4d !important;
+    font-weight: 800 !important;
+}
+
+/* 2. Onglet Discipline (العقوبات) */
+#discList table tbody td {
+    color: #0f172a !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+#discList table tbody td .disc-name {
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+#discList table tbody td .disc-reason {
+    color: #334155 !important;
+}
+#discCount {
+    color: #8a2a20 !important;
+    font-weight: 800 !important;
+}
+
+/* 3. Onglet Agenda (الأجندة) */
+#agList table tbody td {
+    color: #0f172a !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+#agList table tbody td div {
+    color: #000000 !important;
+}
+#agCount {
+    color: #2563a8 !important;
+    font-weight: 800 !important;
+}
+
+/* 4. On force aussi les champs de formulaire à être noirs */
+#classes input, #classes select,
+#discipline input, #discipline select, #discipline textarea,
+#agenda input, #agenda select, #agenda textarea {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+/* 5. Mode sombre (si activé) */
+body.dark-mode #studentList .student-item .student-name,
+body.dark-mode #discList table tbody td,
+body.dark-mode #agList table tbody td,
+body.dark-mode #agList table tbody td div {
+    color: #f8fafc !important;
+}
