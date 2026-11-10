@@ -265,8 +265,9 @@ export function renderAttList() {
 }
 
 function openStatusModal(student, date, onUpdate) {
-        // Fermer les fenêtres précédentes s'il y en a
+    // Fermer les fenêtres précédentes
     document.querySelectorAll('.ov').forEach(o => o.remove());
+
     const currentRec = getRec(student.id, date);
     const currentType = currentRec.type;
     const ov = el('div', { class: 'ov' });
