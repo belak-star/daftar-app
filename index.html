@@ -257,6 +257,12 @@
 <section class="panel hidden" id="classes">
 <h2 style="margin-top:0;color:var(--main)">📚 الأقسام والتلاميذ</h2>
 
+<!-- 🛑 BOUTON DE SUPPRESSION TRÈS VISIBLE -->
+<div style="background: #fff3cd; border: 2px solid #ffeeba; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+    <p style="margin: 0 0 10px 0; font-weight: bold; color: #856404;">⚠ منطقة الخطر (حذف قسم كامل مع تلاميذه)</p>
+    <button class="btn" id="deleteClassBtn" style="background:#b3261e; color:#fff; font-size: 16px; padding: 10px 30px; opacity: 0.5; cursor: not-allowed;" disabled>🗑 حذف القسم المحدد</button>
+</div>
+
 <div class="dail-bar">
 <div class="dail-class-wrap" style="flex: 1;">
 <label for="newClass">اسم القسم الجديد</label>
@@ -275,7 +281,7 @@
     <input type="file" id="importExcelFile" accept=".xlsx, .xls, .csv" style="display:none">
 </div>
 
-<<div class="dail-bar">
+<div class="dail-bar">
   <div class="dail-class-wrap" style="flex: 1;">
     <label for="classSelect">اختر قسماً</label>
     <select id="classSelect" class="dail-class-select"><option value="">— اختر —</option></select>
@@ -287,11 +293,6 @@
       <button class="btn" id="addStudent" style="background:#2563a8;white-space:nowrap">➕ إضافة التلميذ</button>
     </div>
   </div>
-</div>
-
-<!-- BOUTON DE SUPPRESSION BIEN VISIBLE -->
-<div style="text-align: center; margin-top: 15px; margin-bottom: 25px;">
-  <button class="btn" id="deleteClassBtn" style="background:#b3261e; color:#fff; font-size: 16px; padding: 10px 30px; opacity: 0.5; cursor: not-allowed;" disabled>🗑 حذف القسم المحدد</button>
 </div>
 <h3 style="color:var(--main);margin-top:24px;border-bottom:2px solid #e6ece9;padding-bottom:8px">قائمة التلاميذ</h3>
 <p id="studentCount" class="hint" style="font-size:16px;font-weight:700"></p>
