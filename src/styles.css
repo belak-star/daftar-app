@@ -606,3 +606,22 @@ body:not(.logged-in) #toast { display: none; }
   font-size: 13px !important;
   font-weight: 600 !important;
 }
+/* ============================================ */
+/* FORCER L'AFFICHAGE DU BOUTON DE SUPPRESSION */
+/* ============================================ */
+
+#deleteClassBtn {
+  display: inline-block !important; /* Force l'affichage */
+  visibility: visible !important;
+  opacity: 0.5; /* Il sera grisé au début */
+  cursor: not-allowed;
+  font-size: 16px !important;
+  padding: 10px 30px !important;
+  margin: 0 auto !important;
+}
+
+/* Quand le bouton est activé (une classe est choisie) */
+#deleteClassBtn:not([disabled]) {
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
