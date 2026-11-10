@@ -1,5 +1,5 @@
 // src/features/grades.js
-// Gère les notes et les moyennes avec un design moderne.
+// Gère les notes, les moyennes et les copies manquantes.
 import { db, save } from '../core/state.js';
 import { $, el } from '../core/dom.js';
 import { collator } from '../core/format.js';
@@ -71,7 +71,7 @@ function renderGradesStats(students, term, isAnnual) {
     const box = $('gStats');
     if (!box) return;
     box.replaceChildren();
-    box.className = 'att-stats'; // Utilisation des cartes colorées
+    box.className = 'att-stats';
 
     const averages = students.map(s => {
         if (isAnnual) return computeAnnualAverage(s);
@@ -144,7 +144,6 @@ export function renderGradesList() {
     const ranks = {};
     sorted.forEach((x, idx) => { ranks[x.i] = idx + 1; });
 
-    // On utilise le même tableau stylé que les présences (dail-table)
     const table = el('table', { class: 'dail-table' });
     const thead = el('thead');
 
@@ -175,7 +174,7 @@ export function renderGradesList() {
     students.forEach((s, i) => {
         const avg = averages[i];
         const rank = ranks[i];
-        const tr = el('tr', {}); // Pas de classe "top-1" pour éviter les styles conflictuels
+        const tr = el('tr', {});
 
         tr.append(
             el('td', { class: 'col-n', textContent: (i + 1) }),
@@ -237,125 +236,8 @@ export function renderGradesList() {
     if (!isAnnual) renderMissingList();
 }
 
-// [Le reste du fichier pour les copies manquantes reste identique...]
-// ... (garde tes fonctions isExamDone, setExamDone, renderMissingList, exportMissing, bindMissing, bindGrades, exportGrades)
-
-function isExamDone() {
-    const classe = $('gClass').value;
-    const term = $('gTerm').value;
-    const exam = $('missingExam').value;
-    if (!classe || !term || term === 'A') return false;
-    const key = JSON.stringify([classe, term, exam]);
-    return !!(db.examHeld && db.examHeld[key]);
-}
-function setExamDone(done) {
-    const classe = $('gClass').value;
-    const term = $('gTerm').value;
-    const exam = $('missingExam').value;
-    if (!classe || !term || term === 'A') return;
-    const key = JSON.stringify([classe, term, exam]);
-    if (!db.examHeld) db.examHeld = {};
-    if (done) db.examHeld[key] = true;
-    else delete db.examHeld[key];
-    save();
-}
-export function renderMissingList() {
-    const tbody = $('missingBody');
-    const count = $('missingCount');
-    const summary = $('examSummary');
-    if (!tbody) return;
-    const classe = $('gClass').value;
-    const term = $('gTerm').value;
-    const exam = $('missingExam').value;
-    tbody.replaceChildren();
-    if (!classe || !term || term === 'A') {
-        if (count) count.textContent = '';
-        if (summary) summary.textContent = '';
-        return;
-    }
-    const done = isExamDone();
-    const examDoneCheckbox = $('examDone');
-    if (examDoneCheckbox) examDoneCheckbox.checked = done;
-    const students = db.students.filter(s => s.class === classe).sort((a, b) => collator.compare(a.name, b.name));
-    const missing = students.filter(s => getNote(s, term, exam) === null);
-
-    if (count) count.textContent = done ? 'عدد دون: ' + missing.length : 'الفرض لم ينجز بعد.';
-    if (summary) {
-        if (done) {
-            const justified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'excused').length;
-            const unjustified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'unexcused').length;
-            const graded = students.length - missing.length;
-            summary.textContent = 'أعداد مسجلة: ' + graded + ' / ' + students.length + ' | مبرر: ' + justified + ' | غير مبرر: ' + unjustified + ' | غير محدد: ' + (missing.length - justified - unjustified);
-        } else {
-            summary.textContent = '';
-        }
-    }
-
-    if (!done) {
-        tbody.append(el('tr', {}, el('td', { colSpan: 3, class: 'empty-list', textContent: 'ضع علامة »الفرض منجز« لإظهار القائمة.' })));
-        return;
-    }
-    if (missing.length === 0) {
-        tbody.append(el('tr', {}, el('td', { colSpan: 3, class: 'empty-list', textContent: 'جميع التلاميذ لديهم أعداد في هذا الفرض.' })));
-        return;
-    }
-
-    const examLabels = { tp: 'أشغال تطبيقية', dc: 'فرض مراقبة', ds: 'فرض تأليفي' };
-    missing.forEach((s, i) => {
-        const currentStatus = s.gAbs && s.gAbs[term] && s.gAbs[term][exam] || 'pending';
-        const select = el('select', { class: 'situation-select' });
-        [['pending', 'غير محدد'], ['excused', 'غياب مبرر'], ['unexcused', 'غياب غير مبرر']].forEach(([val, label]) => {
-            const opt = el('option', { value: val, textContent: label });
-            if (val === currentStatus) opt.selected = true;
-            select.append(opt);
-        });
-        select.onchange = () => {
-            const student = db.students.find(x => x.id === s.id);
-            if (!student) return;
-            if (!student.gAbs) student.gAbs = {};
-            if (!student.gAbs[term]) student.gAbs[term] = {};
-            if (select.value === 'pending') delete student.gAbs[term][exam];
-            else student.gAbs[term][exam] = select.value;
-            save();
-            renderMissingList();
-        };
-        tbody.append(el('tr', {},
-            el('td', { class: 'col-n', textContent: (i + 1) }),
-            el('td', { class: 'col-name', textContent: s.name }),
-            el('td', {}, select),
-        ));
-    });
-}
-export function exportMissing() {
-    // Garde ton code d'exportation
-    alert('Fonction d\'exportation à venir.');
-}
-export function bindMissing() {
-    const missingExamSelect = $('missingExam');
-    const examDoneCheckbox = $('examDone');
-    const expMissingBtn = $('expMissing');
-    if (missingExamSelect) missingExamSelect.onchange = () => renderMissingList();
-    if (examDoneCheckbox) {
-        examDoneCheckbox.onchange = () => { setExamDone(examDoneCheckbox.checked); renderMissingList(); };
-    }
-    if (expMissingBtn) expMissingBtn.onclick = exportMissing;
-}
-export function bindGrades() {
-    const classSelect = $('gClass');
-    const termSelect = $('gTerm');
-    if (classSelect) classSelect.onchange = renderGradesList;
-    if (termSelect) termSelect.onchange = renderGradesList;
-    const btnExport = $('gExport');
-    if (btnExport) btnExport.onclick = exportGrades;
-    bindMissing();
-    renderGradesClassSelect();
-}
-export function exportGrades() {
-    // Garde ton code d'exportation
-    alert('Fonction d\'exportation à venir.');
-}
 // ============================================
-// GESTION DES COPIES MANQUANTES (Réintégration)
+// GESTION DES COPIES MANQUANTES
 // ============================================
 function isExamDone() {
     const classe = $('gClass').value;
@@ -478,6 +360,9 @@ export function renderMissingList() {
     createGroupTable('🟡 غير محدد', '#9a5b00', groups.pending, 'pending');
 }
 
+export function exportMissing() {
+    alert('تصدير Excel سيُضاف قريبًا.');
+}
 export function bindMissing() {
     const missingExamSelect = $('missingExam');
     const examDoneCheckbox = $('examDone');
@@ -489,5 +374,18 @@ export function bindMissing() {
             renderMissingList();
         };
     }
-    if (expMissingBtn) expMissingBtn.onclick = () => alert('تصدير Excel سيُضاف قريبًا.');
+    if (expMissingBtn) expMissingBtn.onclick = exportMissing;
+}
+export function bindGrades() {
+    const classSelect = $('gClass');
+    const termSelect = $('gTerm');
+    if (classSelect) classSelect.onchange = renderGradesList;
+    if (termSelect) termSelect.onchange = renderGradesList;
+    const btnExport = $('gExport');
+    if (btnExport) btnExport.onclick = exportGrades;
+    bindMissing();
+    renderGradesClassSelect();
+}
+export function exportGrades() {
+    alert('تصدير Excel سيُضاف قريبًا.');
 }
