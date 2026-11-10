@@ -453,3 +453,17 @@ body.dark-mode #studentCount {
     background: #1a3a24;
     color: #4ade80;
 }
+/* Badges pour la discipline */
+.disc-type-badge {
+    display: inline-block;
+    background: #b3261e;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.disc-type-badge.invitation {
+    background: #2563a8; /* Bleu pour les convocations */
+}

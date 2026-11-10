@@ -130,76 +130,73 @@ function deleteDisciplineRecord(id) {
 }
 
 export function renderDisciplineList() {
-  const box = $('discList');
-  const count = $('discCount');
-  if (!box) return;
-
-  box.replaceChildren();
-
-  const filterClass = $('discFilterClass').value;
-  let records = (db.disciplineRecords || []).slice();
-
-  if (filterClass) {
-    records = records.filter(r => r.class === filterClass);
-  }
-
-  records.sort((a, b) => b.date.localeCompare(a.date));
-
-  if (count) {
-    count.textContent = 'عدد السجلات: ' + records.length;
-  }
-
-  if (records.length === 0) {
-    box.append(el('div', { class: 'empty-list', textContent: 'لا توجد سجلات.' }));
-    return;
-  }
-
-  const table = el('table', { class: 'disc-table' });
-  const thead = el('thead');
-  thead.append(el('tr', {},
-    el('th', { textContent: 'التاريخ' }),
-    el('th', { textContent: 'الفصل' }),
-    el('th', { textContent: 'التلميذ' }),
-    el('th', { textContent: 'النوع' }),
-    el('th', { textContent: 'السبب / الموضوع' }),
-    el('th', { textContent: 'موعد الاستدعاء' }),
-    el('th', { textContent: 'إجراء' }),
-  ));
-  table.append(thead);
-
-  const tbody = el('tbody');
-  records.forEach(r => {
-    const kindLabel = r.kind === 'invitation' ? 'استدعاء' : r.type;
-    const kindClass = r.kind === 'invitation' ? 'invitation' : '';
-
-    const btnDel = el('button', {
-      class: 'btn',
-      textContent: '🗑️ حذف',
-      style: 'background:#b3261e;padding:4px 10px;font-size:13px',
-    });
-    btnDel.onclick = () => deleteDisciplineRecord(r.id);
-
-    let meetDisplay = '—';
-    if (r.meetDate) {
-      meetDisplay = r.meetDate + (r.meetTime ? ' ' + r.meetTime : '');
+    const box = $('discList');
+    const count = $('discCount');
+    if (!box) return;
+    box.replaceChildren();
+    
+    const filterClass = $('discFilterClass').value;
+    let records = (db.disciplineRecords || []).slice();
+    if (filterClass) {
+        records = records.filter(r => r.class === filterClass);
+    }
+    records.sort((a, b) => b.date.localeCompare(a.date));
+    
+    if (count) {
+        count.textContent = 'السجلات عدد: ' + records.length;
+    }
+    if (records.length === 0) {
+        box.append(el('div', { class: 'empty-list', textContent: 'لا توجد سجلات.' }));
+        return;
     }
 
-    const tr = el('tr', {},
-      el('td', { textContent: r.date }),
-      el('td', { textContent: r.class }),
-      el('td', { class: 'disc-name', textContent: r.studentName }),
-      el('td', {},
-        el('span', { class: 'disc-type-badge ' + kindClass, textContent: kindLabel }),
-      ),
-      el('td', { class: 'disc-reason', textContent: r.reason }),
-      el('td', { textContent: meetDisplay }),
-      el('td', {}, btnDel),
-    );
-    tbody.append(tr);
-  });
-  table.append(tbody);
+    // On utilise le même tableau stylé que les présences
+    const table = el('table', { class: 'dail-table' });
+    const thead = el('thead');
+    thead.append(el('tr', {},
+        el('th', { textContent: 'التاريخ', class: 'col-n', style: 'width:100px' }),
+        el('th', { textContent: 'الفصل', style: 'text-align:center' }),
+        el('th', { textContent: 'التلميذ', class: 'col-name' }),
+        el('th', { textContent: 'النوع', style: 'text-align:center' }),
+        el('th', { textContent: 'الموضوع / السبب', class: 'col-reason' }),
+        el('th', { textContent: 'موعد الاستدعاء', style: 'text-align:center' }),
+        el('th', { textContent: 'إجراء', class: 'col-del' })
+    ));
+    table.append(thead);
+    
+    const tbody = el('tbody');
+    records.forEach(r => {
+        const kindLabel = r.kind === 'invitation' ? 'استدعاء' : r.type;
+        const kindClass = r.kind === 'invitation' ? 'invitation' : '';
+        
+        const btnDel = el('button', {
+            class: 'btn-icon-sm',
+            textContent: '🗑️',
+            title: 'حذف',
+            style: 'background:#fee2e2;color:#b3261e',
+            onclick: () => deleteDisciplineRecord(r.id)
+        });
+        
+        let meetDisplay = '—';
+        if (r.meetDate) {
+            meetDisplay = r.meetDate + (r.meetTime ? ' ' + r.meetTime : '');
+        }
 
-  box.append(table);
+        const tr = el('tr', {},
+            el('td', { textContent: r.date, style: 'direction:ltr;font-size:14px' }),
+            el('td', { textContent: r.class, style: 'text-align:center' }),
+            el('td', { textContent: r.studentName }),
+            el('td', {},
+                el('span', { class: 'disc-type-badge ' + kindClass, textContent: kindLabel })
+            ),
+            el('td', { textContent: r.reason }),
+            el('td', { textContent: meetDisplay, style: 'direction:ltr;text-align:center' }),
+            el('td', {}, btnDel)
+        );
+        tbody.append(tr);
+    });
+    table.append(tbody);
+    box.append(table);
 }
 
 export function resetDisciplineForm() {
