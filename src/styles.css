@@ -1,89 +1,88 @@
 /* ============================================ */
-/* DAFTAR - FEUILLE DE STYLE COMPLÈTE ET PROPRE */
+/* DAFTAR - FEUILLE DE STYLE COMPLÈTE ET DÉFINITIVE */
 /* ============================================ */
 
 :root {
-    --ink: #1c2b2a;
-    --muted: #5d6b69;
-    --paper: #f4f6f3;
-    --card: #fff;
-    --line: #d9e0dc;
-    --main: #1f5c55;
-    --main-d: #174640;
-    --ok: #1f7a4d;
-    --exc: #2563a8;
-    --un: #b3261e;
-    --late: #9a5b00;
-    --exp: #7a3fb5;
+  --ink: #1c2b2a;
+  --muted: #5d6b69;
+  --paper: #f4f6f3;
+  --card: #fff;
+  --line: #d9e0dc;
+  --main: #1f5c55;
+  --main-d: #174640;
+  --ok: #1f7a4d;
+  --exc: #2563a8;
+  --un: #b3261e;
+  --late: #9a5b00;
+  --exp: #7a3fb5;
 }
 
 * { box-sizing: border-box; }
 
 body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font: 17px/1.6 "Cairo", "Segoe UI", Tahoma, sans-serif;
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 17px/1.6 "Cairo", "Segoe UI", Tahoma, sans-serif;
 }
 
 .wrap {
-    max-width: none;
-    margin: 0 auto;
-    padding: 16px;
+  max-width: none;
+  margin: 0 auto;
+  padding: 16px;
 }
 
 /* ========== EN-TÊTE ========== */
 header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: flex-end;
-    background: var(--main);
-    color: #fff;
-    padding: 18px 20px;
-    border-radius: 12px;
-    position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  background: var(--main);
+  color: #fff;
+  padding: 18px 20px;
+  border-radius: 12px;
+  position: relative;
 }
 header h1 {
-    margin: 0 0 4px;
-    flex: 1 1 100%;
-    text-align: center;
-    font-size: clamp(34px, 8vw, 52px);
-    line-height: 1.3;
-    font-weight: 700;
+  margin: 0 0 4px;
+  flex: 1 1 100%;
+  text-align: center;
+  font-size: clamp(34px, 8vw, 52px);
+  line-height: 1.3;
+  font-weight: 700;
 }
 #todayLine {
-    flex: 1 1 100%;
-    text-align: center;
-    font-size: clamp(16px, 2.6vw, 21px);
-    font-weight: 700;
-    color: #e8f5f1;
-    margin-top: -6px;
+  flex: 1 1 100%;
+  text-align: center;
+  font-size: clamp(16px, 2.6vw, 21px);
+  font-weight: 700;
+  color: #e8f5f1;
+  margin-top: -6px;
 }
 
 /* ========== ONGLETS ========== */
 .tabs {
-    display: flex;
-    gap: 8px;
-    margin: 16px 0 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 .tab {
-    flex: 1;
-    padding: 11px 8px;
-    border: 2px solid transparent;
-    border-bottom-width: 4px;
-    border-radius: 12px 12px 0 0;
-    background: none;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: clamp(14px, 1.7vw, 18px);
-    white-space: nowrap;
-    transition: transform .15s, filter .15s;
+  flex: 1;
+  padding: 11px 8px;
+  border: 2px solid transparent;
+  border-bottom-width: 4px;
+  border-radius: 12px 12px 0 0;
+  background: none;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: clamp(14px, 1.7vw, 18px);
+  white-space: nowrap;
+  transition: transform .15s, filter .15s;
 }
 .tab:hover { transform: translateY(-2px); }
-
 #tabDashboard { background: #e3f2f1; color: #145d61; border-bottom-color: #14858b; }
 #tabDashboard[aria-selected="true"] { background: #147d83; color: #fff; border-color: #105b60; }
 #tabDaily { background: #d8f1e3; color: #155c3a; border-bottom-color: #248351; }
@@ -103,101 +102,97 @@ header h1 {
 
 /* ========== PANNEAUX ========== */
 .panel {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 0 0 12px 12px;
-    padding: 24px;
-    min-height: 300px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0 0 12px 12px;
+  padding: 24px;
+  min-height: 300px;
 }
 .hidden { display: none !important; }
 
 /* ========== FORMULAIRES ========== */
 input, select, textarea, button { font: inherit; }
 input, select, textarea {
-    padding: 10px 12px;
-    border: 2px solid var(--line);
-    border-radius: 8px;
-    background: #fff;
-    color: #0f172a !important; /* Texte noir */
-    width: 100%;
-    max-width: 400px;
-    font-weight: 600;
-    font-size: 16px;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a !important; /* Forcer le texte noir */
+  width: 100%;
+  max-width: 400px;
+  font-weight: 600;
+  font-size: 16px;
 }
 input:focus, select:focus, textarea:focus {
-    outline: 3px solid #f0b429;
-    outline-offset: 1px;
+  outline: 3px solid #f0b429;
+  outline-offset: 1px;
 }
 label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 4px;
-    font-size: 15px;
-    color: #1e293b;
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-size: 15px;
+  color: #1e293b;
 }
 .row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    margin-bottom: 14px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 14px;
 }
 .row > div { flex: 1; min-width: 200px; }
 .hint { color: var(--muted); font-size: 14px; }
 
 /* ========== BOUTONS ========== */
 .btn {
-    border: 0;
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-weight: 700;
-    cursor: pointer;
-    background: var(--main);
-    color: #fff;
-    white-space: nowrap;
-    font-size: inherit;
-    transition: background .15s, transform .15s;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--main);
+  color: #fff;
+  white-space: nowrap;
+  font-size: inherit;
+  transition: background .15s, transform .15s;
 }
 .btn:hover { background: var(--main-d); transform: translateY(-1px); }
 .btn.alt { background: #e6ece9; color: #1c2b2a !important; }
 .btn.alt:hover { background: #d5dfdb; }
 
-/* ========== TABLEAUX (Style unique pour TOUS) ========== */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 12px;
-}
+/* ========== TABLEAUX (Style unique et forcé) ========== */
+table { width: 100%; border-collapse: collapse; margin-top: 12px; }
 th, td {
-    padding: 12px 10px;
-    border-bottom: 1px solid var(--line);
-    text-align: right;
-    vertical-align: middle;
-    color: #0f172a !important; /* On force le texte noir */
-    font-size: 16px;
-    font-weight: 600;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  vertical-align: middle;
+  color: #0f172a !important; /* Forcer le texte noir */
+  font-size: 16px;
+  font-weight: 600;
 }
 th {
-    background: #eef2ef;
-    font-size: 15px;
-    font-weight: 800;
-    color: #1e293b;
+  background: #eef2ef;
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b !important;
 }
 td.n { width: 48px; text-align: center; color: var(--muted); }
-td.name { font-weight: 800; font-size: 18px; color: #000; }
+td.name { font-weight: 800; font-size: 18px; color: #000 !important; }
 
-/* On force les noms dans les tableaux à être bien noirs */
+/* Forcer les noms à être très visibles */
 .dail-table tbody td.col-name,
 .missing-table tbody td:nth-child(2),
 .student-item .student-name {
-    color: #000000 !important;
-    font-weight: 800 !important;
-    font-size: 18px !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  font-size: 18px !important;
 }
 
-/* Les en-têtes des tableaux colorés (dail-table) */
+/* En-têtes des tableaux colorés */
 .dail-table thead th { color: #fff !important; }
-.dail-table thead th.col-n { background: #1f5c55; }
+.dail-table thead th.col-n,
 .dail-table thead th.col-name { background: #1f5c55; }
 .dail-table thead th.col-status { background: #2563a8; }
 .dail-table thead th.col-reason { background: #e0702b; }
@@ -206,80 +201,19 @@ td.name { font-weight: 800; font-size: 18px; color: #000; }
 
 /* ========== EMPTY STATE ========== */
 .empty-list {
-    text-align: center;
-    padding: 30px;
-    color: var(--muted);
-    background: #f9fbfa;
-    border-radius: 8px;
-    border: 1px dashed var(--line);
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+  background: #f9fbfa;
+  border-radius: 8px;
+  border: 1px dashed var(--line);
 }
 
 /* ============================================ */
-/* DESIGN DES ONGLETS (Classes, Discipline, Agenda) */
+/* DESIGN SPÉCIFIQUE AUX ONGLETS */
 /* ============================================ */
 
-/* --- Classes --- */
-#studentCount {
-    font-size: 18px;
-    color: #1f7a4d !important;
-    background: #dcf2e5;
-    padding: 10px 16px;
-    border-radius: 8px;
-    display: inline-block;
-    margin-bottom: 16px;
-    font-weight: 800;
-}
-#studentList { display: flex; flex-direction: column; gap: 8px; }
-.student-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    transition: all .15s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.student-item:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
-.student-item .student-num { color: #64748b !important; font-weight: 700; font-size: 16px; min-width: 40px; }
-.student-item .btn-delete { background: #fee2e2; color: #b3261e !important; border: 0; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
-
-/* --- Discipline --- */
-.disc-type-badge {
-    display: inline-block;
-    background: #b3261e;
-    color: #fff !important;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-.disc-type-badge.invitation { background: #2563a8; }
-
-/* --- Agenda --- */
-.ag-type-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    color: #0f172a !important;
-}
-.ag-type-badge.devoir { background: #dcf2e5; color: #1f7a4d !important; }
-.ag-type-badge.controle { background: #fdebc8; color: #9a5b00 !important; }
-.ag-type-badge.autre { background: #ece4f7; color: #67318b !important; }
-.ag-status { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; display: inline-block; }
-.ag-status.soon { background: #f0b429; color: #fff !important; }
-.ag-status.overdue { background: #b3261e; color: #fff !important; }
-.ag-status.done { background: #1f7a4d; color: #fff !important; }
-.ag-status.normal { background: #e6ece9; color: var(--muted) !important; }
-
-/* ============================================ */
-/* DASHBOARD (Cartes KPI) */
-/* ============================================ */
+/* --- Dashboard --- */
 .dyn-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 16px 0 20px; padding: 12px 16px; background: #f6fbf9; border-radius: 12px; border: 1px solid #d9e0dc; }
 .dyn-filters label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
 .dyn-filters select { width: auto; min-width: 150px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); font-weight: 700; }
@@ -317,9 +251,8 @@ td.name { font-weight: 800; font-size: 18px; color: #000; }
 .dash-box { border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: #fff; }
 .dash-box h3 { margin: 0 0 14px; color: var(--main); font-size: 17px; border-bottom: 2px solid #e6ece9; padding-bottom: 8px; }
 
-/* ============================================ */
-/* ONGLET PRÉSENCES */
-/* ============================================ */
+
+/* --- Onglet Présences --- */
 .daily-title { margin: 0 0 18px; color: #8a2a20; text-align: center; font-size: 26px; font-weight: 800; }
 .dail-bar { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; justify-content: center; margin-bottom: 20px; padding: 14px; background: #f8fbfa; border-radius: 12px; border: 1px solid #e0e8e5; }
 .dail-date-wrap, .dail-class-wrap { display: flex; flex-direction: column; gap: 6px; }
@@ -329,13 +262,11 @@ td.name { font-weight: 800; font-size: 18px; color: #000; }
 .dail-class-select { font-size: 22px; font-weight: 800; padding: 8px 14px; border: 2px solid #d9822b; border-radius: 10px; color: #8a2a20 !important; text-align: center; min-width: 200px; }
 .btn-icon { border: 0; background: #e6ece9; color: var(--ink); border-radius: 8px; width: 42px; height: 42px; font-size: 20px; font-weight: 800; cursor: pointer; transition: background .15s; }
 .btn-icon:hover { background: #d5dfdb; }
-
 .att-stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 20px; }
 .att-stat-card { flex: 1; min-width: 130px; border-radius: 12px; padding: 14px 16px; border: 2px solid; text-align: center; transition: transform .15s, box-shadow .15s; }
 .att-stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
 .att-stat-label { display: block; font-size: 14px; font-weight: 700; }
 .att-stat-value { display: block; font-size: 32px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
-
 .dail-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 18px; padding: 10px; background: #fff; border-radius: 12px; border: 1px solid var(--line); }
 .dail-search { flex: 1; min-width: 220px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 10px; font-size: 15px; }
 .dail-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
@@ -351,9 +282,7 @@ td.name { font-weight: 800; font-size: 18px; color: #000; }
 .reason-input, .situation-select { width: 100%; padding: 10px 12px; border: 2px solid transparent; border-radius: 10px; font-size: 15px; text-align: right; background: #f8fafc; transition: all .2s; }
 .reason-input:focus, .situation-select:focus { background: #fff; border-color: #e0702b; outline: none; box-shadow: 0 0 0 3px rgba(224, 112, 43, 0.15); }
 
-/* ============================================ */
-/* NOTES (Grille et champs) */
-/* ============================================ */
+/* --- Onglet Notes --- */
 #gList .grade-input { width: 70px; padding: 10px; border: 2px solid var(--line); border-radius: 10px; text-align: center; font-size: 16px; font-weight: 700; background: #fff; transition: all .15s; color: #1c2b2a !important; }
 #gList .grade-input:focus { border-color: #7a3fb5; outline: none; box-shadow: 0 0 0 3px rgba(122, 63, 181, 0.2); }
 #gList .grade-input.low { border-color: #b3261e; color: #b3261e !important; background: #fbe0dd; }
@@ -362,20 +291,45 @@ td.name { font-weight: 800; font-size: 18px; color: #000; }
 #gList .rank-cell { font-size: 20px; font-weight: 800; color: #e0702b !important; }
 #gList .rank-cell.medal { font-size: 24px; }
 
-/* ============================================ */
-/* COPIES MANQUANTES */
-/* ============================================ */
+/* --- Copies Manquantes --- */
 .missing-group { border-inline-start: 6px solid #999; background: #ffffff; border-radius: 12px; padding: 16px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 .missing-group-title { margin: 0 0 12px; font-size: 18px; font-weight: 800; }
 .missing-table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
-.missing-table th { background: #e2e8f0; padding: 12px 10px; text-align: center; font-size: 15px; font-weight: 800; color: #1e293b; border-bottom: 2px solid #cbd5e1; }
+.missing-table th { background: #e2e8f0; padding: 12px 10px; text-align: center; font-size: 15px; font-weight: 800; color: #1e293b !important; border-bottom: 2px solid #cbd5e1; }
 .missing-table td { padding: 10px 10px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 16px; }
 .missing-table select { padding: 8px 12px; border: 2px solid #94a3b8; border-radius: 8px; font-size: 14px; font-weight: 700; background: #fff; color: #1e293b !important; cursor: pointer; transition: all .15s; width: 100%; max-width: 200px; }
 .missing-table select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
 
-/* Overlay */
+/* --- Onglet Classes --- */
+#studentCount { font-size: 18px; color: #1f7a4d !important; background: #dcf2e5; padding: 10px 16px; border-radius: 8px; display: inline-block; margin-bottom: 16px; font-weight: 800; }
+#studentList { display: flex; flex-direction: column; gap: 8px; }
+.student-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; transition: all .15s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.student-item:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
+.student-item .student-num { color: #64748b !important; font-weight: 700; font-size: 16px; min-width: 40px; }
+.student-item .btn-delete { background: #fee2e2; color: #b3261e !important; border: 0; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+
+/* --- Onglet Discipline --- */
+.disc-type-badge { display: inline-block; background: #b3261e; color: #fff !important; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.disc-type-badge.invitation { background: #2563a8; }
+
+/* --- Onglet Agenda --- */
+.ag-type-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; white-space: nowrap; color: #0f172a !important; }
+.ag-type-badge.devoir { background: #dcf2e5; color: #1f7a4d !important; }
+.ag-type-badge.controle { background: #fdebc8; color: #9a5b00 !important; }
+.ag-type-badge.autre { background: #ece4f7; color: #67318b !important; }
+.ag-status { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; display: inline-block; }
+.ag-status.soon { background: #f0b429; color: #fff !important; }
+.ag-status.overdue { background: #b3261e; color: #fff !important; }
+.ag-status.done { background: #1f7a4d; color: #fff !important; }
+.ag-status.normal { background: #e6ece9; color: var(--muted) !important; }
+.dail-table tbody tr.ag-soon td { background-color: #fffbeb !important; }
+.dail-table tbody tr.ag-overdue td { background-color: #fef2f2 !important; }
+.dail-table tbody tr.ag-done td { background-color: #f8fafc !important; opacity: 0.6; }
+.dail-table tbody tr.ag-done td:nth-child(3) { text-decoration: line-through; }
+
+/* ========== MODAL (Popups) ========== */
 .ov { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
-.ovbox { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; color: #0f172a; }
+.ovbox { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; color: #0f172a !important; }
 .status-dialog { max-width: 440px; }
 .status-option { display: block; width: 100%; margin: 10px 0; padding: 16px; border: 2px solid; border-radius: 12px; font-size: 20px; font-weight: 800; cursor: pointer; text-align: center; transition: transform .15s, box-shadow .15s; }
 .status-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
@@ -385,21 +339,26 @@ td.name { font-weight: 800; font-size: 18px; color: #000; }
 
 /* ========== MODE SOMBRE ========== */
 body.dark-mode {
-    --ink: #e8ecea; --muted: #a0aca8; --paper: #1a1f1e; --card: #242b2a; --line: #3a4340; --main: #2e8579; --main-d: #1f5c55;
+  --ink: #e8ecea; --muted: #a0aca8; --paper: #1a1f1e; --card: #242b2a; --line: #3a4340; --main: #2e8579; --main-d: #1f5c55;
 }
 body.dark-mode header { background: #174640; }
 body.dark-mode .panel { background: #242b2a; border-color: #3a4340; }
 body.dark-mode .dyn-filters { background: #2a3230; border-color: #3a4340; }
 body.dark-mode .dash-box { background: #2a3230; border-color: #3a4340; }
+body.dark-mode .dash-box h3 { border-bottom-color: #3a4340; }
 body.dark-mode .dash-card { background: #2a3230; border-color: #3a4340; }
-body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
+body.dark-mode .ovbox { background: #242b2a; color: #e8ecea !important; }
 body.dark-mode .dail-table tbody tr:nth-child(even) td { background: #2a3230; }
 body.dark-mode .dail-table tbody tr:hover td { background: #343d3a !important; }
 body.dark-mode .missing-group { background: #2a3230; border-color: #3a4340; }
 body.dark-mode .missing-table { background: #1a1f1e; }
-body.dark-mode .missing-table th { background: #343d3a; color: #e8ecea; }
+body.dark-mode .missing-table th { background: #343d3a; color: #e8ecea !important; }
 body.dark-mode .missing-table td { border-bottom-color: #3a4340; }
 body.dark-mode .student-item { background: #2a3230; border-color: #3a4340; }
+body.dark-mode .student-item .student-name { color: #ffffff !important; }
+body.dark-mode .student-item .student-num { color: #cbd5e1 !important; }
+body.dark-mode #studentCount { background: #1a3a24; color: #4ade80 !important; }
+body.dark-mode #agList .dail-table tbody td div { color: #f8fafc !important; }
 
 /* ========== TOAST ========== */
 #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 100; max-width: 90vw; font-weight: 700; }
@@ -422,83 +381,17 @@ body:not(.logged-in) #toast { display: none; }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 700px) {
-    .att-stat-card { min-width: 110px; padding: 10px; }
-    .att-stat-value { font-size: 26px; }
-    .dail-date-input, .dail-class-select { font-size: 18px; }
-    .dail-table tbody td.col-name { font-size: 17px !important; }
-    .status-btn { font-size: 15px; min-height: 44px; }
-    .dash-grid { grid-template-columns: 1fr; }
+  .att-stat-card { min-width: 110px; padding: 10px; }
+  .att-stat-value { font-size: 26px; }
+  .dail-date-input, .dail-class-select { font-size: 18px; }
+  .dail-table tbody td.col-name { font-size: 17px !important; }
+  .status-btn { font-size: 15px; min-height: 44px; }
+  .dash-grid { grid-template-columns: 1fr; }
 }
 
 /* ========== IMPRESSION ========== */
 @media print {
-    header, .tabs, .bar, details, .ov, #toast, .noprint, td.del, th.del, .hint, #authScreen, .dail-toolbar, .dyn-filters { display: none !important; }
-    .panel { border: 0; padding: 0; }
-    .dash-grid { grid-template-columns: 1fr; }
-}
-/* ============================================ */
-/* CORRECTION RADICALE : TEXTE NOIR SUR CLASSES, DISCIPLINE, AGENDA */
-/* ============================================ */
-
-/* 1. Onglet Classes (الفصول والتلاميذ) */
-#studentList .student-item .student-name {
-    color: #000000 !important;
-    font-weight: 800 !important;
-    font-size: 18px !important;
-}
-#studentList .student-item .student-num {
-    color: #334155 !important;
-    font-weight: 700 !important;
-}
-#studentCount {
-    color: #1f7a4d !important;
-    font-weight: 800 !important;
-}
-
-/* 2. Onglet Discipline (العقوبات) */
-#discList table tbody td {
-    color: #0f172a !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-}
-#discList table tbody td .disc-name {
-    color: #000000 !important;
-    font-weight: 800 !important;
-}
-#discList table tbody td .disc-reason {
-    color: #334155 !important;
-}
-#discCount {
-    color: #8a2a20 !important;
-    font-weight: 800 !important;
-}
-
-/* 3. Onglet Agenda (الأجندة) */
-#agList table tbody td {
-    color: #0f172a !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-}
-#agList table tbody td div {
-    color: #000000 !important;
-}
-#agCount {
-    color: #2563a8 !important;
-    font-weight: 800 !important;
-}
-
-/* 4. On force aussi les champs de formulaire à être noirs */
-#classes input, #classes select,
-#discipline input, #discipline select, #discipline textarea,
-#agenda input, #agenda select, #agenda textarea {
-    color: #0f172a !important;
-    font-weight: 600 !important;
-}
-
-/* 5. Mode sombre (si activé) */
-body.dark-mode #studentList .student-item .student-name,
-body.dark-mode #discList table tbody td,
-body.dark-mode #agList table tbody td,
-body.dark-mode #agList table tbody td div {
-    color: #f8fafc !important;
+  header, .tabs, .bar, details, .ov, #toast, .noprint, td.del, th.del, .hint, #authScreen, .dail-toolbar, .dyn-filters { display: none !important; }
+  .panel { border: 0; padding: 0; }
+  .dash-grid { grid-template-columns: 1fr; }
 }
