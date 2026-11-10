@@ -1,7 +1,7 @@
 // src/main.js
 // Point d'entrée de l'application DAFTAR (Mode Local).
 
-import { db, save } from './core/state.js';
+import { db, load } from './core/state.js';
 import { $, el } from './core/dom.js';
 
 // Importation des modules (onglets)
@@ -36,7 +36,7 @@ function showTab(id) {
   if (id === 'classes') { renderClassSelect(); renderStudentList(); }
 }
 
-// --- ÉCRAN DE CONNEXION (Désactivé en mode local) ---
+// --- ÉCRAN DE CONNEXION (Désactivé) ---
 function afficherAuth(show) {
   const authScreen = $('authScreen');
   if (authScreen) {
@@ -103,19 +103,25 @@ function initialiserApp() {
 
 // --- DÉMARRAGE ---
 async function demarrer() {
+  console.log('⏳ Démarrage de l\'application...');
+  
   try {
-    // Charger les données locales (backup ou localStorage)
-    const { load } = await import('./core/state.js');
+    // 1. Charger les données (backup.json ou localStorage)
+    // La fonction load() gère déjà la priorité : localStorage -> backup.json
     await load();
-    console.log('✅ db rechargé depuis localStorage (', db.students?.length || 0, 'élèves)');
+    console.log('✅ Données chargées avec succès !');
+    console.log('📊 Classes:', db.classes.length);
+    console.log('👥 Élèves:', db.students.length);
   } catch (e) {
-    console.warn('⚠ Impossible de charger les données locales', e);
+    console.error('❌ Erreur lors du chargement des données:', e);
   }
 
-  // ⚠️ MODE LOCAL : On n'appelle plus Firebase
-  console.log('⚠ Mode local activé. L\'application démarre sans connexion.');
-  afficherAuth(false);      // Cache l'écran de connexion
-  initialiserApp();         // Lance l'application
+  // 2. Masquer l'écran de connexion
+  afficherAuth(false);
+  
+  // 3. Lancer l'interface
+  initialiserApp();
 }
 
+// Lancer au chargement de la page
 document.addEventListener('DOMContentLoaded', demarrer);
