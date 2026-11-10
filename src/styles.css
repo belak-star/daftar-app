@@ -1474,3 +1474,87 @@ body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
     background: #e2e8f0;
     color: #0f172a;
 }
+/* ============================================ */
+/* DESIGN DES COPIES MANQUANTES (Sous-tableaux) */
+/* ============================================ */
+
+/* Le conteneur du groupe (la bordure de couleur) */
+.missing-group {
+    border-inline-start: 6px solid #999;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Le titre du groupe (ex: 🔵 غياب مبرر (1)) */
+.missing-group-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+/* Le tableau */
+.missing-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+/* L'en-tête du tableau */
+.missing-table th {
+    background: #f1f5f9;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Les cellules */
+.missing-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+    color: #1e293b;
+    background: #fff;
+    font-size: 16px;
+}
+
+/* On met le nom de l'élève en valeur */
+.missing-table td:nth-child(2) {
+    text-align: right;
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 17px;
+}
+
+/* Le menu déroulant de changement de statut */
+.missing-table select {
+    padding: 8px 12px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    background: #f8fafc;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.missing-table select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* On enlève la bordure de la dernière ligne */
+.missing-table tbody tr:last-child td {
+    border-bottom: 0;
+}
