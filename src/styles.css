@@ -625,3 +625,20 @@ body:not(.logged-in) #toast { display: none; }
   opacity: 1 !important;
   cursor: pointer !important;
 }
+/* ============================================ */
+/* FORCE L'APPLICATION À S'AFFICHER (MODE LOCAL) */
+/* ============================================ */
+
+/* On cache l'écran de connexion pour de bon */
+#authScreen {
+  display: none !important;
+}
+
+/* On force l'application à s'afficher */
+body:not(.logged-in) .wrap {
+  display: block !important;
+}
+
+body:not(.logged-in) #toast {
+  display: block !important;
+}
