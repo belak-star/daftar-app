@@ -1231,3 +1231,65 @@ body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
     font-weight: 800;
     color: #e0702b;
 }
+/* ============================================ */
+/* CORRECTION DU TABLEAU DES NOTES (Design moderne) */
+/* ============================================ */
+#gList .dail-table tbody td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+#gList .dail-table tbody td.col-name {
+    text-align: right;
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+}
+#gList .dail-table tbody td.col-n {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+/* Les champs de saisie */
+#gList .grade-input {
+    width: 70px;
+    padding: 10px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    background: #fff;
+    transition: all .15s;
+}
+#gList .grade-input:focus {
+    border-color: #7a3fb5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(122, 63, 181, 0.2);
+}
+#gList .grade-input.low {
+    border-color: #b3261e;
+    color: #b3261e;
+    background: #fbe0dd;
+}
+
+/* La moyenne */
+#gList .avg-cell {
+    font-weight: 800;
+    font-size: 20px;
+    color: #7a3fb5;
+}
+#gList .avg-cell.low {
+    color: #b3261e;
+}
+
+/* La médaille / rang */
+#gList .rank-cell {
+    font-size: 20px;
+    font-weight: 800;
+    color: #e0702b;
+}
+#gList .rank-cell.medal {
+    font-size: 24px;
+}

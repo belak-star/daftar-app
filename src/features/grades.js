@@ -168,27 +168,27 @@ export function renderGradesList() {
   const table = el('table', { class: 'grades-table' });
   const thead = el('thead');
   
-  if (isAnnual) {
-    thead.append(el('tr', {},
-      el('th', { textContent: 'N°' }),
-      el('th', { textContent: 'اسم التلميذ' }),
-      el('th', { textContent: 'م1' }),
-      el('th', { textContent: 'م2' }),
-      el('th', { textContent: 'م3' }),
-      el('th', { textContent: 'المعدل السنوي' }),
-      el('th', { textContent: 'الرتبة' }),
-    ));
-  } else {
-    thead.append(el('tr', {},
-      el('th', { textContent: 'N°' }),
-      el('th', { textContent: 'اسم التلميذ' }),
-      el('th', {}, el('span', { textContent: 'TP' }), el('span', { class: 'exam-header', textContent: 'أشغال تطبيقية' })),
-      el('th', {}, el('span', { textContent: 'DC' }), el('span', { class: 'exam-header', textContent: 'فرض مراقبة' })),
-      el('th', {}, el('span', { textContent: 'DS' }), el('span', { class: 'exam-header', textContent: 'فرض تأليفي' })),
-      el('th', { textContent: 'المعدل' }),
-      el('th', { textContent: 'الرتبة' }),
-    ));
-  }
+      if (isAnnual) {
+        thead.append(el('tr', {},
+            el('th', { textContent: 'N°', class: 'col-n' }),
+            el('th', { textContent: 'اسم التلميذ', class: 'col-name' }),
+            el('th', { textContent: 'م1', style: 'background:#1f5c55;color:#fff;text-align:center' }),
+            el('th', { textContent: 'م2', style: 'background:#1f5c55;color:#fff;text-align:center' }),
+            el('th', { textContent: 'م3', style: 'background:#1f5c55;color:#fff;text-align:center' }),
+            el('th', { textContent: 'المعدل السنوي', style: 'background:#7a3fb5;color:#fff;text-align:center' }),
+            el('th', { textContent: 'الرتبة', style: 'background:#e0702b;color:#fff;text-align:center' }),
+        ));
+    } else {
+        thead.append(el('tr', {},
+            el('th', { textContent: 'N°', class: 'col-n' }),
+            el('th', { textContent: 'اسم التلميذ', class: 'col-name' }),
+            el('th', { textContent: 'TP', style: 'background:#1f5c55;color:#fff;text-align:center' }),
+            el('th', { textContent: 'DC', style: 'background:#1f5c55;color:#fff;text-align:center' }),
+            el('th', { textContent: 'DS', style: 'background:#1f5c55;color:#fff;text-align:center' }),
+            el('th', { textContent: 'المعدل', style: 'background:#7a3fb5;color:#fff;text-align:center' }),
+            el('th', { textContent: 'الرتبة', style: 'background:#e0702b;color:#fff;text-align:center' }),
+        ));
+    }
   table.append(thead);
 
   const tbody = el('tbody');
