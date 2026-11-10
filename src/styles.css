@@ -395,3 +395,43 @@ body:not(.logged-in) #toast { display: none; }
   .panel { border: 0; padding: 0; }
   .dash-grid { grid-template-columns: 1fr; }
 }
+/* ============================================ */
+/* CORRECTION CIBLÉE POUR L'ONGLET DISCIPLINE */
+/* ============================================ */
+
+/* On force le texte des cellules du tableau de discipline à être noir et lisible */
+#discList .dail-table tbody td {
+  color: #0f172a !important; /* Texte bleu-noir très foncé */
+  font-weight: 600 !important;
+  font-size: 15px !important;
+}
+
+/* On met en valeur les noms des élèves */
+#discList .dail-table tbody td.col-name {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+}
+
+/* On s'assure que les dates sont bien lisibles */
+#discList .dail-table tbody td:first-child {
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+
+/* On corrige le bouton de suppression (la corbeille) */
+#discList .btn-icon-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+/* On s'assure que les en-têtes restent bien blancs sur leur fond coloré */
+#discList .dail-table thead th {
+  color: #ffffff !important;
+  font-size: 14px !important;
+}
