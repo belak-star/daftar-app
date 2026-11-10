@@ -1,5 +1,5 @@
 // src/features/dashboard.js
-// Dashboard dynamique complet.
+// Dashboard dynamique complet avec cartes KPI interactives.
 import { db } from '../core/state.js';
 import { $, el } from '../core/dom.js';
 import { collator } from '../core/format.js';
@@ -97,7 +97,6 @@ function getScopeStudents() {
     });
 }
 function levelOf(c) {
-    // Correction : utiliser la bonne plage Unicode pour les chiffres arabes
     const t = String(c).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
     const m = t.match(/\d+/);
     if (m) return (m[0] === '7' || m[0] === '8') ? m[0] : '';
@@ -128,6 +127,94 @@ function effStatus(s, date) {
     return s.status;
 }
 
+/** Affiche la liste des élèves pour une carte KPI donnée. */
+function showKpiStudents(typeKey, label, sts) {
+    const date = todayStr();
+    const byId = new Map(sts.map(s => [s.id, s]));
+    const range = dynRange(dynState.period, date, false);
+    
+    // Si c'est "tous les élèves", on les prend directement
+    if (typeKey === 'all') {
+        const ov = el('div', { class: 'ov' });
+        const box = el('div', { class: 'ovbox' });
+        box.append(el('h3', { textContent: label + ' — القائمة', style: 'margin-top:0' }));
+        box.append(el('p', { class: 'hint', textContent: 'العدد: ' + sts.length + ' | الفترة: ' + DYN_PERIODS[dynState.period] }));
+        
+        const table = el('table', { style: 'width:100%;border-collapse:collapse' });
+        table.append(el('thead', {}, el('tr', {},
+            el('th', { textContent: 'الاسم', style: 'text-align:right' }),
+            el('th', { textContent: 'الفصل', style: 'text-align:center' })
+        )));
+        const tbody = el('tbody');
+        sts.sort((a, b) => collator.compare(a.name, b.name)).forEach(s => {
+            tbody.append(el('tr', {},
+                el('td', { textContent: s.name, style: 'text-align:right;font-weight:700' }),
+                el('td', { textContent: s.class, style: 'text-align:center' })
+            ));
+        });
+        table.append(tbody);
+        box.append(el('div', { class: 'scroll', style: 'max-height:400px;overflow:auto' }, table));
+        
+        const close = el('button', { class: 'btn', type: 'button', textContent: 'إغلاق', style: 'margin-top:14px' });
+        close.onclick = () => ov.remove();
+        box.append(close);
+        ov.append(box);
+        ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+        document.body.append(ov);
+        return;
+    }
+
+    // Sinon, on cherche les élèves qui ont ce type d'absence dans la période
+    const affected = [];
+    Object.keys(db.records || {}).forEach(k => {
+        const c = k.indexOf('|');
+        const id = k.slice(c + 1);
+        if (!byId.has(id)) return;
+        const d = k.slice(0, c);
+        if (d < range[0] || d > range[1]) return;
+        const r = db.records[k];
+        if (r.type === typeKey) {
+            affected.push({ student: byId.get(id), record: r, date: d });
+        }
+    });
+
+    // On construit la fenêtre modale
+    const ov = el('div', { class: 'ov' });
+    const box = el('div', { class: 'ovbox' });
+    box.append(el('h3', { textContent: label + ' — قائمة التلاميذ', style: 'margin-top:0' }));
+    box.append(el('p', { class: 'hint', textContent: 'عدد التلاميذ: ' + affected.length + ' | الفترة: ' + DYN_PERIODS[dynState.period] }));
+    
+    if (affected.length === 0) {
+        box.append(el('p', { class: 'empty-list', textContent: 'لا يوجد تلاميذ في هذه الفئة.' }));
+    } else {
+        const table = el('table', { style: 'width:100%;border-collapse:collapse' });
+        table.append(el('thead', {}, el('tr', {},
+            el('th', { textContent: 'الاسم', style: 'text-align:right' }),
+            el('th', { textContent: 'الفصل', style: 'text-align:center' }),
+            el('th', { textContent: 'التاريخ', style: 'text-align:center' }),
+            el('th', { textContent: 'السبب', style: 'text-align:center' })
+        )));
+        const tbody = el('tbody');
+        affected.sort((a, b) => collator.compare(a.student.name, b.student.name)).forEach(x => {
+            tbody.append(el('tr', {},
+                el('td', { textContent: x.student.name, style: 'text-align:right;font-weight:700' }),
+                el('td', { textContent: x.student.class, style: 'text-align:center' }),
+                el('td', { textContent: x.date, style: 'text-align:center;direction:ltr' }),
+                el('td', { textContent: x.record.reason || '—', style: 'text-align:center' })
+            ));
+        });
+        table.append(tbody);
+        box.append(el('div', { class: 'scroll', style: 'max-height:400px;overflow:auto' }, table));
+    }
+    
+    const close = el('button', { class: 'btn', type: 'button', textContent: 'إغلاق', style: 'margin-top:14px' });
+    close.onclick = () => ov.remove();
+    box.append(close);
+    ov.append(box);
+    ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+    document.body.append(ov);
+}
+
 function renderDynKpis(sts, cur, prev) {
     const box = $('dynKpis'); if (!box) return;
     box.replaceChildren();
@@ -151,13 +238,30 @@ function renderDynKpis(sts, cur, prev) {
         { key: 'avg', icon: '📊', value: sts.length ? (dynCount(cur, activeTypes) / sts.length).toFixed(2) : '—', label: 'متوسط لكل تلميذ', sub: DYN_PERIODS[dynState.period], cls: 'dyn-eq' }
     ];
     cards.forEach(c => {
-        box.append(el('div', { class: 'dash-card' },
+        const card = el('div', { 
+            class: 'dash-card', 
+            style: 'cursor: pointer;', 
+            title: 'انقر لعرض القائمة' 
+        },
             el('span', { class: 'dash-icon', textContent: c.icon }),
             el('strong', { textContent: '0', 'data-k': c.key }),
             el('span', { textContent: c.label }),
             el('small', { textContent: c.sub, class: c.cls })
-        ));
-        const strong = box.lastChild.querySelector('strong');
+        );
+
+        card.onclick = () => {
+            if (c.key === 'n') {
+                showKpiStudents('all', 'كل التلاميذ', sts);
+            } else if (['excused', 'unexcused', 'late', 'expelled'].includes(c.key)) {
+                const typeInfo = DYN_TYPES.find(t => t[0] === c.key);
+                if (typeInfo) {
+                    showKpiStudents(c.key, typeInfo[1], sts);
+                }
+            }
+        };
+
+        box.append(card);
+        const strong = card.querySelector('strong');
         if (typeof c.value === 'number') {
             const from = 0; const to = c.value; const t0 = performance.now();
             (function step(t) {
@@ -260,7 +364,7 @@ function renderDynPie(cur) {
                     'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(x1) + ' ' + fx(y1) + 'Z',
                 fill: s.color, stroke: '#fff', 'stroke-width': 1.5, style: 'cursor:pointer'
             });
-            face.onclick = () => showPieStudents(s.label, cur);
+            face.onclick = () => showKpiStudents(s.label === 'غياب مبرر' ? 'excused' : s.label === 'غياب غير مبرر' ? 'unexcused' : s.label === 'تأخير' ? 'late' : 'expelled', s.label, getScopeStudents());
             svg.append(face);
         }
     });
@@ -286,63 +390,11 @@ function renderDynPie(cur) {
         );
         li.onmouseenter = () => { li.style.background = '#f1f8f5'; };
         li.onmouseleave = () => { li.style.background = 'transparent'; };
-        li.onclick = () => showPieStudents(label, cur);
+        li.onclick = () => showKpiStudents(label === 'غياب مبرر' ? 'excused' : label === 'غياب غير مبرر' ? 'unexcused' : label === 'تأخير' ? 'late' : 'expelled', label, getScopeStudents());
         legend.append(li);
     });
     wrap.append(legend);
     box.append(wrap);
-}
-
-function showPieStudents(label, cur) {
-    const typeEntry = DYN_TYPES.find(x => x[1] === label);
-    if (!typeEntry) return;
-    const typeKey = typeEntry[0];
-    const date = todayStr();
-    const sts = getScopeStudents();
-    const byId = new Map(sts.map(s => [s.id, s]));
-    const range = dynRange(dynState.period, date, false);
-    const affected = [];
-    Object.keys(db.records || {}).forEach(k => {
-        const c = k.indexOf('|');
-        const id = k.slice(c + 1);
-        if (!byId.has(id)) return;
-        const d = k.slice(0, c);
-        if (d < range[0] || d > range[1]) return;
-        const r = db.records[k];
-        if (r.type === typeKey) affected.push({ student: byId.get(id), record: r, date: d });
-    });
-    const ov = el('div', { class: 'ov' });
-    const box = el('div', { class: 'ovbox' });
-    box.append(el('h3', { textContent: label + ' — قائمة التلاميذ', style: 'margin-top:0' }));
-    box.append(el('p', { class: 'hint', textContent: 'عدد التلاميذ: ' + affected.length + ' | الفترة: ' + DYN_PERIODS[dynState.period] }));
-    if (affected.length === 0) {
-        box.append(el('p', { class: 'empty-list', textContent: 'لا يوجد تلاميذ في هذه الفئة.' }));
-    } else {
-        const table = el('table', { style: 'width:100%;border-collapse:collapse' });
-        table.append(el('thead', {}, el('tr', {},
-            el('th', { textContent: 'اسم التلميذ', style: 'text-align:right' }),
-            el('th', { textContent: 'الفصل', style: 'text-align:center' }),
-            el('th', { textContent: 'التاريخ', style: 'text-align:center' }),
-            el('th', { textContent: 'السبب', style: 'text-align:center' })
-        )));
-        const tbody = el('tbody');
-        affected.sort((a, b) => collator.compare(a.student.name, b.student.name)).forEach(x => {
-            tbody.append(el('tr', {},
-                el('td', { textContent: x.student.name, style: 'text-align:right;font-weight:700' }),
-                el('td', { textContent: x.student.class, style: 'text-align:center' }),
-                el('td', { textContent: x.date, style: 'text-align:center;direction:ltr' }),
-                el('td', { textContent: x.record.reason || '—', style: 'text-align:center' })
-            ));
-        });
-        table.append(tbody);
-        box.append(el('div', { class: 'scroll', style: 'max-height:400px;overflow:auto' }, table));
-    }
-    const close = el('button', { class: 'btn', type: 'button', textContent: 'إغلاق', style: 'margin-top:14px' });
-    close.onclick = () => ov.remove();
-    box.append(close);
-    ov.append(box);
-    ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
-    document.body.append(ov);
 }
 
 function renderDynTop(cur, byId) {
