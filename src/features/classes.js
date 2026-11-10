@@ -1,9 +1,10 @@
 // src/features/classes.js
-// Gère les classes et les élèves avec un design moderne et le transfert.
+// Gère les classes et les élèves avec un design moderne et le transfert via popup.
 import { db, save } from '../core/state.js';
 import { $, el, toast } from '../core/dom.js';
 import { uid, collator } from '../core/format.js';
 
+/** Rafraîchit le menu déroulant des classes. */
 export function renderClassSelect() {
   const sel = $('classSelect');
   if (!sel) return;
@@ -18,6 +19,7 @@ export function renderClassSelect() {
   });
 }
 
+/** Ajoute une classe. */
 export function addClass() {
   const input = $('newClass');
   if (!input) return;
@@ -33,6 +35,7 @@ export function addClass() {
   toast('✅ تمت إضافة القسم: ' + nom);
 }
 
+/** Ajoute un élève à la classe sélectionnée. */
 export function addStudent() {
   const classe = $('classSelect').value;
   const input = $('newStudent');
@@ -54,6 +57,7 @@ export function addStudent() {
   toast('✅ تمت إضافة التلميذ: ' + nom);
 }
 
+/** Supprime un élève. */
 export function deleteStudent(id) {
   const eleve = db.students.find(s => s.id === id);
   if (!eleve) return;
@@ -68,37 +72,54 @@ export function deleteStudent(id) {
   toast('🗑 تم حذف التلميذ');
 }
 
+/** Ouvre une fenêtre pour transférer un élève vers une autre classe. */
 function moveStudent(id, currentClass) {
   const eleve = db.students.find(s => s.id === id);
   if (!eleve) return;
 
-  const autresClasses = db.classes.filter(c => c !== currentClass).sort();
+  const autresClasses = db.classes.filter(c => c !== currentClass).sort((a, b) => collator.compare(a, b));
+  
   if (autresClasses.length === 0) {
-    alert('لا توجد أقسام أخرى لنقل التلميذ إليها.');
+    alert('لا توجد أقسام أخرى لنقل التلميذ إليها. أضف قسماً جديداً أولاً.');
     return;
   }
 
-  const message = 'إلى أي قسم تريد نقل التلميذ «' + eleve.name + '» ؟\n\nالأقسام المتاحة:\n' + autresClasses.join(' | ');
-  const nouvelleClasse = prompt(message, autresClasses[0]);
+  // Création de la fenêtre modale
+  const ov = el('div', { class: 'ov' });
+  const box = el('div', { class: 'ovbox' });
+  
+  box.append(el('h3', { textContent: 'نقل التلميذ: ' + eleve.name, style: 'margin-top:0;color:#2563a8' }));
+  box.append(el('p', { class: 'hint', textContent: 'القسم الحالي: ' + currentClass }));
 
-  if (!nouvelleClasse) return;
-  const dest = nouvelleClasse.trim();
+  // Liste déroulante
+  const select = el('select', { class: 'dail-class-select', style: 'width:100%;margin:15px 0;font-size:18px' });
+  autresClasses.forEach(c => {
+    select.append(el('option', { value: c, textContent: c }));
+  });
+  box.append(select);
 
-  if (!db.classes.includes(dest)) {
-    alert('هذا القسم غير موجود!');
-    return;
-  }
-  if (dest === currentClass) {
-    alert('التلميذ في هذا القسم بالفعل.');
-    return;
-  }
+  // Boutons d'action
+  const btnCancel = el('button', { class: 'btn alt', type: 'button', textContent: 'إلغاء', style: 'flex:1' });
+  btnCancel.onclick = () => ov.remove();
 
-  eleve.class = dest;
-  save();
-  renderStudentList();
-  toast('✅ تم نقل التلميذ إلى ' + dest);
+  const btnConfirm = el('button', { class: 'btn', type: 'button', textContent: 'تأكيد النقل', style: 'flex:1;background:#2563a8' });
+  btnConfirm.onclick = () => {
+    const dest = select.value;
+    eleve.class = dest;
+    save();
+    ov.remove();
+    renderStudentList();
+    toast('✅ تم نقل التلميذ إلى ' + dest);
+  };
+
+  box.append(el('div', { style: 'display:flex; gap:10px; margin-top:10px' }, btnCancel, btnConfirm));
+  
+  ov.append(box);
+  ov.onclick = (e) => { if (e.target === ov) ov.remove(); };
+  document.body.append(ov);
 }
 
+/** Affiche la liste des élèves de la classe sélectionnée. */
 export function renderStudentList() {
   const conteneur = $('studentList');
   const compteur = $('studentCount');
@@ -124,7 +145,7 @@ export function renderStudentList() {
   eleves.forEach((s, i) => {
     const btnMove = el('button', {
       class: 'btn-delete',
-      style: 'background:#dce9f8; color:#2563a8; margin-inline-end: 8px;',
+      style: 'background:#dce9f8; color:#2563a8; margin-inline-end: 8px; border: 1px solid #2563a8;',
       textContent: '↔ نقل',
       onclick: () => moveStudent(s.id, classe)
     });
@@ -138,11 +159,12 @@ export function renderStudentList() {
     conteneur.append(el('div', { class: 'student-item' },
       el('span', { class: 'student-num', textContent: (i + 1) + '.' }),
       el('span', { class: 'student-name', textContent: s.name }),
-      el('div', {}, btnMove, btnDel)
+      el('div', { style: 'display:flex; gap:5px; align-items:center;' }, btnMove, btnDel)
     ));
   });
 }
 
+/** Branche tous les événements de cette page. */
 export function bindClasses() {
   const btnAddClass = $('addClass');
   const btnAddStudent = $('addStudent');
