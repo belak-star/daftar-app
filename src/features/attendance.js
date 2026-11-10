@@ -1,8 +1,8 @@
 // src/features/attendance.js
-// Gère les présences avec un design moderne.
 import { db, save } from '../core/state.js';
 import { $, el, toast } from '../core/dom.js';
 import { collator } from '../core/format.js';
+import { exportToExcel } from '../core/excel.js';
 
 const T = {
   present: { label: 'حاضر', color: '#1f7a4d', bg: '#dcf2e5', icon: '🟢' },
@@ -46,12 +46,6 @@ function setRec(id, date, patch) {
 
 function classStudents() {
   return db.students.filter(s => s.class === curClass()).sort((a, b) => collator.compare(a.name, b.name));
-}
-
-function shade(hex, f) {
-  const n = parseInt(hex.slice(1), 16);
-  const c = x => Math.max(0, Math.min(255, Math.round(x * f)));
-  return 'rgb(' + c(n >> 16) + ',' + c((n >> 8) & 255) + ',' + c(n & 255) + ')';
 }
 
 function schoolYear(dateStr) {
@@ -105,99 +99,6 @@ function renderStats() {
       el('b', { class: 'att-stat-value', style: 'color:' + c.color, textContent: c.value })
     ));
   });
-  renderPie(counts, total);
-}
-
-function renderPie(counts, total) {
-  const box = $('dayPies');
-  if (!box) return;
-  box.replaceChildren();
-  if (total === 0) return;
-  
-  const items = [
-    ['حاضر', counts.present, '#1f7a4d'], 
-    ['غياب مبرر', counts.excused, '#2563a8'],
-    ['غير مبرر', counts.unexcused, '#b3261e'], 
-    ['تأخير', counts.late, '#9a5b00'],
-    ['مطرود', counts.expelled, '#7a3fb5']
-  ].filter(x => x[1] > 0);
-  
-  const tot = items.reduce((a, b) => a + b[1], 0);
-  if (tot === 0) return;
-  
-  const NS = 'http://www.w3.org/2000/svg';
-  const cx = 150, cy = 90, rx = 100, ry = 55, H = 20, TAU = Math.PI * 2;
-  const fx = n => n.toFixed(2);
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 300 200');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '220');
-  svg.style.maxWidth = '340px';
-  svg.style.display = 'block';
-  svg.style.margin = '0 auto';
-  
-  const mk = (tag, at) => {
-    const n = document.createElementNS(NS, tag);
-    for (const k in at) n.setAttribute(k, at[k]);
-    return n;
-  };
-  
-  const P = a => [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
-  svg.append(mk('ellipse', { cx, cy: cy + H + 6, rx: rx + 6, ry: ry + 6, fill: 'rgba(0,0,0,0.15)' }));
-  
-  const segs = [];
-  let a = -Math.PI / 2;
-  items.forEach(([label, value, color]) => {
-    if (value <= 0) return;
-    const f = value / tot;
-    const a0 = a, a1 = a + f * TAU;
-    a = a1;
-    segs.push({ label, value, color, f, a0, a1 });
-  });
-  
-  const norm = x => ((x % TAU) + TAU) % TAU;
-  segs.forEach(s => {
-    const A0 = norm(s.a0), A1 = A0 + (s.a1 - s.a0);
-    [[0, Math.PI], [TAU, TAU + Math.PI]].forEach(([lo, hi]) => {
-      const x0 = Math.max(A0, lo), x1 = Math.min(A1, hi);
-      if (x1 - x0 < 1e-6) return;
-      const [ax, ay] = P(x0), [bx, by] = P(x1);
-      const lg = (x1 - x0) > Math.PI ? 1 : 0;
-      svg.append(mk('path', {
-        d: 'M' + fx(ax) + ' ' + fx(ay) + 'L' + fx(ax) + ' ' + fx(ay + H) + 'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(bx) + ' ' + fx(by + H) + 'L' + fx(bx) + ' ' + fx(by) + 'A' + rx + ' ' + ry + ' 0 ' + lg + ' 0 ' + fx(ax) + ' ' + fx(ay) + 'Z',
-        fill: shade(s.color, 0.6)
-      }));
-    });
-  });
-  
-  segs.forEach(s => {
-    if (s.f >= 0.9999) {
-      svg.append(mk('ellipse', { cx, cy, rx, ry, fill: s.color, stroke: '#fff', 'stroke-width': 1.5 }));
-    } else {
-      const [x0, y0] = P(s.a0), [x1, y1] = P(s.a1);
-      const lg = (s.a1 - s.a0) > Math.PI ? 1 : 0;
-      svg.append(mk('path', {
-        d: 'M' + cx + ' ' + cy + 'L' + fx(x0) + ' ' + fx(y0) + 'A' + rx + ' ' + ry + ' 0 ' + lg + ' 1 ' + fx(x1) + ' ' + fx(y1) + 'Z',
-        fill: s.color, stroke: '#fff', 'stroke-width': 1.5
-      }));
-    }
-  });
-  
-  segs.forEach(s => {
-    const pc = Math.round(100 * s.f);
-    if (pc < 4) return;
-    const m = (s.a0 + s.a1) / 2;
-    const X = fx(cx + rx * 0.6 * Math.cos(m)), Y = fx(cy + ry * 0.6 * Math.sin(m) + 5);
-    
-    const t1 = mk('text', { x: X, y: Y, 'text-anchor': 'middle', 'font-size': '14', 'font-weight': '800', fill: 'none', stroke: 'rgba(0,0,0,0.7)', 'stroke-width': '3', 'stroke-linejoin': 'round', style: 'pointer-events:none' });
-    t1.textContent = pc + '%'; svg.append(t1);
-    
-    const t2 = mk('text', { x: X, y: Y, 'text-anchor': 'middle', 'font-size': '14', 'font-weight': '800', fill: '#fff', style: 'pointer-events:none' });
-    t2.textContent = pc + '%'; svg.append(t2);
-  });
-  
-  const wrap = el('div', { style: 'text-align:center;padding:10px 0' }, svg);
-  box.append(wrap);
 }
 
 export function renderAttList() {
@@ -276,19 +177,15 @@ export function renderAttList() {
     
     tr.append(el('td', { class: 'col-situation' }, select));
     
-    // Bouton de l'œil (Détails)
     tr.append(el('td', { class: 'col-del' },
       el('button', { 
-        class: 'btn-icon-sm', 
-        type: 'button', 
-        textContent: '👁', 
-        title: 'عرض الحالة',
+        class: 'btn-icon-sm', type: 'button', textContent: '👁', title: 'عرض الحالة',
         onclick: () => {
           let msg = 'التلميذ: ' + s.name + '\n';
           msg += 'الحالة: ' + (s.status ? (s.status === 'perm' ? 'مفصول نهائياً' : 'مفصول مؤقتاً') : 'عادي') + '\n';
           if (s.from) msg += 'من تاريخ: ' + s.from + '\n';
           if (s.to) msg += 'إلى تاريخ: ' + s.to + '\n';
-          if (rec.reason) msg += 'سبب الغياب/التأخير اليوم: ' + rec.reason + '\n';
+          if (rec.reason) msg += 'سبب اليوم: ' + rec.reason + '\n';
           alert(msg);
         }
       })
@@ -342,10 +239,6 @@ function markAllPresent() {
   toast('✅ تم تحديد الجميع حاضرين');
 }
 
-function exportDay() {
-  alert('تصدير Excel سيضاف قريباً.');
-}
-
 export function bindAttendance() {
   const dateInput = $('attDate');
   const classSelect = $('attClass');
@@ -361,7 +254,22 @@ export function bindAttendance() {
   if (allPresent) allPresent.onclick = markAllPresent;
   
   const expDay = $('expDay');
-  if (expDay) expDay.onclick = exportDay;
+  if (expDay) expDay.onclick = () => {
+    const date = curDate();
+    const classe = curClass();
+    if (!classe) { alert('اختر قسماً أولاً.'); return; }
+    const students = classStudents();
+    const data = students.map(s => {
+      const rec = getRec(s.id, date);
+      return {
+        'الاسم': s.name,
+        'الحالة': T[rec.type] ? T[rec.type].label : 'حاضر',
+        'السبب': rec.reason || '',
+        'الوضعية': s.status === 'perm' ? 'مفصول نهائياً' : (s.status === 'temp' ? 'مفصول مؤقتاً' : 'عادي')
+      };
+    });
+    exportToExcel(data, 'حضور_' + classe + '_' + date, 'الحضور');
+  };
   
   const prevDay = $('prevDay');
   if (prevDay) prevDay.onclick = () => {

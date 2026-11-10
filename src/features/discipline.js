@@ -1,9 +1,8 @@
 // src/features/discipline.js
-// Gère les sanctions et convocations (design moderne et lisible).
-import { exportToExcel } from '../core/excel.js';
 import { db, save } from '../core/state.js';
 import { $, el, toast } from '../core/dom.js';
 import { collator, uid } from '../core/format.js';
+import { exportToExcel } from '../core/excel.js';
 
 function today() {
   const d = new Date();
@@ -91,17 +90,11 @@ export function saveDisciplineRecord() {
 
   db.disciplineRecords = db.disciplineRecords || [];
   db.disciplineRecords.push({
-    id: uid(),
-    studentId,
-    studentName: student.name,
-    class: classe,
-    date,
-    kind,
+    id: uid(), studentId, studentName: student.name, class: classe, date, kind,
     type: kind === 'sanction' ? type : null,
     meetDate: kind === 'invitation' ? meetDate : null,
     meetTime: kind === 'invitation' ? meetTime : null,
-    reason,
-    createdAt: new Date().toISOString(),
+    reason, createdAt: new Date().toISOString(),
   });
 
   save();
@@ -156,9 +149,7 @@ export function renderDisciplineList() {
   records.forEach(r => {
     const kindLabel = r.kind === 'invitation' ? 'استدعاء' : r.type;
     const btnDel = el('button', {
-      class: 'btn-icon-sm',
-      textContent: '🗑️',
-      title: 'حذف',
+      class: 'btn-icon-sm', textContent: '🗑️', title: 'حذف',
       style: 'background:#fee2e2;color:#b3261e',
       onclick: () => deleteDisciplineRecord(r.id)
     });
@@ -166,7 +157,6 @@ export function renderDisciplineList() {
     let meetDisplay = '—';
     if (r.meetDate) meetDisplay = r.meetDate + (r.meetTime ? ' ' + r.meetTime : '');
 
-    // On force la couleur noire pour tous les textes du tableau ici
     const tr = el('tr', {},
       el('td', { textContent: r.date, style: 'direction:ltr;font-size:14px;color:#334155;font-weight:700' }),
       el('td', { textContent: r.class, style: 'text-align:center;color:#334155;font-weight:700' }),
@@ -196,31 +186,13 @@ export function resetDisciplineForm() {
 }
 
 export function bindDiscipline() {
-  const exportBtn = $('discExport');
-if (exportBtn) {
-  exportBtn.onclick = () => {
-    const filterClass = $('discFilterClass').value;
-    let records = (db.disciplineRecords || []).slice();
-    if (filterClass) records = records.filter(r => r.class === filterClass);
-    
-    const data = records.map(r => ({
-      'التاريخ': r.date,
-      'القسم': r.class,
-      'التلميذ': r.studentName,
-      'النوع': r.kind === 'invitation' ? 'استدعاء' : r.type,
-      'السبب': r.reason,
-      'موعد الاستدعاء': r.meetDate || ''
-    }));
-    
-    exportToExcel(data, 'سجل_الانضباط', 'الانضباط');
-  };
-}
   const classSel = $('discClass');
   const kindSel = $('discKind');
   const saveBtn = $('discSave');
   const resetBtn = $('discReset');
   const filterSel = $('discFilterClass');
   const dateInput = $('discDate');
+  const exportBtn = $('discExport');
 
   if (dateInput) dateInput.value = today();
   if (classSel) classSel.onchange = renderDisciplineStudentSelect;
@@ -228,6 +200,21 @@ if (exportBtn) {
   if (saveBtn) saveBtn.onclick = saveDisciplineRecord;
   if (resetBtn) resetBtn.onclick = resetDisciplineForm;
   if (filterSel) filterSel.onchange = renderDisciplineList;
+
+  if (exportBtn) {
+    exportBtn.onclick = () => {
+      const filterClass = $('discFilterClass').value;
+      let records = (db.disciplineRecords || []).slice();
+      if (filterClass) records = records.filter(r => r.class === filterClass);
+      
+      const data = records.map(r => ({
+        'التاريخ': r.date, 'القسم': r.class, 'التلميذ': r.studentName,
+        'النوع': r.kind === 'invitation' ? 'استدعاء' : r.type,
+        'السبب': r.reason, 'موعد الاستدعاء': r.meetDate || ''
+      }));
+      exportToExcel(data, 'سجل_الانضباط', 'الانضباط');
+    };
+  }
 
   toggleDisciplineFields();
   renderDisciplineClassSelects();

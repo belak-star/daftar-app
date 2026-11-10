@@ -1,9 +1,8 @@
 // src/features/agenda.js
-// Gère les devoirs et échéances avec un design moderne.
-import { exportToExcel } from '../core/excel.js';
 import { db, save } from '../core/state.js';
 import { $, el, toast } from '../core/dom.js';
 import { collator, uid } from '../core/format.js';
+import { exportToExcel } from '../core/excel.js';
 
 function today() {
   const d = new Date();
@@ -54,14 +53,7 @@ export function saveAgendaItem() {
 
   db.classAgenda = db.classAgenda || [];
   db.classAgenda.push({
-    id: uid(),
-    class: classe,
-    type,
-    date,
-    title,
-    desc,
-    done: false,
-    createdAt: new Date().toISOString(),
+    id: uid(), class: classe, type, date, title, desc, done: false, createdAt: new Date().toISOString(),
   });
 
   save();
@@ -150,16 +142,14 @@ export function renderAgendaList() {
     );
 
     const btnDone = el('button', {
-      class: 'btn-icon-sm',
-      textContent: item.done ? '↩' : '✓',
+      class: 'btn-icon-sm', textContent: item.done ? '↩' : '✓',
       title: item.done ? 'إعادة فتح' : 'وضع علامة منجز',
       style: 'background:#dcf2e5;color:#1f7a4d;margin-inline-end:4px',
       onclick: () => toggleDone(item.id)
     });
 
     const btnDel = el('button', {
-      class: 'btn-icon-sm',
-      textContent: '🗑',
+      class: 'btn-icon-sm', textContent: '🗑',
       title: 'حذف',
       style: 'background:#fee2e2;color:#b3261e',
       onclick: () => deleteAgendaItem(item.id)
@@ -171,7 +161,7 @@ export function renderAgendaList() {
       titleCell,
       el('td', { textContent: TYPE_LABELS[item.type], style: 'text-align:center;font-weight:700' }),
       el('td', { textContent: statusLabels[status], style: 'text-align:center;font-weight:700' }),
-      el('td', { textContent: '' }, btnDone, btnDel)
+      el('td', { textContent: '', display: 'flex' }, btnDone, btnDel)
     );
     tbody.append(tr);
   });
@@ -192,32 +182,29 @@ export function bindAgenda() {
   const resetBtn = $('agReset');
   const filterSel = $('agFilterClass');
   const dateInput = $('agDate');
+  const exportBtn = $('agExport');
 
   if (dateInput) dateInput.value = today();
   if (saveBtn) saveBtn.onclick = saveAgendaItem;
   if (resetBtn) resetBtn.onclick = resetAgendaForm;
   if (filterSel) filterSel.onchange = renderAgendaList;
+  
+  if (exportBtn) {
+    exportBtn.onclick = () => {
+      const filterClass = $('agFilterClass').value;
+      let items = (db.classAgenda || []).slice();
+      if (filterClass) items = items.filter(x => x.class === filterClass);
+      
+      const data = items.map(item => ({
+        'التاريخ': item.date, 'القسم': item.class, 'العنوان': item.title,
+        'النوع': TYPE_LABELS[item.type] || item.type,
+        'الحالة': item.done ? 'منجز' : 'قادم',
+        'التفاصيل': item.desc || ''
+      }));
+      exportToExcel(data, 'جدول_المواعيد', 'المواعيد');
+    };
+  }
 
   renderAgendaClassSelects();
   renderAgendaList();
-  const exportBtn = $('agExport');
-if (exportBtn) {
-  exportBtn.onclick = () => {
-    const filterClass = $('agFilterClass').value;
-    let items = (db.classAgenda || []).slice();
-    if (filterClass) items = items.filter(x => x.class === filterClass);
-    
-    // On prépare les données propres pour Excel
-    const data = items.map(item => ({
-      'التاريخ': item.date,
-      'القسم': item.class,
-      'العنوان': item.title,
-      'النوع': TYPE_LABELS[item.type] || item.type,
-      'الحالة': item.done ? 'منجز' : 'قادم',
-      'التفاصيل': item.desc || ''
-    }));
-    
-    exportToExcel(data, 'جدول_المواعيد', 'المواعيد');
-  };
-}
 }
