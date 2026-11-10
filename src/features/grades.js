@@ -354,3 +354,140 @@ export function exportGrades() {
     // Garde ton code d'exportation
     alert('Fonction d\'exportation à venir.');
 }
+// ============================================
+// GESTION DES COPIES MANQUANTES (Réintégration)
+// ============================================
+function isExamDone() {
+    const classe = $('gClass').value;
+    const term = $('gTerm').value;
+    const exam = $('missingExam').value;
+    if (!classe || !term || term === 'A') return false;
+    const key = JSON.stringify([classe, term, exam]);
+    return !!(db.examHeld && db.examHeld[key]);
+}
+function setExamDone(done) {
+    const classe = $('gClass').value;
+    const term = $('gTerm').value;
+    const exam = $('missingExam').value;
+    if (!classe || !term || term === 'A') return;
+    const key = JSON.stringify([classe, term, exam]);
+    if (!db.examHeld) db.examHeld = {};
+    if (done) db.examHeld[key] = true;
+    else delete db.examHeld[key];
+    save();
+}
+export function renderMissingList() {
+    const container = $('missingTables');
+    const count = $('missingCount');
+    const summary = $('missingSummary');
+    if (!container) return;
+    
+    const classe = $('gClass').value;
+    const term = $('gTerm').value;
+    const exam = $('missingExam').value;
+    container.replaceChildren();
+    
+    if (!classe || !term || term === 'A') {
+        if (count) count.textContent = '';
+        if (summary) summary.textContent = '';
+        return;
+    }
+    
+    const done = isExamDone();
+    const examDoneCheckbox = $('examDone');
+    if (examDoneCheckbox) examDoneCheckbox.checked = done;
+    
+    const students = db.students.filter(s => s.class === classe).sort((a, b) => collator.compare(a.name, b.name));
+    const missing = students.filter(s => getNote(s, term, exam) === null);
+    
+    if (count) count.textContent = done ? 'عدد دون: ' + missing.length : 'الفرض لم ينجز بعد.';
+    if (summary) {
+        if (done) {
+            const justified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'excused').length;
+            const unjustified = missing.filter(s => s.gAbs && s.gAbs[term] && s.gAbs[term][exam] === 'unexcused').length;
+            const pending = missing.length - justified - unjustified;
+            const graded = students.length - missing.length;
+            summary.textContent = 'أعداد مسجلة: ' + graded + ' / ' + students.length + ' | مبرر: ' + justified + ' | غير مبرر: ' + unjustified + ' | غير محدد: ' + pending;
+        } else {
+            summary.textContent = '';
+        }
+    }
+    
+    if (!done) {
+        container.append(el('p', { class: 'empty-list', textContent: 'ضع علامة »الفرض منجز« لإظهار القائمة.' }));
+        return;
+    }
+    if (missing.length === 0) {
+        container.append(el('p', { class: 'empty-list', textContent: 'جميع التلاميذ لديهم أعداد في هذا الفرض.' }));
+        return;
+    }
+    
+    const groups = { excused: [], unexcused: [], pending: [] };
+    missing.forEach(s => {
+        const status = s.gAbs && s.gAbs[term] && s.gAbs[term][exam] || 'pending';
+        if (status === 'excused') groups.excused.push(s);
+        else if (status === 'unexcused') groups.unexcused.push(s);
+        else groups.pending.push(s);
+    });
+    
+    const createGroupTable = (title, color, list, statusValue) => {
+        if (list.length === 0) return;
+        const section = el('div', { class: 'missing-group', style: 'border-inline-start-color:' + color });
+        section.append(el('h4', { class: 'missing-group-title', style: 'color:' + color }, title + ' (' + list.length + ')'));
+        
+        const table = el('table', { class: 'missing-table' });
+        const thead = el('thead');
+        thead.append(el('tr', {},
+            el('th', { textContent: 'N°' }),
+            el('th', { textContent: 'اسم التلميذ' }),
+            el('th', { textContent: 'تغيير الحالة' })
+        ));
+        table.append(thead);
+        
+        const tbody = el('tbody');
+        list.forEach((s, i) => {
+            const select = el('select', { class: 'situation-select' });
+            [['pending', 'غير محدد'], ['excused', 'غياب مبرر'], ['unexcused', 'غياب غير مبرر']].forEach(([val, label]) => {
+                const opt = el('option', { value: val, textContent: label });
+                if (val === statusValue) opt.selected = true;
+                select.append(opt);
+            });
+            select.onchange = () => {
+                const student = db.students.find(x => x.id === s.id);
+                if (!student) return;
+                if (!student.gAbs) student.gAbs = {};
+                if (!student.gAbs[term]) student.gAbs[term] = {};
+                if (select.value === 'pending') delete student.gAbs[term][exam];
+                else student.gAbs[term][exam] = select.value;
+                save();
+                renderMissingList();
+            };
+            tbody.append(el('tr', {},
+                el('td', { textContent: (i + 1) }),
+                el('td', { textContent: s.name, style: 'text-align:right;font-weight:700' }),
+                el('td', {}, select),
+            ));
+        });
+        table.append(tbody);
+        section.append(table);
+        container.append(section);
+    };
+    
+    createGroupTable('🔵 غياب مبرر', '#2563a8', groups.excused, 'excused');
+    createGroupTable('🔴 غياب غير مبرر', '#b3261e', groups.unexcused, 'unexcused');
+    createGroupTable('🟡 غير محدد', '#9a5b00', groups.pending, 'pending');
+}
+
+export function bindMissing() {
+    const missingExamSelect = $('missingExam');
+    const examDoneCheckbox = $('examDone');
+    const expMissingBtn = $('expMissing');
+    if (missingExamSelect) missingExamSelect.onchange = () => renderMissingList();
+    if (examDoneCheckbox) {
+        examDoneCheckbox.onchange = () => {
+            setExamDone(examDoneCheckbox.checked);
+            renderMissingList();
+        };
+    }
+    if (expMissingBtn) expMissingBtn.onclick = () => alert('تصدير Excel سيُضاف قريبًا.');
+}

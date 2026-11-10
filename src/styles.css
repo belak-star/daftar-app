@@ -1354,3 +1354,44 @@ body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
     outline: none;
     box-shadow: 0 0 0 3px rgba(122, 63, 181, 0.2) !important;
 }
+/* ============================================ */
+/* GROUPES DE COPIES MANQUANTES */
+/* ============================================ */
+.missing-group {
+    border-inline-start: 5px solid #999;
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0;
+}
+.missing-group-title {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 800;
+}
+.missing-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.missing-table th {
+    background: #eef2ef;
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+}
+.missing-table td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    color: #111827;
+    background: #fff;
+}
+.missing-table td:nth-child(2) {
+    text-align: right;
+    font-weight: 700;
+}
