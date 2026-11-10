@@ -14,11 +14,7 @@ function addDays(dateStr, n) {
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
-const TYPE_LABELS = {
-    devoir: 'واجب',
-    controle: 'فرض',
-    autre: 'آخر',
-};
+const TYPE_LABELS = { devoir: 'واجب', controle: 'فرض', autre: 'آخر' };
 
 export function renderAgendaClassSelects() {
     const formSel = $('agClass');
@@ -46,23 +42,14 @@ export function saveAgendaItem() {
     const date = $('agDate').value;
     const title = $('agTitle').value.trim();
     const desc = $('agDesc').value.trim();
-
     if (!classe) { alert('اختر فصلاً أولاً.'); return; }
     if (!date) { alert('أدخل التاريخ.'); return; }
     if (!title) { alert('أدخل العنوان.'); return; }
-
     db.classAgenda = db.classAgenda || [];
     db.classAgenda.push({
-        id: uid(),
-        class: classe,
-        type,
-        date,
-        title,
-        desc,
-        done: false,
+        id: uid(), class: classe, type, date, title, desc, done: false,
         createdAt: new Date().toISOString(),
     });
-
     save();
     $('agTitle').value = '';
     $('agDesc').value = '';
@@ -100,24 +87,19 @@ export function renderAgendaList() {
     const count = $('agCount');
     if (!box) return;
     box.replaceChildren();
-
     const filterClass = $('agFilterClass').value;
     let items = (db.classAgenda || []).slice();
     if (filterClass) items = items.filter(x => x.class === filterClass);
-
-    // Trier : non-faits d'abord, puis par date croissante
     items.sort((a, b) => {
         if (a.done !== b.done) return a.done ? 1 : -1;
         return a.date.localeCompare(b.date);
     });
-
     if (count) {
         const total = items.length;
         const done = items.filter(x => x.done).length;
         const pending = total - done;
         count.textContent = 'المواعيد: ' + total + ' (منجزة: ' + done + ' — قادمة: ' + pending + ')';
     }
-
     if (items.length === 0) {
         box.append(el('div', { class: 'empty-list', textContent: 'لا توجد مواعيد.' }));
         return;
@@ -134,13 +116,10 @@ export function renderAgendaList() {
         el('th', { textContent: 'إجراء', class: 'col-del' })
     ));
     table.append(thead);
-
     const tbody = el('tbody');
     items.forEach(item => {
         const status = getStatus(item);
         const statusLabels = { done: '✅ منجز', overdue: '⚠️ متأخر', soon: '🔔 قريب', normal: '—' };
-        const statusClasses = { done: 'done', overdue: 'overdue', soon: 'soon', normal: 'normal' };
-        
         let rowClass = '';
         if (status === 'soon') rowClass = 'ag-soon';
         else if (status === 'overdue') rowClass = 'ag-overdue';
@@ -158,7 +137,6 @@ export function renderAgendaList() {
             style: 'background:#dcf2e5;color:#1f7a4d;margin-inline-end:4px',
             onclick: () => toggleDone(item.id)
         });
-        
         const btnDel = el('button', {
             class: 'btn-icon-sm',
             textContent: '🗑️',
@@ -171,13 +149,9 @@ export function renderAgendaList() {
             el('td', { textContent: item.date, style: 'direction:ltr;font-size:14px' }),
             el('td', { textContent: item.class, style: 'text-align:center' }),
             titleCell,
-            el('td', {},
-                el('span', { class: 'ag-type-badge ' + item.type, textContent: TYPE_LABELS[item.type] })
-            ),
-            el('td', {},
-                el('span', { class: 'ag-status ' + statusClasses[status], textContent: statusLabels[status] })
-            ),
-            el('td', {}, btnDone, btnDel)
+            el('td', { textContent: TYPE_LABELS[item.type], style: 'text-align:center;font-weight:700' }),
+            el('td', { textContent: statusLabels[status], style: 'text-align:center;font-weight:700' }),
+            el('td', { textContent: '' }, btnDone, btnDel)
         );
         tbody.append(tr);
     });
@@ -198,12 +172,10 @@ export function bindAgenda() {
     const resetBtn = $('agReset');
     const filterSel = $('agFilterClass');
     const dateInput = $('agDate');
-    
     if (dateInput) dateInput.value = today();
     if (saveBtn) saveBtn.onclick = saveAgendaItem;
     if (resetBtn) resetBtn.onclick = resetAgendaForm;
     if (filterSel) filterSel.onchange = renderAgendaList;
-    
     renderAgendaClassSelects();
     renderAgendaList();
 }
