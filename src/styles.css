@@ -435,3 +435,43 @@ body:not(.logged-in) #toast { display: none; }
   color: #ffffff !important;
   font-size: 14px !important;
 }
+/* ============================================ */
+/* CORRECTION FINALE : DISCIPLINE ET ICÔNES */
+/* ============================================ */
+
+/* 1. On force l'affichage des émojis (corbeille, etc.) partout */
+.btn-icon-sm, .btn-icon {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif !important;
+  font-size: 16px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* 2. On force le texte du tableau de discipline à être bien noir et lisible */
+#discList table tbody td {
+  color: #0f172a !important; 
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  padding: 12px 8px !important;
+}
+
+/* 3. On met les noms des élèves en gras */
+#discList table tbody td:nth-child(3) {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+}
+
+/* 4. On empêche les en-têtes d'être coupés */
+#discList table thead th {
+  white-space: nowrap !important; /* Force le texte sur une ligne */
+  font-size: 14px !important;
+  padding: 12px 6px !important;
+}
+
+/* 5. On donne un peu plus de place à la colonne "السبب / الموضوع" */
+#discList table thead th.col-reason {
+  min-width: 180px !important;
+}
