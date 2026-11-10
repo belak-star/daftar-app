@@ -1293,3 +1293,64 @@ body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
 #gList .rank-cell.medal {
     font-size: 24px;
 }
+/* ============================================ */
+/* CORRECTION FINALE DU TABLEAU DES NOTES */
+/* ============================================ */
+
+/* On force le fond blanc et le texte foncé pour toutes les lignes des notes */
+#gList .dail-table tbody td {
+    background-color: #fff !important;
+    color: #1c2b2a !important; /* Texte foncé */
+    border-bottom: 1px solid #d9e0dc !important;
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+
+/* On force le nom de l'élève à être bien visible, gros et noir */
+#gList .dail-table tbody td.col-name {
+    color: #111827 !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    text-align: right !important;
+}
+
+/* On force le numéro à être visible */
+#gList .dail-table tbody td.col-n {
+    color: #5d6b69 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+/* On garde les en-têtes colorés avec du texte blanc */
+#gList .dail-table thead th {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+/* On s'assure que la moyenne et le rang sont bien visibles */
+#gList .avg-cell {
+    color: #7a3fb5 !important;
+    font-weight: 800 !important;
+    font-size: 20px !important;
+}
+#gList .avg-cell.low {
+    color: #b3261e !important;
+}
+#gList .rank-cell {
+    color: #e0702b !important;
+    font-weight: 800 !important;
+    font-size: 20px !important;
+}
+
+/* On s'assure que les champs de saisie sont bien visibles */
+#gList .grade-input {
+    color: #1c2b2a !important;
+    background-color: #fff !important;
+    border: 2px solid #d9e0dc !important;
+}
+#gList .grade-input:focus {
+    border-color: #7a3fb5 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(122, 63, 181, 0.2) !important;
+}
