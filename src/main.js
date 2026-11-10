@@ -1,8 +1,11 @@
 // src/main.js
-// Point d'entrée de l'application DAFTAR (Mode Local).
+// Point d'entrée de l'application DAFTAR.
 
 import { db, load } from './core/state.js';
 import { $, el } from './core/dom.js';
+import { initFirebase, auth, setupAuthUI } from './firebase/auth.js';
+import { initSync } from './firebase/sync.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 // Importation des modules (onglets)
 import { renderDashboard, bindDashboard } from './features/dashboard.js';
@@ -36,7 +39,7 @@ function showTab(id) {
   if (id === 'classes') { renderClassSelect(); renderStudentList(); }
 }
 
-// --- ÉCRAN DE CONNEXION (Désactivé) ---
+// --- ÉCRAN DE CONNEXION ---
 function afficherAuth(show) {
   const authScreen = $('authScreen');
   if (authScreen) {
@@ -106,22 +109,36 @@ async function demarrer() {
   console.log('⏳ Démarrage de l\'application...');
   
   try {
-    // 1. Charger les données (backup.json ou localStorage)
-    // La fonction load() gère déjà la priorité : localStorage -> backup.json
+    // 1. Charger les données locales (backup.json)
     await load();
-    console.log('✅ Données chargées avec succès !');
-    console.log('📊 Classes:', db.classes.length);
-    console.log('👥 Élèves:', db.students.length);
+    console.log('✅ Données locales chargées. Élèves:', db.students?.length || 0);
   } catch (e) {
-    console.error('❌ Erreur lors du chargement des données:', e);
+    console.warn('⚠ Erreur chargement local', e);
   }
 
-  // 2. Masquer l'écran de connexion
-  afficherAuth(false);
-  
-  // 3. Lancer l'interface
-  initialiserApp();
+  // 2. Initialiser Firebase
+  try {
+    await initFirebase();
+    setupAuthUI();
+    
+    // 3. Écouter l'état de connexion
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log('👤 Connecté:', user.email);
+        afficherAuth(false);
+        initSync(); // Lance la fusion intelligente
+        initialiserApp();
+      } else {
+        console.log('🚪 Déconnecté');
+        afficherAuth(true);
+      }
+    });
+  } catch (e) {
+    console.error('❌ Firebase a échoué:', e);
+    // En cas d'erreur, on ouvre en mode local pour ne pas bloquer
+    afficherAuth(false);
+    initialiserApp();
+  }
 }
 
-// Lancer au chargement de la page
 document.addEventListener('DOMContentLoaded', demarrer);
