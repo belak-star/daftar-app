@@ -1395,3 +1395,82 @@ body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
     text-align: right;
     font-weight: 700;
 }
+/* ============================================ */
+/* FINITIONS DU TABLEAU DES PRÉSENCES (Absences) */
+/* ============================================ */
+
+/* Un peu plus d'espace pour respirer */
+.dail-table tbody td {
+    padding: 14px 10px; 
+}
+
+/* Le nom de l'élève : plus grand, plus gras, avec une couleur douce */
+.dail-table tbody td.col-name {
+    font-size: 19px;
+    color: #0f172a; /* Un bleu-noir très élégant */
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+/* Le numéro d'ordre : plus discret */
+.dail-table tbody td.col-n {
+    font-size: 15px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+/* Les boutons de statut : un peu plus arrondis et doux */
+.status-btn {
+    border-radius: 12px;
+    padding: 10px 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Petite ombre pour décoller le bouton */
+}
+.status-btn:hover:not(:disabled) {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Les champs de texte (raison) : plus doux */
+.reason-input {
+    border: 2px solid transparent; /* On enlève la bordure par défaut */
+    background: #f8fafc; /* Fond très légèrement gris */
+    transition: all .2s;
+}
+.reason-input:focus {
+    background: #fff;
+    border-color: #e0702b;
+    box-shadow: 0 0 0 3px rgba(224, 112, 43, 0.15); /* Halo orange au clic */
+}
+
+/* Le menu déroulant de la situation (عادي/مفصول) */
+.situation-select {
+    border-radius: 10px;
+    font-size: 14px;
+    background: #f8fafc;
+    border: 2px solid transparent;
+    transition: all .2s;
+}
+.situation-select:focus {
+    background: #fff;
+    border-color: #7a3fb5;
+}
+
+/* Un fond très subtil pour les lignes paires (plus doux que le vert actuel) */
+.dail-table tbody tr:nth-child(even) td {
+    background-color: #fafcfb !important; 
+}
+
+/* Au survol d'une ligne, on met en valeur avec un jaune très clair */
+.dail-table tbody tr:hover td {
+    background-color: #fffbeb !important; 
+}
+
+/* L'icône de l'œil (bouton d'action) */
+.btn-icon-sm {
+    background: #f1f5f9;
+    color: #64748b;
+    transition: all .15s;
+}
+.btn-icon-sm:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
