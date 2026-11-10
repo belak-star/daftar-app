@@ -532,3 +532,55 @@ body.dark-mode .ag-form { background: #1e293b; border-color: #334155; }
 body.dark-mode .ag-type-badge.devoir { background: #1a3a24; color: #4ade80; }
 body.dark-mode .ag-type-badge.controle { background: #3a2e1a; color: #fbbf24; }
 body.dark-mode .ag-type-badge.autre { background: #2e1a3a; color: #c084fc; }
+/* ============================================ */
+/* CORRECTION FINALE : ÉCRITURE VISIBLE PARTOUT */
+/* ============================================ */
+
+/* On force le texte en noir très foncé sur TOUS les tableaux */
+.dail-table tbody td, 
+.missing-table tbody td,
+table tbody td {
+    color: #0f172a !important; /* Presque noir */
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* On force les noms d'élèves à être encore plus visibles */
+.dail-table tbody td.col-name,
+.missing-table tbody td:nth-child(2) {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #000000 !important; /* Noir pur */
+}
+
+/* On force les en-têtes à être bien lisibles */
+.dail-table thead th,
+.missing-table thead th {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+}
+
+/* On force les champs de saisie (notes, recherche, etc.) */
+input, select, textarea {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+}
+
+/* On corrige aussi le mode sombre pour qu'il soit vraiment lisible */
+body.dark-mode .dail-table tbody td,
+body.dark-mode .missing-table tbody td,
+body.dark-mode table tbody td {
+    color: #f8fafc !important; /* Blanc très clair en mode sombre */
+}
+
+body.dark-mode .dail-table tbody td.col-name,
+body.dark-mode .missing-table tbody td:nth-child(2) {
+    color: #ffffff !important; /* Blanc pur */
+}
+
+body.dark-mode input, 
+body.dark-mode select, 
+body.dark-mode textarea {
+    color: #f8fafc !important;
+}
