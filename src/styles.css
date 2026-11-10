@@ -475,3 +475,46 @@ body:not(.logged-in) #toast { display: none; }
 #discList table thead th.col-reason {
   min-width: 180px !important;
 }
+/* ============================================ */
+/* FORCE BRUTALE : LISIBILITÉ ONGLET DISCIPLINE */
+/* ============================================ */
+
+/* On force TOUT le texte du tableau à être noir et gras, peu importe ce qu'il y a avant */
+#discList table tbody tr td,
+#discList table tbody tr td *,
+#discList .dail-table tbody td {
+  color: #000000 !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+/* On s'assure que les noms ressortent bien */
+#discList table tbody tr td:nth-child(3) {
+  font-weight: 800 !important;
+  color: #000000 !important;
+}
+
+/* On rend les en-têtes bien lisibles aussi (en blanc sur fond coloré) */
+#discList .dail-table thead th {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+}
+
+/* ON RÈGLE LE PROBLÈME DE L'ICÔNE (CORBEILLE) */
+.btn-icon-sm {
+  font-family: "Segoe UI", "Arial", sans-serif !important; /* Force une police système qui gère les icônes */
+  font-size: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background-color: #fee2e2 !important;
+  color: #b3261e !important;
+  border: none !important;
+  cursor: pointer !important;
+}
