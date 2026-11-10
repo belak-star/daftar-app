@@ -1,5 +1,5 @@
 /* ============================================ */
-/* DAFTAR - FEUILLE DE STYLE COMPLÈTE           */
+/* DAFTAR - FEUILLE DE STYLE COMPLÈTE ET PROPRE */
 /* ============================================ */
 
 :root {
@@ -114,13 +114,15 @@ header h1 {
 /* ========== FORMULAIRES ========== */
 input, select, textarea, button { font: inherit; }
 input, select, textarea {
-    padding: 9px 10px;
-    border: 1px solid var(--line);
+    padding: 10px 12px;
+    border: 2px solid var(--line);
     border-radius: 8px;
     background: #fff;
-    color: var(--ink);
+    color: #0f172a !important; /* Texte noir */
     width: 100%;
     max-width: 400px;
+    font-weight: 600;
+    font-size: 16px;
 }
 input:focus, select:focus, textarea:focus {
     outline: 3px solid #f0b429;
@@ -131,6 +133,7 @@ label {
     font-weight: 700;
     margin-bottom: 4px;
     font-size: 15px;
+    color: #1e293b;
 }
 .row {
     display: flex;
@@ -146,7 +149,7 @@ label {
 .btn {
     border: 0;
     border-radius: 8px;
-    padding: 9px 16px;
+    padding: 10px 16px;
     font-weight: 700;
     cursor: pointer;
     background: var(--main);
@@ -156,16 +159,50 @@ label {
     transition: background .15s, transform .15s;
 }
 .btn:hover { background: var(--main-d); transform: translateY(-1px); }
-.btn.alt { background: #e6ece9; color: var(--ink); }
+.btn.alt { background: #e6ece9; color: #1c2b2a !important; }
 .btn.alt:hover { background: #d5dfdb; }
-.btn.red { background: var(--un); }
 
-/* ========== TABLES DE BASE ========== */
-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: middle; }
-th { background: #eef2ef; font-size: 15px; }
+/* ========== TABLEAUX (Style unique pour TOUS) ========== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+th, td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    vertical-align: middle;
+    color: #0f172a !important; /* On force le texte noir */
+    font-size: 16px;
+    font-weight: 600;
+}
+th {
+    background: #eef2ef;
+    font-size: 15px;
+    font-weight: 800;
+    color: #1e293b;
+}
 td.n { width: 48px; text-align: center; color: var(--muted); }
-td.name { font-weight: 700; }
+td.name { font-weight: 800; font-size: 18px; color: #000; }
+
+/* On force les noms dans les tableaux à être bien noirs */
+.dail-table tbody td.col-name,
+.missing-table tbody td:nth-child(2),
+.student-item .student-name {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+}
+
+/* Les en-têtes des tableaux colorés (dail-table) */
+.dail-table thead th { color: #fff !important; }
+.dail-table thead th.col-n { background: #1f5c55; }
+.dail-table thead th.col-name { background: #1f5c55; }
+.dail-table thead th.col-status { background: #2563a8; }
+.dail-table thead th.col-reason { background: #e0702b; }
+.dail-table thead th.col-situation { background: #7a3fb5; }
+.dail-table thead th.col-del { background: #1f5c55; }
 
 /* ========== EMPTY STATE ========== */
 .empty-list {
@@ -178,16 +215,78 @@ td.name { font-weight: 700; }
 }
 
 /* ============================================ */
-/* DASHBOARD DYNAMIQUE                          */
+/* DESIGN DES ONGLETS (Classes, Discipline, Agenda) */
+/* ============================================ */
+
+/* --- Classes --- */
+#studentCount {
+    font-size: 18px;
+    color: #1f7a4d !important;
+    background: #dcf2e5;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 16px;
+    font-weight: 800;
+}
+#studentList { display: flex; flex-direction: column; gap: 8px; }
+.student-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all .15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.student-item:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
+.student-item .student-num { color: #64748b !important; font-weight: 700; font-size: 16px; min-width: 40px; }
+.student-item .btn-delete { background: #fee2e2; color: #b3261e !important; border: 0; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+
+/* --- Discipline --- */
+.disc-type-badge {
+    display: inline-block;
+    background: #b3261e;
+    color: #fff !important;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.disc-type-badge.invitation { background: #2563a8; }
+
+/* --- Agenda --- */
+.ag-type-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #0f172a !important;
+}
+.ag-type-badge.devoir { background: #dcf2e5; color: #1f7a4d !important; }
+.ag-type-badge.controle { background: #fdebc8; color: #9a5b00 !important; }
+.ag-type-badge.autre { background: #ece4f7; color: #67318b !important; }
+.ag-status { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; display: inline-block; }
+.ag-status.soon { background: #f0b429; color: #fff !important; }
+.ag-status.overdue { background: #b3261e; color: #fff !important; }
+.ag-status.done { background: #1f7a4d; color: #fff !important; }
+.ag-status.normal { background: #e6ece9; color: var(--muted) !important; }
+
+/* ============================================ */
+/* DASHBOARD (Cartes KPI) */
 /* ============================================ */
 .dyn-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 16px 0 20px; padding: 12px 16px; background: #f6fbf9; border-radius: 12px; border: 1px solid #d9e0dc; }
 .dyn-filters label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
 .dyn-filters select { width: auto; min-width: 150px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); font-weight: 700; }
 .dyn-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.dyn-chip { display: inline-flex; align-items: center; gap: 5px; border: 2px solid var(--c, #1f5c55); color: var(--c, #1f5c55); border-radius: 20px; padding: 4px 12px; cursor: pointer; font-size: 13px; font-weight: 700; user-select: none; transition: all 0.15s; background: transparent; }
-.dyn-chip.on { background: var(--c, #1f5c55); color: #fff; }
-.dyn-chip:hover { transform: translateY(-1px); }
-.dyn-live { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #1f7a4d; margin-bottom: 10px; padding: 6px 0; }
+.dyn-chip { display: inline-flex; align-items: center; gap: 5px; border: 2px solid var(--c, #1f5c55); color: var(--c, #1f5c55) !important; border-radius: 20px; padding: 4px 12px; cursor: pointer; font-size: 13px; font-weight: 700; user-select: none; transition: all 0.15s; background: transparent; }
+.dyn-chip.on { background: var(--c, #1f5c55); color: #fff !important; }
+.dyn-live { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #1f7a4d; margin-bottom: 10px; padding: 6px 0; font-weight: 700; }
 .dyn-live-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #1f7a4d; animation: dynp 1.6s infinite; }
 @keyframes dynp { 0% { box-shadow: 0 0 0 0 rgba(31, 122, 77, 0.5); } 70% { box-shadow: 0 0 0 8px rgba(31, 122, 77, 0); } 100% { box-shadow: 0 0 0 0 rgba(31, 122, 77, 0); } }
 .dyn-current-class { font-weight: 700; color: var(--main); background: #e3f2f1; padding: 4px 10px; border-radius: 12px; font-size: 14px; margin-inline-start: 6px; display: inline-block; }
@@ -198,96 +297,85 @@ td.name { font-weight: 700; }
 .dash-card strong { display: block; font-size: 30px; font-weight: 800; line-height: 1.1; color: var(--main); }
 .dash-card span { display: block; font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 4px; }
 .dash-card small { display: block; font-size: 12px; margin-top: 4px; min-height: 1.2em; }
-.dyn-up { color: #b3261e; }
-.dyn-down { color: #1f7a4d; }
-.dyn-eq { color: var(--muted); }
+.dyn-up { color: #b3261e !important; }
+.dyn-down { color: #1f7a4d !important; }
+.dyn-eq { color: var(--muted) !important; }
 .dyn-trend { display: flex; align-items: flex-end; gap: 4px; height: 160px; border-bottom: 1px solid var(--line); padding: 8px 0; overflow-x: auto; }
 .dyn-col { flex: 1; min-width: 16px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; cursor: pointer; height: 140px; }
 .dyn-col .stk { width: 70%; max-width: 30px; display: flex; flex-direction: column-reverse; border-radius: 4px 4px 0 0; overflow: hidden; transition: height 0.35s; }
 .dyn-col small { font-size: 10px; white-space: nowrap; margin-top: 3px; color: var(--muted); }
-.dyn-col:hover .stk { outline: 2px solid var(--main); }
 .dyn-row { display: flex; align-items: center; gap: 8px; padding: 6px 4px; cursor: pointer; border-radius: 6px; }
 .dyn-row:hover { background: #f1f8f5; }
-.dyn-row .n { min-width: 130px; font-weight: 700; font-size: 14px; }
+.dyn-row .n { min-width: 130px; font-weight: 700; font-size: 15px; color: #0f172a !important; }
 .dyn-row .b2 { flex: 1; height: 10px; background: #e6ece9; border-radius: 5px; overflow: hidden; }
 .dyn-row .b2 i { display: block; height: 100%; background: #28836c; border-radius: 5px; transition: width 0.4s; }
-.dyn-row b { min-width: 30px; text-align: left; font-weight: 800; }
+.dyn-row b { min-width: 30px; text-align: left; font-weight: 800; color: #0f172a !important; }
 .dyn-alert-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; background: #fbe0dd; margin-bottom: 8px; border-inline-start: 4px solid #b3261e; }
-.dyn-alert-row .name { flex: 1; font-weight: 700; color: #8a2a20; }
-.dyn-alert-row .badge { background: #b3261e; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+.dyn-alert-row .name { flex: 1; font-weight: 700; color: #8a2a20 !important; }
+.dyn-alert-row .badge { background: #b3261e; color: #fff !important; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
 .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 18px; }
 .dash-box { border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: #fff; }
 .dash-box h3 { margin: 0 0 14px; color: var(--main); font-size: 17px; border-bottom: 2px solid #e6ece9; padding-bottom: 8px; }
 
 /* ============================================ */
-/* ONGLET PRÉSENCES (Design moderne)            */
+/* ONGLET PRÉSENCES */
 /* ============================================ */
 .daily-title { margin: 0 0 18px; color: #8a2a20; text-align: center; font-size: 26px; font-weight: 800; }
 .dail-bar { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; justify-content: center; margin-bottom: 20px; padding: 14px; background: #f8fbfa; border-radius: 12px; border: 1px solid #e0e8e5; }
 .dail-date-wrap, .dail-class-wrap { display: flex; flex-direction: column; gap: 6px; }
 .dail-date-wrap label, .dail-class-wrap label { font-weight: 700; font-size: 15px; color: var(--muted); }
 .dail-date-row { display: flex; gap: 6px; align-items: center; }
-.dail-date-input { font-size: 20px; font-weight: 800; padding: 8px 14px; border: 2px solid #38a3a5; border-radius: 10px; background: linear-gradient(135deg, #fff8d9 0%, #e0f2fe 100%); color: #174b73; text-align: center; direction: ltr; }
-.dail-class-select { font-size: 22px; font-weight: 800; padding: 8px 14px; border: 2px solid #d9822b; border-radius: 10px; color: #8a2a20; text-align: center; min-width: 200px; }
+.dail-date-input { font-size: 20px; font-weight: 800; padding: 8px 14px; border: 2px solid #38a3a5; border-radius: 10px; background: linear-gradient(135deg, #fff8d9 0%, #e0f2fe 100%); color: #174b73 !important; text-align: center; direction: ltr; }
+.dail-class-select { font-size: 22px; font-weight: 800; padding: 8px 14px; border: 2px solid #d9822b; border-radius: 10px; color: #8a2a20 !important; text-align: center; min-width: 200px; }
 .btn-icon { border: 0; background: #e6ece9; color: var(--ink); border-radius: 8px; width: 42px; height: 42px; font-size: 20px; font-weight: 800; cursor: pointer; transition: background .15s; }
 .btn-icon:hover { background: #d5dfdb; }
 
-/* Cartes de stats (Présences ET Notes) */
 .att-stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 20px; }
 .att-stat-card { flex: 1; min-width: 130px; border-radius: 12px; padding: 14px 16px; border: 2px solid; text-align: center; transition: transform .15s, box-shadow .15s; }
 .att-stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
 .att-stat-label { display: block; font-size: 14px; font-weight: 700; }
 .att-stat-value { display: block; font-size: 32px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
 
-/* Tableau (Présences ET Notes) */
 .dail-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 18px; padding: 10px; background: #fff; border-radius: 12px; border: 1px solid var(--line); }
 .dail-search { flex: 1; min-width: 220px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 10px; font-size: 15px; }
 .dail-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
 .dail-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 780px; }
-.dail-table thead th { color: #fff; padding: 14px 10px; font-size: 16px; font-weight: 800; text-align: center; position: sticky; top: 0; z-index: 2; }
-.dail-table thead th.col-n { background: #1f5c55; width: 60px; }
-.dail-table thead th.col-name { background: #1f5c55; text-align: right; padding-right: 14px; }
-.dail-table thead th.col-status { background: #2563a8; width: 200px; }
-.dail-table thead th.col-reason { background: #e0702b; width: 200px; }
-.dail-table thead th.col-situation { background: #7a3fb5; width: 150px; }
-.dail-table thead th.col-del { background: #1f5c55; width: 60px; }
 .dail-table tbody tr:nth-child(even) td { background: #f1f8f5; }
 .dail-table tbody tr:hover td { background: #fff3b0 !important; }
 .dail-table tbody tr.out td { opacity: 0.7; }
-.dail-table tbody td { padding: 14px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: center; color: #1c2b2a; }
-.dail-table tbody td.col-name { text-align: right; padding-right: 14px; font-size: 19px; font-weight: 800; color: #0f172a; }
-.dail-table tbody td.col-n { font-size: 15px; font-weight: 600; color: #64748b; }
+.dail-table tbody td { padding: 14px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: center; }
+.dail-table tbody td.col-n { font-size: 15px; font-weight: 600; color: #64748b !important; }
 .status-btn { display: block; width: 100%; min-height: 48px; padding: 10px 14px; border: 2px solid; border-radius: 12px; font-size: 17px; font-weight: 800; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .status-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 .status-btn:disabled { cursor: not-allowed; opacity: 0.6; }
 .reason-input, .situation-select { width: 100%; padding: 10px 12px; border: 2px solid transparent; border-radius: 10px; font-size: 15px; text-align: right; background: #f8fafc; transition: all .2s; }
 .reason-input:focus, .situation-select:focus { background: #fff; border-color: #e0702b; outline: none; box-shadow: 0 0 0 3px rgba(224, 112, 43, 0.15); }
 
-/* Notes (Inputs) */
-#gList .grade-input { width: 70px; padding: 10px; border: 2px solid var(--line); border-radius: 10px; text-align: center; font-size: 16px; font-weight: 700; background: #fff; transition: all .15s; color: #1c2b2a; }
+/* ============================================ */
+/* NOTES (Grille et champs) */
+/* ============================================ */
+#gList .grade-input { width: 70px; padding: 10px; border: 2px solid var(--line); border-radius: 10px; text-align: center; font-size: 16px; font-weight: 700; background: #fff; transition: all .15s; color: #1c2b2a !important; }
 #gList .grade-input:focus { border-color: #7a3fb5; outline: none; box-shadow: 0 0 0 3px rgba(122, 63, 181, 0.2); }
-#gList .grade-input.low { border-color: #b3261e; color: #b3261e; background: #fbe0dd; }
-#gList .avg-cell { font-weight: 800; font-size: 20px; color: #7a3fb5; }
-#gList .avg-cell.low { color: #b3261e; }
-#gList .rank-cell { font-size: 20px; font-weight: 800; color: #e0702b; }
+#gList .grade-input.low { border-color: #b3261e; color: #b3261e !important; background: #fbe0dd; }
+#gList .avg-cell { font-weight: 800; font-size: 20px; color: #7a3fb5 !important; }
+#gList .avg-cell.low { color: #b3261e !important; }
+#gList .rank-cell { font-size: 20px; font-weight: 800; color: #e0702b !important; }
 #gList .rank-cell.medal { font-size: 24px; }
 
 /* ============================================ */
-/* COPIES MANQUANTES (Sous-tableaux)            */
+/* COPIES MANQUANTES */
 /* ============================================ */
 .missing-group { border-inline-start: 6px solid #999; background: #ffffff; border-radius: 12px; padding: 16px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 .missing-group-title { margin: 0 0 12px; font-size: 18px; font-weight: 800; }
 .missing-table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
 .missing-table th { background: #e2e8f0; padding: 12px 10px; text-align: center; font-size: 15px; font-weight: 800; color: #1e293b; border-bottom: 2px solid #cbd5e1; }
-.missing-table td { padding: 10px 10px; border-bottom: 1px solid #f1f5f9; text-align: center; color: #1e293b; background: #fff; font-size: 16px; }
-.missing-table td:nth-child(2) { text-align: right; font-weight: 800; color: #0f172a; font-size: 18px; }
-.missing-table select { padding: 8px 12px; border: 2px solid #94a3b8; border-radius: 8px; font-size: 14px; font-weight: 700; background: #fff; color: #1e293b; cursor: pointer; transition: all .15s; width: 100%; max-width: 200px; }
+.missing-table td { padding: 10px 10px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 16px; }
+.missing-table select { padding: 8px 12px; border: 2px solid #94a3b8; border-radius: 8px; font-size: 14px; font-weight: 700; background: #fff; color: #1e293b !important; cursor: pointer; transition: all .15s; width: 100%; max-width: 200px; }
 .missing-table select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-.missing-table tbody tr:last-child td { border-bottom: 0; }
 
-/* Overlay (Popups) */
+/* Overlay */
 .ov { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
-.ovbox { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+.ovbox { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; color: #0f172a; }
 .status-dialog { max-width: 440px; }
 .status-option { display: block; width: 100%; margin: 10px 0; padding: 16px; border: 2px solid; border-radius: 12px; font-size: 20px; font-weight: 800; cursor: pointer; text-align: center; transition: transform .15s, box-shadow .15s; }
 .status-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
@@ -303,30 +391,18 @@ body.dark-mode header { background: #174640; }
 body.dark-mode .panel { background: #242b2a; border-color: #3a4340; }
 body.dark-mode .dyn-filters { background: #2a3230; border-color: #3a4340; }
 body.dark-mode .dash-box { background: #2a3230; border-color: #3a4340; }
-body.dark-mode .dash-box h3 { border-bottom-color: #3a4340; }
 body.dark-mode .dash-card { background: #2a3230; border-color: #3a4340; }
-body.dark-mode .dyn-row:hover { background: #343d3a; }
-body.dark-mode .dyn-row .b2 { background: #3a4340; }
-body.dark-mode .dyn-current-class { background: #1a3a5c; color: #e8ecea; }
-body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #1a1f1e; color: #e8ecea; border-color: #3a4340; }
-body.dark-mode table th { background: #2a3230; color: #e8ecea; }
-body.dark-mode table td { border-color: #3a4340; }
-body.dark-mode table tr:hover { background: #343d3a; }
-body.dark-mode .empty-list { background: #1a1f1e; color: #a0aca8; }
-body.dark-mode .btn.alt { background: #343d3a; color: #e8ecea; }
 body.dark-mode .ovbox { background: #242b2a; color: #e8ecea; }
-body.dark-mode .dail-table tbody td { color: #e8ecea; }
 body.dark-mode .dail-table tbody tr:nth-child(even) td { background: #2a3230; }
 body.dark-mode .dail-table tbody tr:hover td { background: #343d3a !important; }
-body.dark-mode .dail-table tbody td.col-name { color: #fff; }
 body.dark-mode .missing-group { background: #2a3230; border-color: #3a4340; }
 body.dark-mode .missing-table { background: #1a1f1e; }
 body.dark-mode .missing-table th { background: #343d3a; color: #e8ecea; }
-body.dark-mode .missing-table td { background: #1a1f1e; color: #e8ecea; border-bottom-color: #3a4340; }
-body.dark-mode .missing-table select { background: #2a3230; color: #fff; border-color: #3a4340; }
+body.dark-mode .missing-table td { border-bottom-color: #3a4340; }
+body.dark-mode .student-item { background: #2a3230; border-color: #3a4340; }
 
 /* ========== TOAST ========== */
-#toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 100; max-width: 90vw; }
+#toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 100; max-width: 90vw; font-weight: 700; }
 #toast.on { opacity: 1; }
 
 /* ========== ÉCRAN DE CONNEXION ========== */
@@ -335,7 +411,7 @@ body.dark-mode .missing-table select { background: #2a3230; color: #fff; border-
 .auth-box { background: #fff; border-radius: 16px; padding: 28px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
 .auth-box h2 { margin: 0 0 6px; color: var(--main); text-align: center; font-size: 28px; }
 .auth-box .hint { text-align: center; margin-bottom: 20px; display: block; }
-.auth-box label { display: block; font-weight: 700; margin-bottom: 4px; margin-top: 12px; font-size: 14px; }
+.auth-box label { display: block; font-weight: 700; margin-bottom: 4px; margin-top: 12px; font-size: 14px; color: #1e293b; }
 .auth-box input { width: 100%; padding: 11px 12px; border: 2px solid var(--line); border-radius: 8px; font-size: 15px; }
 .auth-box input:focus { outline: none; border-color: var(--main); box-shadow: 0 0 0 3px rgba(31,92,85,.15); }
 .auth-error { color: #b3261e; font-size: 14px; min-height: 1.5em; margin: 8px 0; text-align: center; font-weight: 700; }
@@ -349,7 +425,7 @@ body:not(.logged-in) #toast { display: none; }
     .att-stat-card { min-width: 110px; padding: 10px; }
     .att-stat-value { font-size: 26px; }
     .dail-date-input, .dail-class-select { font-size: 18px; }
-    .dail-table tbody td.col-name { font-size: 17px; }
+    .dail-table tbody td.col-name { font-size: 17px !important; }
     .status-btn { font-size: 15px; min-height: 44px; }
     .dash-grid { grid-template-columns: 1fr; }
 }
@@ -359,300 +435,4 @@ body:not(.logged-in) #toast { display: none; }
     header, .tabs, .bar, details, .ov, #toast, .noprint, td.del, th.del, .hint, #authScreen, .dail-toolbar, .dyn-filters { display: none !important; }
     .panel { border: 0; padding: 0; }
     .dash-grid { grid-template-columns: 1fr; }
-}
-/* ============================================ */
-/* DESIGN MODERNE POUR L'ONGLET CLASSES (Écriture visible) */
-/* ============================================ */
-
-/* Le compteur d'élèves */
-#studentCount {
-    font-size: 18px;
-    color: #1f7a4d;
-    background: #dcf2e5;
-    padding: 10px 16px;
-    border-radius: 8px;
-    display: inline-block;
-    margin-bottom: 16px;
-    font-weight: 800;
-}
-
-/* La liste des élèves */
-#studentList {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-/* Chaque ligne d'élève */
-.student-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    transition: all .15s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.student-item:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-}
-
-/* Le numéro */
-.student-item .student-num {
-    color: #64748b;
-    font-weight: 700;
-    font-size: 16px;
-    min-width: 40px;
-}
-
-/* Le nom de l'élève (TRÈS VISIBLE) */
-.student-item .student-name {
-    font-weight: 800;
-    font-size: 20px;
-    color: #0f172a; /* Noir profond */
-    flex: 1;
-    text-align: right;
-    letter-spacing: -0.3px;
-}
-
-/* Le bouton de suppression */
-.student-item .btn-delete {
-    background: #fee2e2;
-    color: #b3261e;
-    border: 0;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background .15s;
-}
-
-.student-item .btn-delete:hover {
-    background: #fca5a5;
-}
-
-/* Mode sombre */
-body.dark-mode .student-item {
-    background: #2a3230;
-    border-color: #3a4340;
-}
-body.dark-mode .student-item:hover {
-    background: #343d3a;
-}
-body.dark-mode .student-item .student-name {
-    color: #fff;
-}
-body.dark-mode #studentCount {
-    background: #1a3a24;
-    color: #4ade80;
-}
-/* Badges pour la discipline */
-.disc-type-badge {
-    display: inline-block;
-    background: #b3261e;
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-.disc-type-badge.invitation {
-    background: #2563a8; /* Bleu pour les convocations */
-}
-/* ============================================ */
-/* DESIGN MODERNE POUR L'AGENDA */
-/* ============================================ */
-
-/* Le formulaire d'ajout */
-.ag-form {
-    background: #f0f7ff;
-    border: 1px solid #bae6fd;
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 24px;
-}
-.ag-form textarea {
-    width: 100%;
-    max-width: 100%;
-    min-height: 60px;
-    padding: 9px 10px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 15px;
-    resize: vertical;
-}
-.ag-form textarea:focus {
-    outline: 3px solid #f0b429;
-    outline-offset: 1px;
-}
-
-/* Les badges de type (devoir, contrôle, autre) */
-.ag-type-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-.ag-type-badge.devoir { background: #dcf2e5; color: #1f7a4d; }
-.ag-type-badge.controle { background: #fdebc8; color: #9a5b00; }
-.ag-type-badge.autre { background: #ece4f7; color: #67318b; }
-
-/* Les statuts */
-.ag-status {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 12px;
-    display: inline-block;
-}
-.ag-status.soon { background: #f0b429; color: #fff; }
-.ag-status.overdue { background: #b3261e; color: #fff; }
-.ag-status.done { background: #1f7a4d; color: #fff; }
-.ag-status.normal { background: #e6ece9; color: var(--muted); }
-
-/* Couleurs de fond des lignes selon le statut */
-.dail-table tbody tr.ag-soon td { background-color: #fffbeb !important; }
-.dail-table tbody tr.ag-overdue td { background-color: #fef2f2 !important; }
-.dail-table tbody tr.ag-done td { background-color: #f8fafc !important; opacity: 0.6; }
-.dail-table tbody tr.ag-done td:nth-child(3) { text-decoration: line-through; }
-
-/* Mode sombre */
-body.dark-mode .ag-form { background: #1e293b; border-color: #334155; }
-body.dark-mode .ag-type-badge.devoir { background: #1a3a24; color: #4ade80; }
-body.dark-mode .ag-type-badge.controle { background: #3a2e1a; color: #fbbf24; }
-body.dark-mode .ag-type-badge.autre { background: #2e1a3a; color: #c084fc; }
-/* ============================================ */
-/* CORRECTION FINALE : ÉCRITURE VISIBLE PARTOUT */
-/* ============================================ */
-
-/* On force le texte en noir très foncé sur TOUS les tableaux */
-.dail-table tbody td, 
-.missing-table tbody td,
-table tbody td {
-    color: #0f172a !important; /* Presque noir */
-    font-size: 16px !important;
-    font-weight: 600 !important;
-}
-
-/* On force les noms d'élèves à être encore plus visibles */
-.dail-table tbody td.col-name,
-.missing-table tbody td:nth-child(2) {
-    font-size: 18px !important;
-    font-weight: 800 !important;
-    color: #000000 !important; /* Noir pur */
-}
-
-/* On force les en-têtes à être bien lisibles */
-.dail-table thead th,
-.missing-table thead th {
-    font-size: 15px !important;
-    font-weight: 800 !important;
-}
-
-/* On force les champs de saisie (notes, recherche, etc.) */
-input, select, textarea {
-    color: #0f172a !important;
-    font-weight: 600 !important;
-    font-size: 16px !important;
-}
-
-/* On corrige aussi le mode sombre pour qu'il soit vraiment lisible */
-body.dark-mode .dail-table tbody td,
-body.dark-mode .missing-table tbody td,
-body.dark-mode table tbody td {
-    color: #f8fafc !important; /* Blanc très clair en mode sombre */
-}
-
-body.dark-mode .dail-table tbody td.col-name,
-body.dark-mode .missing-table tbody td:nth-child(2) {
-    color: #ffffff !important; /* Blanc pur */
-}
-
-body.dark-mode input, 
-body.dark-mode select, 
-body.dark-mode textarea {
-    color: #f8fafc !important;
-}
-/* ============================================ */
-/* CORRECTION CIBLÉE POUR LES ONGLETS RÉCALCITRANTS */
-/* (Classes, Discipline, Agenda) */
-/* ============================================ */
-
-/* 1. Onglet "الفصول والتلاميذ" */
-#classes .student-item .student-name {
-    color: #000000 !important; /* Noir pur */
-    font-weight: 800 !important;
-    font-size: 18px !important;
-}
-#classes .student-item .student-num {
-    color: #334155 !important;
-    font-weight: 700 !important;
-}
-#classes .student-item .btn-delete {
-    color: #b3261e !important;
-    font-weight: 700 !important;
-}
-#classes #studentCount {
-    color: #1f7a4d !important;
-    font-weight: 800 !important;
-}
-
-/* 2. Onglet "⚖️ العقوبات" */
-#discipline .disc-table tbody td {
-    color: #0f172a !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-}
-#discipline .disc-table tbody td .disc-name {
-    color: #000000 !important;
-    font-weight: 800 !important;
-    font-size: 17px !important;
-}
-#discipline .disc-table tbody td .disc-reason {
-    color: #334155 !important;
-    font-size: 15px !important;
-}
-#discipline .disc-table thead th {
-    color: #ffffff !important; /* En-têtes en blanc sur fond rouge */
-    font-weight: 800 !important;
-}
-
-/* 3. Onglet "📅 الأجندة" */
-#agenda .ag-table tbody td {
-    color: #0f172a !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-}
-#discipline .disc-table tbody td .disc-type-badge,
-#agenda .ag-table tbody td .ag-title {
-    color: #000000 !important;
-    font-weight: 800 !important;
-}
-#agenda .ag-table thead th {
-    color: #ffffff !important;
-    font-weight: 800 !important;
-}
-
-/* 4. Mode sombre pour ces mêmes onglets */
-body.dark-mode #classes .student-item .student-name,
-body.dark-mode #discipline .disc-table tbody td,
-body.dark-mode #agenda .ag-table tbody td,
-body.dark-mode #discipline .disc-table tbody td .disc-name,
-body.dark-mode #agenda .ag-table tbody td .ag-title {
-    color: #f8fafc !important; /* Blanc très clair */
-}
-body.dark-mode #classes .student-item .student-num,
-body.dark-mode #discipline .disc-table tbody td .disc-reason {
-    color: #cbd5e1 !important; /* Gris clair */
 }
