@@ -1,8 +1,9 @@
 // src/features/monthly.js
-// Rapport mensuel des absences (avec graphique et design moderne).
+// Rapport mensuel des absences (avec graphique et export Excel).
 import { db } from '../core/state.js';
 import { $, el } from '../core/dom.js';
 import { collator } from '../core/format.js';
+import { exportToExcel } from '../core/excel.js';
 
 const THRESHOLD = 3; // seuil d'alerte
 
@@ -80,7 +81,6 @@ function renderMonthlyChart(month, classe) {
   const daysInMonth = new Date(+month.slice(0, 4), +month.slice(5, 7), 0).getDate();
   const dailyCounts = Array(daysInMonth).fill(0);
 
-  // On compte les absences par jour pour la classe sélectionnée
   const studentsInClass = db.students.filter(s => s.class === classe).map(s => s.id);
   
   Object.keys(db.records).forEach(key => {
@@ -140,7 +140,6 @@ export function renderMonthlyList() {
   renderMonthlyStats(rows);
   renderMonthlyChart(month, classe);
 
-  // On utilise le tableau stylé
   const table = el('table', { class: 'dail-table' });
   const thead = el('thead');
   thead.append(el('tr', {},
@@ -177,5 +176,29 @@ export function bindMonthly() {
   if (monthInput) monthInput.value = currentMonth();
   if (classSelect) classSelect.onchange = renderMonthlyList;
   if (monthInput) monthInput.onchange = renderMonthlyList;
+  
+  const exportBtn = $('moExport');
+  if (exportBtn) {
+    exportBtn.onclick = () => {
+      const classe = $('moClass').value;
+      const month = $('moMonth').value;
+      if (!classe || !month) { alert('اختر قسماً وشهراً أولاً.'); return; }
+      
+      const students = db.students.filter(s => s.class === classe).sort((a, b) => collator.compare(a.name, b.name));
+      const rows = computeMonthly(students, month);
+      
+      const data = rows.map(r => ({
+        'الاسم': r.student.name,
+        'غياب مبرر': r.totals.excused,
+        'غياب غير مبرر': r.totals.unexcused,
+        'تأخير': r.totals.late,
+        'المجموع': r.totals.total,
+        'تنبيه': r.totals.alert ? 'نعم' : 'لا'
+      }));
+      
+      exportToExcel(data, 'تقرير_شهري_' + classe + '_' + month, 'الغيابات');
+    };
+  }
+
   renderMonthlyClassSelect();
 }
