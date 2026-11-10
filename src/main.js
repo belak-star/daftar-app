@@ -103,7 +103,6 @@ function initialiserApp() {
   // Afficher le premier onglet par défaut
   showTab('dashboard');
 }
-
 // --- DÉMARRAGE ---
 async function demarrer() {
   try {
@@ -115,30 +114,13 @@ async function demarrer() {
     console.warn('⚠ Impossible de charger les données locales', e);
   }
 
-  try {
-    console.log('⏳ Initialisation de Firebase...');
-    await initFirebase();
-    console.log('✅ Firebase initialisé.');
-
-    // Écouter l'état de connexion
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log('👤 Utilisateur connecté:', user.email);
-        afficherAuth(false);
-        initSync(); // Démarre la synchronisation intelligente
-        initialiserApp();
-      } else {
-        console.log('🚪 Aucun utilisateur connecté.');
-        afficherAuth(true);
-      }
-    });
-
-  } catch (e) {
-    console.warn('⚠ Firebase non disponible, mode local', e);
-    afficherAuth(false);
-    initialiserApp();
-  }
+  // ⚠️ MODE LOCAL : On n'appelle plus Firebase
+  console.log('⚠ Mode local activé. L\'application démarre sans connexion.');
+  afficherAuth(false);      // Cache l'écran de connexion
+  initialiserApp();         // Lance l'application
 }
+
+document.addEventListener('DOMContentLoaded', demarrer);
 
 // Lancer l'application au chargement de la page
 document.addEventListener('DOMContentLoaded', demarrer);
