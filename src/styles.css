@@ -575,3 +575,34 @@ body:not(.logged-in) #toast { display: none; }
   font-weight: 700 !important;
   background-color: #ffffff !important;
 }
+/* ============================================ */
+/* FINITIONS DE LISIBILITÉ POUR L'AGENDA */
+/* ============================================ */
+
+/* 1. La date : on la met en noir, en gras et un peu plus grande */
+#agList .dail-table tbody td:nth-child(1) {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+}
+
+/* 2. Le nom de la classe : on le met en noir, en gras et un peu plus grand */
+#agList .dail-table tbody td:nth-child(2) {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+}
+
+/* 3. Le titre (pour être sûr qu'il soit bien noir et lisible) */
+#agList .dail-table tbody td:nth-child(3) div {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+}
+
+/* 4. Les petites descriptions sous le titre (pour qu'elles soient lisibles mais discrètes) */
+#agList .dail-table tbody td:nth-child(3) div:nth-child(2) {
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
