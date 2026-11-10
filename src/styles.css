@@ -360,3 +360,96 @@ body:not(.logged-in) #toast { display: none; }
     .panel { border: 0; padding: 0; }
     .dash-grid { grid-template-columns: 1fr; }
 }
+/* ============================================ */
+/* DESIGN MODERNE POUR L'ONGLET CLASSES (Écriture visible) */
+/* ============================================ */
+
+/* Le compteur d'élèves */
+#studentCount {
+    font-size: 18px;
+    color: #1f7a4d;
+    background: #dcf2e5;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 16px;
+    font-weight: 800;
+}
+
+/* La liste des élèves */
+#studentList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Chaque ligne d'élève */
+.student-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all .15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.student-item:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+/* Le numéro */
+.student-item .student-num {
+    color: #64748b;
+    font-weight: 700;
+    font-size: 16px;
+    min-width: 40px;
+}
+
+/* Le nom de l'élève (TRÈS VISIBLE) */
+.student-item .student-name {
+    font-weight: 800;
+    font-size: 20px;
+    color: #0f172a; /* Noir profond */
+    flex: 1;
+    text-align: right;
+    letter-spacing: -0.3px;
+}
+
+/* Le bouton de suppression */
+.student-item .btn-delete {
+    background: #fee2e2;
+    color: #b3261e;
+    border: 0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.student-item .btn-delete:hover {
+    background: #fca5a5;
+}
+
+/* Mode sombre */
+body.dark-mode .student-item {
+    background: #2a3230;
+    border-color: #3a4340;
+}
+body.dark-mode .student-item:hover {
+    background: #343d3a;
+}
+body.dark-mode .student-item .student-name {
+    color: #fff;
+}
+body.dark-mode #studentCount {
+    background: #1a3a24;
+    color: #4ade80;
+}

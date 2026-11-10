@@ -140,7 +140,7 @@
             <div id="moList"></div>
         </section>
 
-        <!-- 4. النقاط والمعدلات (NOUVEAU DESIGN) -->
+        <!-- 4. النقاط والمعدلات -->
         <section class="panel hidden" id="grades">
             <h2 style="margin-top:0;color:var(--main)">📝 النقاط والمعدلات</h2>
             
@@ -256,22 +256,36 @@
             <div id="anResults"></div>
         </section>
 
-        <!-- 8. الفصول والتلاميذ -->
+        <!-- 8. الفصول والتلاميذ (NOUVEAU DESIGN) -->
         <section class="panel hidden" id="classes">
             <h2 style="margin-top:0;color:var(--main)">📚 الفصول والتلاميذ</h2>
-            <div class="row">
-                <div><label for="newClass">اسم الفصل الجديد</label><input id="newClass" placeholder="مثال: 7A"></div>
-                <button class="btn" id="addClass">➕ إضافة الفصل</button>
+            
+            <div class="dail-bar">
+                <div class="dail-class-wrap" style="flex: 1;">
+                    <label for="newClass">اسم الفصل الجديد</label>
+                    <div class="dail-date-row">
+                        <input id="newClass" placeholder="مثال: 7A" class="dail-search" style="max-width: none;">
+                        <button class="btn" id="addClass" style="background:#1f7a4d;white-space:nowrap">➕ إضافة الفصل</button>
+                    </div>
+                </div>
             </div>
-            <div class="row">
-                <div><label for="classSelect">اختر فصلاً</label><select id="classSelect"><option value="">— اختر —</option></select></div>
+
+            <div class="dail-bar">
+                <div class="dail-class-wrap">
+                    <label for="classSelect">اختر فصلاً</label>
+                    <select id="classSelect" class="dail-class-select"><option value="">— اختر —</option></select>
+                </div>
+                <div class="dail-class-wrap" style="flex: 1;">
+                    <label for="newStudent">اسم التلميذ الجديد</label>
+                    <div class="dail-date-row">
+                        <input id="newStudent" placeholder="الاسم الكامل" class="dail-search" style="max-width: none;">
+                        <button class="btn" id="addStudent" style="background:#2563a8;white-space:nowrap">➕ إضافة التلميذ</button>
+                    </div>
+                </div>
             </div>
-            <div class="row">
-                <div><label for="newStudent">اسم التلميذ الجديد</label><input id="newStudent" placeholder="الاسم الكامل"></div>
-                <button class="btn" id="addStudent">➕ إضافة التلميذ</button>
-            </div>
-            <h3 style="color:var(--main);margin-top:24px">قائمة التلاميذ</h3>
-            <p id="studentCount" class="hint"></p>
+
+            <h3 style="color:var(--main);margin-top:24px;border-bottom:2px solid #e6ece9;padding-bottom:8px">قائمة التلاميذ</h3>
+            <p id="studentCount" class="hint" style="font-size:16px;font-weight:700"></p>
             <div id="studentList"></div>
         </section>
     </div>
