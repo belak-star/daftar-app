@@ -518,3 +518,40 @@ body:not(.logged-in) #toast { display: none; }
   border: none !important;
   cursor: pointer !important;
 }
+/* ============================================ */
+/* FORCE BRUTALE : LISIBILITÉ ONGLET ANALYSE */
+/* ============================================ */
+
+/* On force tout le texte des tableaux d'analyse à être noir */
+#anQuestions table tbody td,
+#anScores table tbody td,
+#anResults table tbody td,
+#anQuestions .dail-table tbody td,
+#anScores .dail-table tbody td,
+#anResults .dail-table tbody td {
+  color: #000000 !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+}
+
+/* On s'assure que les champs de saisie sont noirs et lisibles */
+#anScores .grade-input {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  border: 2px solid #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+/* On force les en-têtes à être bien blancs sur fond coloré */
+#anQuestions .dail-table thead th,
+#anScores .dail-table thead th,
+#anResults .dail-table thead th {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* On s'assure que les titres (h3) sont bien visibles */
+#analysis h3 {
+  color: #3d438c !important;
+  font-weight: 800 !important;
+}
